@@ -75,7 +75,9 @@
 </script>
 
 <style scoped>
-
+  .animated{
+    background-color: #F7F7F7;
+  }
   .flex-wrp {
     display: flex;
     align-items: center;

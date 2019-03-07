@@ -10,14 +10,14 @@
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#fff",
+    "navigationBarBackgroundColor": "#F7F7F7",
     "navigationBarTitleText": "PhantomBuy",
     "navigationBarTextStyle": "black"
   },
   "tabBar": {
     "color": "#272636",
     "selectedColor": "#FFD161",
-    "backgroundColor": "#fff",
+    "backgroundColor": "#F7F7F7",
     "borderStyle": "#a8a8a8",
     "list": [
       {

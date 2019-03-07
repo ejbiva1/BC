@@ -1,4 +1,5 @@
 <template>
+  <div>
   <div class="heard">
     <div class="heard-location" @click="searchAddress">
       <image src="/static/images/location.png" class="heard-location-icon"/>
@@ -8,6 +9,10 @@
       <image src="/static/images/search.png" class="heard-search-icon"/>
       <span class="text">小龙虾</span>
     </div>
+  </div>
+    <view class="site_bonus">
+      <text style="font-size: 14px;"> 站点优惠:FREE SHIPPING ON U.S. ORDERS OVER $100 </text>
+    </view>
   </div>
 </template>
 
@@ -84,6 +89,11 @@
     height: 21rpx;
     width: 21rpx;
 
+  }
+
+  .site_bonus{
+    width: 100%;
+    height: 3%;
   }
 
 
