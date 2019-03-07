@@ -13,6 +13,8 @@
     </view>
 
   </div>
+
+
 </template>
 
 <script type="text/ecmascript-6">
@@ -26,13 +28,12 @@
       };
     },
     onLoad(){
-      console.log("成功调用");
     },
     onShow(){
     },
     created() {
       this.brand_list = brand_list;
-    }
+  }
   }
 </script>
 

@@ -1,7 +1,7 @@
 {
   "pages": [
-    "pages/site/main",
     "pages/home/main",
+    "pages/site/main",
     "pages/order/main",
     "pages/my/main",
     "pages/brand/main",
@@ -11,7 +11,7 @@
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#fff",
-    "navigationBarTitleText": "",
+    "navigationBarTitleText": "PhantomBuy",
     "navigationBarTextStyle": "black"
   },
   "tabBar": {
@@ -25,7 +25,7 @@
         "iconPath": "static/images/home.png",
         "selectedIconPath": "static/images/home-selected.png",
         "color": "white",
-        "text": "人气"
+        "text": "人气1"
       },
       {
         "pagePath": "pages/home/main",
@@ -36,24 +36,24 @@
       },
       {
 
-        "pagePath": "pages/site/main",
+        "pagePath": "pages/home/main",
         "iconPath": "static/images/home.png",
         "selectedIconPath": "static/images/home-selected.png",
         "color": "white",
-        "text": "商家"
+        "text": "商家1"
       },
 
       {
         "pagePath": "pages/order/main",
         "iconPath": "static/images/order.png",
         "selectedIconPath": "static/images/order-selected.png",
-        "text": "购物袋"
+        "text": "购物袋1"
       },
       {
         "pagePath": "pages/my/main",
         "iconPath": "static/images/my.png",
         "selectedIconPath": "static/images/my-selected.png",
-        "text": "我的"
+        "text": "我的1"
       }
     ]
   }

@@ -1,114 +1,176 @@
 <template>
   <div class="animated fadeIn">
+    <!--search是个组件-->
     <view class="section">
-      <view class="flex-wrp" style="flex-direction:row;">
-        <view class="flex-item bc_shop" :class="{navigate_active: isSite}" @click="showSiteList">商家</view>
-        <view class="flex-item bc_brand" :class="{navigate_active: !isSite}" @click="showBrands">品牌</view>
+      <search></search>
+    </view>
+
+    <!--商品种类-->
+    <div class="swiper-home">
+      <scroll-view class="scroll-view_x"
+                   :scroll-x="true"
+                   :style="'{width: auto;overflow:hidden;height:20px;}'">
+        <view class="site_product" v-for="(items, i) in product_list" :key="i">
+          <span>{{items.productCategoryName}}</span>
+        </view>
+      </scroll-view>
+    </div>
+
+    <div class="single_product" v-for="(items ,i) in product_detail_list" :key="i">
+      <view>
+        <img :src="items.productImageUrl" style="height:200px;width:60px;">
+      </view>
+    </div>
+
+    <!--flex 布局-->
+    <view class="container">
+      <view class="first-face face">
+
+      </view>
+      <view class="second-face face">
+
       </view>
     </view>
 
-
-    <view>
-      <view v-for="(items,i) in brand_list" :key="i">
-        <shop-card v-bind:item="items"></shop-card>
-      </view>
-    </view>
-
-    <!--页面跳转，注意是普通跳转navigateTo还是底部导航跳转 switchTab  -->
-    <view>
-      <div @click="toShop">嗨</div>
-
-    </view>
 
   </div>
 </template>
 
 <!--商家-->
 <script type="text/ecmascript-6">
-  import shopcard from "../../components/shopcard/shopcard";
-  import {brand_list} from "../../common/constants/test_data";
+  import search from "../../components/search/search";
   import  fly from "../../utils/fly";
+  import {product_list} from "../../common/constants/product";
   export default {
     data() {
       return {
-        brand_list: [],
-        isSite: true
+        // brand_list: [],
+        toView: "red",
+        scrollTop: 100,
+        product_list: [],
+        product_detail_list: []
       };
     },
     components: {
-      'shop-card': shopcard
+      "search": search
+
     },
     created() {
-      this.brand_list = brand_list;
-      this.getSiteList();
+      this.product_list = product_list;
+
+    },
+    onLoad(){
+      //  console.log(this.product_list);
+      this.getSingleKindProductList();
     },
     computed: {},
     methods: {
-      getSiteList() {
-        let query_dto = {
-          entityDTO: {},
-          orderDTOs: [{}],
-          pageDTO: {pageNo: 0, pageSize: 0}
-        };
+      getSingleKindProductList() {
+//        let entityDTO = {entityDTO: {siteId: "3"}};
+//        fly.post("phantombuy/site/listSiteProductCategory", entityDTO).then((res) => {
+//          if (res.data.code === '1') {
+//            console.log(res.data.data.records);
+//          } else {
+//
+//          }
+//        });
+        let entityDTO = {entityDTO: {siteId: "3", productCategoryId: ""}, pageDTO: {pageNo: "1", pageSize: 36}}
+        fly.post("phantombuy/product/list", entityDTO).then((res) => {
+          if (res.data.code === '1') {
+            //console.log(res.data.data.records);
+            this.product_detail_list = res.data.data.records.splice(2, 1,4);
+            this.product_detail_list.push(res.data.data.records[0]);
+            this.product_detail_list.push(res.data.data.records[0]);
+            console.log(this.product_detail_list);
+          } else {
 
-        fly.post("phantombuy/site/list", query_dto).then((res) => {
-          // call api success
-         if(res.data.code === '1'){
-           console.log(res);
-         }else {
-            // api error alert
-         }
-
+          }
         });
-      },
-      toShop(){
-        wx.navigateTo({
-          url: '/pages/shop/main'
-        })
-      },
-      showSiteList() {
-        if (!this.isSite) this.isSite = true;
-        console.log("Site List Show");
-      },
-      showBrands() {
-        if (this.isSite) this.isSite = false;
-        console.log("Brand List Show");
       }
     }
   }
 </script>
 
 <style scoped>
+  .swiper-home {
+    width: 100%;
+    height: 37px;
+    /*overflow: hidden;*/
+    padding: 30px;
+    background: #fff;
+    display: flex;
+    box-sizing: border-box;
+    white-space: nowrap;
+  }
 
-  .flex-wrp {
+  .scroll-view_x {
+    /*border-bottom: 1px solid red;*/
+  }
+
+  .site_product {
+    padding-right: 5px;
+    padding-left: 5px;
+    border-right: 1px solid black;
+    height: 100%;
+    display: inline-block;
+    width: 70px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 20px;
+    height: 30px;
+    color: transparent;
+  }
+
+  .single_product {
+    width: 100%;
+    height: 200px;
+    border: 1px solid red;
+  }
+
+  /**index.wxss**/
+  .container{
     display: flex;
     align-items: center;
-    justify-content: center; /*设置 view 水平居中*/
-    width: 100%;
+    justify-content: center;
+    vertical-align: center;
+    flex-wrap: wrap;
+    align-content: center;
+    font-family: 'Open Sans', sans-serif;
+
+    background: linear-gradient(top, #222, #333);
   }
 
-  .bc_shop {
-    background-color: #eaeaea;
-    width: 140px;
-    height: 40px;
-    border-radius: 2px;
-    text-align: center;
-    font-size: 23px;
+  .first-face {
+    display: flex;
+    /* justify-content: center;
+    align-items: center; */
   }
 
-  .bc_brand {
-    background-color: #eaeaea;
-    width: 140px;
-    height: 40px;
-    text-align: center;
-    font-size: 23px;
+  .second-face {
+    display: flex;
+    /* justify-content: space-between; */
   }
 
-  .navigate_active {
-    background: rgba(0, 0, 0, 0.65);
-    color: white;
-    border-radius: 2px;
 
+
+  .face {
+    margin: 16px;
+    padding: 4px;
+
+    background-color: #e7e7e7;
+    width: 104px;
+    height: 104px;
+    object-fit: contain;
+
+    box-shadow:
+      inset 0 5px white,
+      inset 0 -5px #bbb,
+      inset 5px 0 #d7d7d7,
+      inset -5px 0 #d7d7d7;
+
+    border-radius: 10%;
   }
+
 </style>
 
