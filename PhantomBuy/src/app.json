@@ -5,8 +5,9 @@
     "pages/order/main",
     "pages/my/main",
     "pages/brand/main",
-    "pages/shop/main"
-
+    "pages/shop/main",
+    "pages/checkout/main",
+    "pages/myInfo/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
