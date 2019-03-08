@@ -4,20 +4,17 @@
       <view class="site_baseinfo">
         <view class="site_img_section">
           <image :src="item.siteLogoUrl" class="site_img"/>
+
         </view>
         <view class="site_right">
           <header class="site_detail_header">
-            <h4 class="site_title ellipsis">{{item.brandNameCh}}</h4>
+            <h5 class="site_title ellipsis">{{item.brandNameCh}}</h5>
           </header>
-          <h5 class="rating_order_num">
-            <section class="rating_order_num_right">
-              <strong class="delivery_style delivery_left">免运策略:</strong>
-              <!--<span class="delivery_style delivery_right">{{item.brandNameCh}}</span>-->
-              <span class="delivery_style delivery_right">满100免运</span>
-            </section>
-          </h5>
-
-
+          <view class="rating_order_num">
+            <div class="rating_order_num_right">
+              <strong class="delivery_style delivery_left">免运策略:满100免运</strong>
+            </div>
+          </view>
         </view>
       </view>
 
@@ -60,12 +57,12 @@
 
   .site {
     border-bottom: .025rem solid #f1f1f1;
-    padding: 0.4rem 0.2rem;
+    padding: 0.2rem 0.2rem;
   }
 
   .site_baseinfo {
     display: flex;
-    padding:  0.4rem 0.2rem;
+    padding: 0.2rem 0.4rem 0.1rem 0.1rem;
   }
 
   .site_img_section {
@@ -81,14 +78,18 @@
     box-sizing: border-box;
     -webkit-tap-highlight-color: transparent;
     -webkit-font-smoothing: antialiased;
+    height: 10%;
+    width: 40%;
+
   }
 
   .site_img {
     /*1rem = 100 rpx;*/
-    width: 1.1rem;
-    height: 1.1rem;
+    width: 2.2rem;
+    height: 1.0rem;
     display: block;
     margin-right: .5rem;
+    padding-left: 0.1rem;
   }
 
   .site_right {
@@ -104,8 +105,9 @@
     width: 5.5rem;
     color: #333;
     padding-top: .01rem;
-    font: .40rem/.40rem PingFangSC-Regular;
+    font: .40rem/.40rem Microsoft Yahei;
     font-weight: 500;
+    /*//font-family:"Microsoft Yahei";*/
   }
 
   .ellipsis {
@@ -119,51 +121,33 @@
     -ms-flex-pack: justify;
     justify-content: space-between;
     height: .6rem;
-    margin-top: .52rem;
+
   }
 
   .site_right .rating_order_num .rating_order_num_right {
     display: flex;
-    -ms-flex-align: center;
-    align-items: center;
-    transform: scale(.7);
-    min-width: 5rem;
-    -ms-flex-pack: end;
-    justify-content: flex-end;
-    margin-right: -.8rem;
+    /*-ms-flex-align: center;*/
+    /*align-items: center;*/
+    transform: scale(.8);
+    /*min-width: 5rem;*/
+    /*-ms-flex-pack: end;*/
+    /*justify-content: flex-end;*/
+    /*margin-right: -.8rem;*/
+    position: relative;
+    left: -15px;;
   }
 
-  .site_right .rating_order_num .rating_order_num_right .delivery_left {
-    color: #fff;
-    background-color: #3190e8;
-    border: .025rem solid #3190e8;
-  }
-
-  .site_right .rating_order_num .rating_order_num_right .delivery_right {
-    color: #3190e8;
-    border: .025rem solid #3190e8;
-  }
-
-  .site_right .fee_distance {
-    margin-top: .52rem;
-    display: -ms-flexbox;
-    display: flex;
-    -ms-flex-pack: justify;
-    justify-content: space-between;
-    font-size: .5rem;
-    color: #333;
-  }
 
   .site_discount {
     flex: auto;
     witdh: 100%;
-    height: 20%;
+    height: 10%;
   }
 
-  .site_discount  .fee {
+  .site_discount .fee {
     display: flex;
-    padding-left:  .2rem;
-    font-size: .3rem;
+    padding-left: .2rem;
+    font-size: .25rem;
     color: black;
   }
 

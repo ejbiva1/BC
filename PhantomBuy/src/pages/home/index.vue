@@ -1,7 +1,7 @@
 <template>
   <div class="animated fadeIn">
     <view class="section">
-      <view class="flex-wrp" style="flex-direction:row;">
+      <view class="flex-wrp" >
         <view class="flex-item bc_shop" :class="{navigate_active: isSite}" @click="showSiteList">折扣</view>
         <view class="flex-item bc_brand" :class="{navigate_active: !isSite}" @click="showBrands">全部</view>
       </view>
@@ -28,13 +28,15 @@
     data() {
       return {
         site_list: [],
-        isSite: true
+        isSite: true,
+        brand_list: []
       };
     },
     components: {
       'site-card': sitecard
     },
     created() {
+      //this.brand_list = brand_list;
       this.getSiteList();
     },
     computed: {},
@@ -77,34 +79,37 @@
 <style scoped>
   .animated{
     background-color: #F7F7F7;
+    font-family:"Microsoft Yahei";
   }
   .flex-wrp {
     display: flex;
     align-items: center;
     /*justify-content: center; !*设置 view 水平居中*!*/
     width: 100%;
-    padding-left: 20 rpx;
+    padding-left: 20rpx;
   }
 
   .bc_shop {
     background-color: #eaeaea;
     width: 100px;
-    height: 40px;
+    height: 30px;
     border-radius: 2px;
     text-align: center;
-    font-size: 23px;
+    font-size: 20px;
+    border: 1px solid black;
   }
 
   .bc_brand {
     background-color: #eaeaea;
     width: 100px;
-    height: 40px;
+    height: 30px;
     text-align: center;
-    font-size: 23px;
+    font-size: 20px;
+    border: 1px solid black;
   }
 
   .navigate_active {
-    background: rgba(0, 0, 0, 0.65);
+    background: #666666;
     color: white;
     border-radius: 2px;
 

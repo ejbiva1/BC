@@ -141,6 +141,7 @@
 <style scoped>
   .animated{
     background-color: #F7F7F7;
+    font-family:"Microsoft Yahei";
   }
   .swiper-home {
     width: 100%;
