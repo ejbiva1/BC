@@ -67,7 +67,7 @@
 
   .site_img_section {
     padding: 0;
-    margin: 0;
+    margin-top: 0.1rem;
     list-style: none;
     font-style: normal;
     text-decoration: none;
@@ -85,8 +85,8 @@
 
   .site_img {
     /*1rem = 100 rpx;*/
-    width: 2.2rem;
-    height: 1.0rem;
+    width: 1.1rem;
+    height: 0.5rem;
     display: block;
     margin-right: .5rem;
     padding-left: 0.1rem;

@@ -20,25 +20,25 @@
     <!--该种类商品列表-->
     <div class="site_product_total">
       <view class="site_products">
-        <view v-for="(item ,i) in product_detail_list" :key="i">
-          <view  class="product_profile" >
-          <view class="product_img">
-            <img :src="item.productImageUrl" class="face first-face">
+        <view v-for="(item ,i) in product_detail_list" :key="i" @click="toProductDetail(item.productId)">
+          <view class="product_profile">
+            <view class="product_img">
+              <img :src="item.productImageUrl" class="face first-face">
+            </view>
+            <view class="product_detail">
+              <ul class="list-group list-group-flush">
+                <li class="salesTitle" title="双面毛衣外套"><span>{{item.productNameCn}}</span></li>
+                <li class="list-group-item"
+                    style=" background:linear-gradient(45deg, transparent 49.5%, deeppink 49.5%, deeppink 50.5%, transparent 50.5%);font-size:14px;">
+                  {{item.originalPriceRmb}}元
+                </li>
+                <li class="updateTime">更新时间:2019年2月1日
+                </li>
+              </ul>
+            </view>
+            <p></p>
           </view>
-          <view class="product_detail">
-            <ul class="list-group list-group-flush">
-              <li class="salesTitle" title="双面毛衣外套"><span>{{item.productNameCn}}</span></li>
-              <li class="list-group-item"
-                  style=" background:linear-gradient(45deg, transparent 49.5%, deeppink 49.5%, deeppink 50.5%, transparent 50.5%);font-size:14px;">
-                {{item.originalPriceRmb}}元
-              </li>
-              <li class="updateTime" >更新时间:2019年2月1日
-              </li>
-            </ul>
-          </view>
-          <p></p>
         </view>
-          </view>
 
       </view>
     </div>
@@ -133,16 +133,29 @@
 
           }
         });
+      },
+      toProductDetail(productId) {
+        //url: '/pages/test/test?dataObj='+JSON.stringify(this.data.dataObj)
+        //url: '/pages/test/test?str='+this.data.testStr,
+        wx.navigateTo({
+          url: '/pages/productDetail/main?productId=' + productId,
+
+        });
+
+//        wx.navigateTo({
+//          url: '/pages/site/main'
+//        })
       }
     }
   }
 </script>
 
 <style scoped>
-  .animated{
+  .animated {
     background-color: #F7F7F7;
-    font-family:"Microsoft Yahei";
+    font-family: "Microsoft Yahei";
   }
+
   .swiper-home {
     width: 100%;
     height: 10%;
@@ -192,10 +205,10 @@
     align-content: center;
     font-family: 'Open Sans', sans-serif;
     background: linear-gradient(top, #222, #333);
-    width:100%;
+    width: 100%;
   }
 
-  .product_profile{
+  .product_profile {
     /*width: 33%;*/
   }
 

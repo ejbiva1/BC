@@ -7,7 +7,8 @@
     "pages/brand/main",
     "pages/shop/main",
     "pages/checkout/main",
-    "pages/myInfo/main"
+    "pages/myInfo/main",
+    "pages/productDetail/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -26,24 +27,22 @@
         "iconPath": "static/images/home.png",
         "selectedIconPath": "static/images/home-selected.png",
         "color": "white",
-        "text": "人气1"
+        "text": "主页"
       },
       {
         "pagePath": "pages/home/main",
         "iconPath": "static/images/home.png",
         "selectedIconPath": "static/images/home-selected.png",
         "color": "white",
-        "text": "发现"
+        "text": "商品详情"
       },
       {
-
         "pagePath": "pages/order/main",
         "iconPath": "static/images/home.png",
         "selectedIconPath": "static/images/home-selected.png",
         "color": "white",
         "text": "商家1"
       },
-
       {
         "pagePath": "pages/order/main",
         "iconPath": "static/images/order.png",

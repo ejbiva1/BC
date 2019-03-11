@@ -91,20 +91,20 @@
 
   .bc_shop {
     background-color: #eaeaea;
-    width: 100px;
+    width: 70px;
     height: 30px;
     border-radius: 2px;
     text-align: center;
-    font-size: 20px;
+    font-size: 15px;
     border: 1px solid black;
   }
 
   .bc_brand {
     background-color: #eaeaea;
-    width: 100px;
+    width: 70px;
     height: 30px;
     text-align: center;
-    font-size: 20px;
+    font-size: 15px;
     border: 1px solid black;
   }
 
