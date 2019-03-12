@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "wxc-label":"/static/minui/@minui/wxc-label/dist/index"
+  }
+}

@@ -1,101 +1,81 @@
-<template>
-  <div>
-  <div class="heard">
-    <div class="heard-location" @click="searchAddress">
-      <image src="/static/images/location.png" class="heard-location-icon"/>
-      <text class="heard-location-text">{{location}}</text>
-    </div>
-    <div class="heard-search">
-      <image src="/static/images/search.png" class="heard-search-icon"/>
-      <span class="text">小龙虾</span>
-    </div>
-  </div>
-    <view class="site_bonus">
-      <text style="font-size: 14px;"> 站点优惠:FREE SHIPPING ON U.S. ORDERS OVER $100 </text>
+<template xmlns="http://www.w3.org/1999/xhtml">
+  <view>
+    <view class="site">
+      <view class="site_name">
+        <span>{{site_name}}</span>
+      </view>
+      <view class="search-wrap">
+        <wxc-search class="search"
+                    v-bind:show-icon="show_icon"
+                    v-bind:bg-color="bg_color"
+                    v-bind:button="search"
+                    v-bind:btn-color="btn_color"
+                    bind:input="onInput"
+                    bind:submit="submitForm"
+                    bind:confirm="onConfirm"
+        ></wxc-search>
+      </view>
     </view>
-  </div>
+
+    <view class="site_bonus">
+      <text style="font-size: 13px;"> 站点优惠:FREE SHIPPING ON U.S. ORDERS OVER $100</text>
+    </view>
+  </view>
 </template>
 
 <script type="text/ecmascript-6">
-    export default {
-      title: 'search',
-      onLoad() {
+  export default {
+    title: 'search',
+    data() {
+      return {
+        site_name: 'Tommy Hilfiger',
+        search: "搜索",
+        show_icon: false,
+        bg_color: '#fff',
+        btn_color: '#2CB42F'
+      };
+    },
+    onLoad() {
 
-      },
-      methods: {
-        searchAddress() {
-          wx.chooseLocation()
-        }
-      }
+    },
+    methods: {
+
     }
+  }
 </script>
 
 <style scoped>
-  .heard{
-    justify-content: space-around;
+  .site {
     display: flex;
     width: 100%;
-    height: 80rpx;
-    background: #FFC640;
   }
 
-  .heard   .heard-location{
-    position :relative;
-    font-size: 25rpx;
-    padding:5rpx 15rpx;
-    margin: 10rpx;
-    width: 250rpx;
-    height: 40rpx;
-    line-height: 40rpx;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow:ellipsis;
-    background: #B38B2D;
-    color: white;
-    border-radius: 20rpx;
+  .site .site_name {
+    width: 31%;
+    display: flex;
+    font: 13px black;
+    line-height: 40px;
+    padding: 0.10rem 0.1rem 0.1rem 0.15rem;
   }
 
-  .heard .heard-location-icon{
-    position: absolute;
-    top: 12rpx;
-    height: 25rpx;
-    width: 25rpx;
+  .search-wrap {
+    display: flex;
+    align-items: center;
+    width: 70%;
+    height: 0.9rem;
+    color: #fff;
+    background: #f6f6f6;
   }
 
-  .heard  .heard-location-text{
-    left :47rpx;
-    height: 30rpx;
-    width: 190rpx;
-    padding-left: 30rpx;
+  .search {
+    flex: 1;
+    margin-left: 0.14rem;
   }
 
-  .heard-search{
-    font-size: 25rpx;
-    padding: 5rpx 15rpx;
-    margin: 10rpx;
-    height: 40rpx;
-    width: 400rpx;
-    background: white;
-    border-radius: 20rpx;
-    line-height: 40rpx;
-  }
-
-  .heard-search .text {
-    padding-left: 10rpx;
-    color: #ccc;
-  }
-
-  .heard-search .heard-search-icon {
-    height: 21rpx;
-    width: 21rpx;
-
-  }
-
-  .site_bonus{
+  .site_bonus {
     width: 100%;
     height: 3%;
+    padding-left:0.15rem;
   }
-
-
 </style>
 

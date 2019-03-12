@@ -1,7 +1,7 @@
 {
   "pages": [
-    "pages/home/main",
     "pages/site/main",
+    "pages/home/main",
     "pages/order/main",
     "pages/my/main",
     "pages/brand/main",
@@ -30,14 +30,14 @@
         "text": "主页"
       },
       {
-        "pagePath": "pages/home/main",
+        "pagePath": "pages/site/main",
         "iconPath": "static/images/home.png",
         "selectedIconPath": "static/images/home-selected.png",
         "color": "white",
         "text": "商品详情"
       },
       {
-        "pagePath": "pages/order/main",
+        "pagePath": "pages/home/main",
         "iconPath": "static/images/home.png",
         "selectedIconPath": "static/images/home-selected.png",
         "color": "white",

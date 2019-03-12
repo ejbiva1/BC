@@ -16,11 +16,6 @@
 
     <!--页面跳转，注意是普通跳转navigateTo还是底部导航跳转 switchTab  -->
 
-    <!--<wxc-toast-->
-    <!--:is-show="is_show"-->
-    <!--text="Hello World"></wxc-toast>-->
-
-
     <wxc-label class="label" type="fill" type-color="#747bb1">直播中</wxc-label>
   </div>
 </template>
