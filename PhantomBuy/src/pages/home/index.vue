@@ -1,7 +1,7 @@
 <template>
   <div class="animated fadeIn">
     <view class="section">
-      <view class="flex-wrp" >
+      <view class="flex-wrp">
         <view class="flex-item bc_shop" :class="{navigate_active: isSite}" @click="showSiteList">折扣</view>
         <view class="flex-item bc_brand" :class="{navigate_active: !isSite}" @click="showBrands">全部</view>
       </view>
@@ -16,6 +16,12 @@
 
     <!--页面跳转，注意是普通跳转navigateTo还是底部导航跳转 switchTab  -->
 
+    <!--<wxc-toast-->
+    <!--:is-show="is_show"-->
+    <!--text="Hello World"></wxc-toast>-->
+
+
+    <wxc-label class="label" type="fill" type-color="#747bb1">直播中</wxc-label>
   </div>
 </template>
 
@@ -29,11 +35,14 @@
       return {
         site_list: [],
         isSite: true,
-        brand_list: []
+        brand_list: [],
+        is_show: true
+
       };
     },
     components: {
-      'site-card': sitecard
+      'site-card': sitecard,
+
     },
     created() {
       //this.brand_list = brand_list;
@@ -77,16 +86,17 @@
 </script>
 
 <style scoped>
-  .animated{
+  .animated {
     background-color: #F7F7F7;
-    font-family:"Microsoft Yahei";
+    font-family: "Microsoft Yahei";
   }
+
   .flex-wrp {
     display: flex;
     align-items: center;
     /*justify-content: center; !*设置 view 水平居中*!*/
     width: 100%;
-    padding-left: 20rpx;
+    padding-left: 0.2rem;
   }
 
   .bc_shop {
