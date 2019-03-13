@@ -3,6 +3,7 @@
     "pages/site/main",
     "pages/home/main",
     "pages/order/main",
+    "pages/myOrder/main",
     "pages/my/main",
     "pages/brand/main",
     "pages/shop/main",
