@@ -11,7 +11,7 @@
       }">
           <div class="row">
             <div class="itemImage">
-              <image src="./test.jpg" class="titleImage" mode="widthFix"/>
+              <image src="/static/images/test.jpg" class="titleImage" mode="widthFix"/>
             </div>
             <div class="itemDetail">
               <div class="itemTitle">双面毛衣外套</div>
