@@ -9,14 +9,14 @@
 
 
     <view>
-      <view v-for="(items,i) in site_list" :key="i" @click="toSite">
+      <view v-for="(items,i) in site_list" :key="i" @click="toSite(items.siteId)">
         <site-card v-bind:item="items"></site-card>
       </view>
     </view>
 
     <!--页面跳转，注意是普通跳转navigateTo还是底部导航跳转 switchTab  -->
 
-    <wxc-label class="label" type="fill" type-color="#747bb1">直播中</wxc-label>
+    <!--<wxc-label class="label" type="fill" type-color="#747bb1">直播中</wxc-label>-->
   </div>
 </template>
 
@@ -63,9 +63,11 @@
 
         });
       },
-      toSite(){   // 进入某一站点，购买商品
+      toSite(siteId){
+        //// 进入某一站点，购买商品
+        // url: '/pages/productDetail/main?productId=' + productId,
         wx.navigateTo({
-          url: '/pages/site/main'
+          url: '/pages/site/main?siteId=' + siteId
         })
       },
       showSiteList() {

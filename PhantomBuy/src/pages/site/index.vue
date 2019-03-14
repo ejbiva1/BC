@@ -48,6 +48,7 @@
 <script type="text/ecmascript-6">
   import search from "../../components/search/search";
   import  fly from "../../utils/fly";
+  import tabs from "../../components/tabs/tabs";
   export default {
     data() {
       return {
@@ -56,31 +57,35 @@
         scrollTop: 100,
         ListSiteProductCategory: [],
         site_product_category_list: [],
-        product_detail_list: []
+        product_detail_list: [],
+        detail: '12'
       };
     },
     components: {
-      "search": search
+      "search": search,
+      "tabs": tabs
 
     },
     created() {
     },
-    onLoad(){
-//      this.getListSiteProductCategory();
-      this.getSingleKindProductList();
+    onLoad(options){
+      this.getListSiteProductCategory(options);
+      this.getSingleKindProductList(options);
     },
     computed: {},
     methods: {
-      getListSiteProductCategory() {
-        let entityDTO = {entityDTO: {siteId: "3"}};
+      getListSiteProductCategory(option) {
+        let entityDTO = {entityDTO: option};
         fly.post('phantombuy/site/listSiteProductCategory', entityDTO).then((res) => {
-          if(res.data.code === '1'){
-            if(res.data.data.records.length > 0)   this.site_product_category_list = res.data.data.records;
+          if (res.data.code === '1') {
+            if (res.data.data.records.length > 0)   this.site_product_category_list = res.data.data.records;
           }
         });
       },
-      getSingleKindProductList() {
-        let entityDTO = {entityDTO: {siteId: "3", productCategoryId: ""}, pageDTO: {pageNo: "1", pageSize: 36}};
+      getSingleKindProductList(options) {
+        // let entityDTO = {entityDTO: {siteId: "3", productCategoryId: ""}, pageDTO: {pageNo: "1", pageSize: 36}};
+        let siteId = options.siteId;
+        let entityDTO = {entityDTO: {siteId: siteId, productCategoryId: ""}, pageDTO: {pageNo: "1", pageSize: 36}};
         fly.post("phantombuy/product/list", entityDTO).then((res) => {
           if (res.data.code === '1') {
 
@@ -151,7 +156,7 @@
     width: 100%;
     justify-content: center;
     align-item: center;
-    border: 2px solid red;
+    /*border: 2px solid red;*/
   }
 
   .site_products {

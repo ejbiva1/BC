@@ -1,7 +1,7 @@
 {
   "pages": [
-    "pages/site/main",
     "pages/home/main",
+    "pages/site/main",
     "pages/order/main",
     "pages/myOrder/main",
     "pages/my/main",
@@ -31,7 +31,7 @@
         "text": "主页"
       },
       {
-        "pagePath": "pages/site/main",
+        "pagePath": "pages/home/main",
         "iconPath": "static/images/home.png",
         "selectedIconPath": "static/images/home-selected.png",
         "color": "white",
