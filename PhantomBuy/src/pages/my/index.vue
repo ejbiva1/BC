@@ -10,7 +10,8 @@
         </div>
       </div>
       <div class="dataBody">
-        <div class="myDataBlock">
+        <navigator url="../myOrder/main" class="navLink">
+        <div class="myOrderDataBlock">
           <div class="twoSideRow">
             <div class="myDataTitle">
               我的订单
@@ -18,6 +19,7 @@
             <div class="myDataLink">查看全部订单></div>
           </div>
         </div>
+        </navigator>
 
         <div class="myDataBlock">
           <div class="twoSideRow">
@@ -78,11 +80,24 @@
   .dataBody{
 
   }
-  .myDataBlock{
-    width:88%;
+  .navLink{
+    margin-left: 20rpx;
+    margin-right: 20rpx;
+  }
+  .myOrderDataBlock{
     background-color: white;
     margin-top: 20rpx;
-    margin-left:20rpx;
+    padding-top:20rpx;
+    padding-bottom: 20rpx;
+    padding-left: 20rpx;
+    padding-right: 20rpx;
+  }
+  .myDataBlock{
+
+    background-color: white;
+    margin-top: 20rpx;
+    margin-left: 20rpx;
+    margin-right: 20rpx;
     padding-top:20rpx;
     padding-bottom: 20rpx;
     padding-left: 20rpx;

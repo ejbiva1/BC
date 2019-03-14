@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText":"Phantombuy",
+  "usingComponents": {
+    "wxc-price": "/static/minui/@minui/wxc-price/dist/index",
+    "wxc-tab": "/static/minui/@minui/wxc-tab/dist/index",
+    "wxc-tab-panel": "/static/minui/@minui/wxc-tab/dist/panel"
+  }
+}
