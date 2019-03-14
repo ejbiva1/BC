@@ -8,11 +8,11 @@
       component-id="c1"
       animate="true"
     >
-      <wxc-tab-panel :tab-index="index" component-id="c1" label="全部">1111</wxc-tab-panel>
+      <wxc-tab-panel :tab-index="index" component-id="c1" label="全部"></wxc-tab-panel>
 
-      <wxc-tab-panel :tab-index="index" component-id="c1" label="已付款">2222</wxc-tab-panel>
+      <wxc-tab-panel :tab-index="index" component-id="c1" label="已付款"></wxc-tab-panel>
 
-      <wxc-tab-panel :tab-index="index" component-id="c1" label="已发货">3333</wxc-tab-panel>
+      <wxc-tab-panel :tab-index="index" component-id="c1" label="已发货"></wxc-tab-panel>
 
     </wxc-tab>
     </div>
