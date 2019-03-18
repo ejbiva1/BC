@@ -2,13 +2,13 @@
   <div class="animated fadeIn">
     <view class="section">
       <view class="flex-wrp">
-        <view class="flex-item bc_shop" :class="{navigate_active: isSite}" @click="showSiteList">折扣</view>
-        <view class="flex-item bc_brand" :class="{navigate_active: !isSite}" @click="showBrands">全部</view>
+        <view class="flex-item site_discount" :class="{navigate_active: isSite}" @click="showDiscountSiteList">折扣</view>
+        <view class="flex-item site_all" :class="{navigate_active: !isSite}" @click="showAllSites">全部</view>
       </view>
     </view>
 
 
-    <view>
+    <view class="site_section">
       <view v-for="(items,i) in site_list" :key="i" @click="toSite(items.siteId)">
         <site-card v-bind:item="items"></site-card>
       </view>
@@ -16,7 +16,6 @@
 
     <!--页面跳转，注意是普通跳转navigateTo还是底部导航跳转 switchTab  -->
 
-    <!--<wxc-label class="label" type="fill" type-color="#747bb1">直播中</wxc-label>-->
   </div>
 </template>
 
@@ -55,10 +54,9 @@
         fly.post("phantombuy/site/list", query_dto).then((res) => {
           // call api success
           if (res.data.code === '1') {
-
             if (res.data.data.records.length > 0) this.site_list = res.data.data.records;
+
           } else {
-            // api error alert
           }
 
         });
@@ -66,15 +64,15 @@
       toSite(siteId){
         //// 进入某一站点，购买商品
         // url: '/pages/productDetail/main?productId=' + productId,
-        wx.navigateTo({
+          wx.navigateTo({
           url: '/pages/site/main?siteId=' + siteId
         })
       },
-      showSiteList() {
+      showDiscountSiteList() {
         if (!this.isSite) this.isSite = true;
         console.log("Site List Show");
       },
-      showBrands() {
+      showAllSites() {
         if (this.isSite) this.isSite = false;
         console.log("Brand List Show");
       }
@@ -88,31 +86,43 @@
     font-family: "Microsoft Yahei";
   }
 
+  .section {
+    width: 100%;
+    /*padding-left: 2%;*/
+  }
+
+  .site_section {
+    width: 100%;
+    /*padding-left: 2%;*/
+  }
+
   .flex-wrp {
     display: flex;
     align-items: center;
     /*justify-content: center; !*设置 view 水平居中*!*/
     width: 100%;
-    padding-left: 0.2rem;
+    padding-left: 5%;
+    font-size: 15px;
   }
 
-  .bc_shop {
+  .site_discount {
     background-color: #eaeaea;
     width: 70px;
     height: 30px;
-    border-radius: 2px;
+    /*border-radius: 2px;*/
     text-align: center;
-    font-size: 15px;
     border: 1px solid black;
+    line-height: 30px;
+    vertical-align: middle;
   }
 
-  .bc_brand {
+  .site_all {
     background-color: #eaeaea;
     width: 70px;
     height: 30px;
     text-align: center;
-    font-size: 15px;
     border: 1px solid black;
+    line-height: 30px;
   }
 
   .navigate_active {

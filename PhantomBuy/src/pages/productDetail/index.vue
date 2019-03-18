@@ -7,6 +7,7 @@
           <img :src="product_detail.productImageUrl">
         </view>
       </wxc-panel>
+
       <wxc-panel :border="has_border">
         <view class="product_basic_info">
           <h6 class="site_name info_padding">{{product_detail.brandNameCh}}</h6>
@@ -15,30 +16,39 @@
           </view>
           <view class="product_price info_padding">
             <text class="original_price_rmb">{{product_detail.originalPriceRmb}}元</text>
-            <text class="sale_price_rmb" style="color:red; font-size: small;">{{product_detail.salePriceRmb}}元</text>
+            <text class="sale_price_rmb" style="color:red; font-size: 14px;">{{product_detail.salePriceRmb}}元</text>
           </view>
           <view class="product_color info_padding">
-            <text>颜色:</text>
-            <text> Navy</text>
-
+            <view class="product_color_text">
+              <text>颜色:</text>
+              <text> Navy</text>
+            </view>
+            <view class="button-wrap" v-for="(item, i) in sizes" :key="i">
+              <wxc-button :plain="plain" size="small" :type="type" :value="item" :btnStyle="btn_style"></wxc-button>
+            </view>
           </view>
           <view class="product_size info_padding">
-            <p style=" font-size: small; " class="info_padding">尺码:</p>
+            <view>
+            <p style=" font-size: 14px; " class="info_padding">尺码:</p>
+            </view>
             <view class="button-wrap" v-for="(item, i) in sizes" :key="i">
               <wxc-button :plain="plain" size="small" :type="type" :value="item" :btnStyle="btn_style"></wxc-button>
             </view>
           </view>
         </view>
       </wxc-panel>
+
       <!--商品描述， 详情 tab 页切换-->
-      <view class="product_tabs">
-        <tab v-bind:product="product_detail"></tab>
-      </view>
+      <wxc-panel :border="has_border">
+        <view class="product_tabs">
+          <tab v-bind:product="product_detail"></tab>
+        </view>
+      </wxc-panel>
     </view>
 
     <view class="carts-footer">
-      <view class="button">加入购物车</view>
-      <view class="button">立即结算</view>
+      <view class="button add_buy_cart">加入购物车</view>
+      <view class="button buy_once">立即结算</view>
     </view>
 
   </div>
@@ -70,8 +80,8 @@
     methods: {
 
       getProductDetail(option){
-        let entityDTO = {entityDTO: option};
-        //let entityDTO = {entityDTO: {productId: "11769"}};
+        // let entityDTO = {entityDTO: option};
+        let entityDTO = {entityDTO: {productId: "11769"}};
         fly.post("phantombuy/product/get", entityDTO).then((res)=> {
           if (res.data.code === '1') {
             //console.log(res.data.data);
@@ -92,7 +102,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
-    box-sizing: border-box;
+    /*box-sizing: border-box;*/
   }
 
   .product_detail {
@@ -119,11 +129,16 @@
   }
 
   .product_basic_info {
-    padding: 0.1rem 0rem 0.3rem 0.4rem;
+    width: 100%;
+    left: 5%;
+    margin-bottom: 5%;
+    position: relative;
   }
 
   .site_name {
-    font-size: small;
+    margin-top:5%;
+    font-size: 14px;
+    position: relative;
   }
 
   .product_price {
@@ -131,70 +146,84 @@
   }
 
   .product_name .product_name_cn {
-    font-size: small;
+    font-size: 14px;
     color: black;
   }
 
   .product_price .original_price_rmb {
     text-decoration: line-through;
-    font-size: small;
+    font-size: 14px;
     color: black;
   }
 
   .product_price .sale_price_rmb {
     padding-left: 0.3rem;
-    font-size: small;
+    font-size: 14px;
   }
 
   .product_size {
     width: 100%;
-    height: 1rem;
-    font-size: small;
+    height: 1.3rem;
+    font-size: 14px;
   }
 
   .product_color {
-    font-size: small;
+    font-size: 14px;
+    height: 1.3rem;
+    width: 100%;
+  }
+
+  .product_color_text{
+    height: 30%;
   }
 
   .product_tabs {
-    padding: 0.3rem 0rem 0.4rem 0.1rem;
-    height: 80%;
     width: 90%;
-    position: absolute;
-    left: 2%;
+    position: relative;
+    left: 5%;
   }
 
   .button-wrap {
     margin: 0.05rem 0.15rem 0.05rem 0rem;
     float: left;
+    height: 50%;
   }
 
   .info_padding {
     padding-bottom: 0.2rem;
   }
 
-  .carts-footer{
+  .carts-footer {
     width: 100%;
-    height: 80rpx;
+    height: 0.8rem;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-end;
     position: fixed;
     bottom: 0;
-    border-top: 1px solid #eee;
+    border-top: 2px solid #eee;
   }
 
   /*立即结算按钮*/
   .carts-footer .button {
-    line-height: 80rpx;
+    line-height: 0.8rem;
+    height: 0.8rem;
     text-align: center;
-    width:220rpx;
-    height: 80rpx;
-    background-color: #f60;
+    width: 2.0rem;
+    height: 1rem;
     color: white;
-    font-size: 36rpx;
+    font-size: 0.3rem;
     border-radius: 0;
     border: 0;
+    vertical-align: middle;
+  }
+
+  .add_buy_cart {
+    background-color: #f60;
+  }
+
+  .buy_once {
+    background-color: #EE5757;
   }
 
 </style>

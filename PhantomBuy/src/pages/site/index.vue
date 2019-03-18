@@ -19,27 +19,31 @@
 
     <!--该种类商品列表-->
     <div class="site_product_total">
-      <view class="site_products">
-        <view v-for="(item ,i) in product_detail_list" :key="i" @click="toProductDetail(item.productId)"
-              class="product_profile">
-          <view class="product_img">
-            <img :src="item.productImageUrl" class="face first-face">
-          </view>
-          <view class="product_detail">
-            <ul class="list-group list-group-flush">
-              <li class="salesTitle" title="双面毛衣外套"><span>{{item.productNameCn}}</span></li>
-              <li class="list-group-item">
-                <span style="text-decoration: line-through">{{item.originalPriceRmb}}元</span>
-                <span style="color:red;padding-left: 10px;">{{item.salePriceRmb}}元</span>
-              </li>
-              <li class="updateTime" title="更新时间:2019年2月1日">更新时间:<span>{{item.updateDate}}</span>
-              </li>
-            </ul>
-          </view>
-          <p></p>
-        </view>
+      <wxc-panel :border="has_border">
+        <view class="site_products">
+          <view v-for="(item ,i) in product_detail_list" :key="i" @click="toProductDetail(item.productId)"
+                class="product_profile">
 
-      </view>
+            <view class="product_img">
+              <img :src="item.productImageUrl" class="face first-face">
+            </view>
+            <view class="product_detail">
+              <ul class="list-group list-group-flush">
+                <li class="salesTitle" title="双面毛衣外套"><span>{{item.productNameCn}}</span></li>
+                <li class="list-group-item">
+                  <span style="text-decoration: line-through">{{item.originalPriceRmb}}元</span>
+                  <span style="color:red;padding-left: 10px;">{{item.salePriceRmb}}元</span>
+                </li>
+                <li class="updateTime" title="更新时间:2019年2月1日">更新时间:<span>{{item.updateDate}}</span>
+                </li>
+              </ul>
+            </view>
+
+
+          </view>
+
+        </view>
+      </wxc-panel>
     </div>
   </div>
 </template>
@@ -58,7 +62,9 @@
         ListSiteProductCategory: [],
         site_product_category_list: [],
         product_detail_list: [],
-        detail: '12'
+        detail: '12',
+        has_border: true,
+        search_border: false
       };
     },
     components: {
@@ -91,7 +97,7 @@
 
             //this.product_detail_list = res.data.data.records.slice(0, 9);
             if (res.data.data.records.length > 0) this.product_detail_list = res.data.data.records;
-            //console.log(this.product_detail_list);
+//            this.product_detail_list  = this.product_detail_list.slice(0,8);
           } else {
 
           }
@@ -121,8 +127,8 @@
 
   .swiper-home {
     width: 100%;
-    height: 10%;
-    padding: 20px 10px 10px 5px;
+    height: 15%;
+    padding: 10px 10px 5px 0px;
     display: flex;
     white-space: nowrap;
   }
@@ -131,10 +137,11 @@
     padding-right: 5px;
     padding-left: 5px;
     text-align: center;
-    border-right: 1px solid black;
-    height: 100%;
     display: inline-block;
-    min-width: 65px;
+    min-width: 45px;
+    height: 25px;
+    line-height: 25px;
+    font: 14px black;
   }
 
   ul li:last-child {
@@ -156,23 +163,34 @@
     width: 100%;
     justify-content: center;
     align-item: center;
-    /*border: 2px solid red;*/
   }
 
   .site_products {
     display: flex;
     align-item: center;
-    justify-content: center;
-    vertical-align: center;
+    /*justify-content: center;  这个属性必须 注释，它定义了项目在主轴的对齐方式*/
     flex-wrap: wrap;
     align-content: center;
+
+    /*flex-direction///
+      flex-wrap
+      flex-flow: flex-direction 和 flex-wrap 的简写形式
+     justify-content: 定义了项目在主轴的对齐方式
+     align-items: 定义了项目在交叉轴上的对齐方式 :  align-items: flex-start | flex-end | center | baseline | stretch;
+     align-content:定义了多根轴线的对齐方式，如果项目只有一根轴线，那么该属性将不起作用
+    */
     font-family: 'Open Sans', sans-serif;
     background: linear-gradient(top, #222, #333);
     width: 100%;
+
   }
 
   .product_profile {
     width: 33%;
+    height: 256px;
+    flex-direction: row;
+    float: left;
+    /*display: flex;*/
   }
 
   .first-face {

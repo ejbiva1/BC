@@ -137,7 +137,6 @@
     left: -15px;;
   }
 
-
   .site_discount {
     flex: auto;
     witdh: 100%;

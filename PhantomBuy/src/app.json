@@ -42,19 +42,19 @@
         "iconPath": "static/images/home.png",
         "selectedIconPath": "static/images/home-selected.png",
         "color": "white",
-        "text": "商家1"
+        "text": "商家"
       },
       {
         "pagePath": "pages/order/main",
         "iconPath": "static/images/order.png",
         "selectedIconPath": "static/images/order-selected.png",
-        "text": "购物袋1"
+        "text": "购物袋"
       },
       {
         "pagePath": "pages/my/main",
         "iconPath": "static/images/my.png",
         "selectedIconPath": "static/images/my-selected.png",
-        "text": "我的1"
+        "text": "我的"
       }
     ]
   }
