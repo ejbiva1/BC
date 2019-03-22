@@ -1,5 +1,9 @@
+<template>
+  <button open-type="getUserInfo" @getuserinfo="bindGetUserInfo" @click="getUserInfoClick">获取权限</button>
+</template>
 <script>
 export default {
+
   created () {
     // 调用API从本地缓存中获取数据
     const logs = wx.getStorageSync('logs') || []
@@ -7,6 +11,21 @@ export default {
     wx.setStorageSync('logs', logs)
 
     console.log('app created and cache logs by setStorageSync')
+  },
+  onLoad() {
+    debug;
+    wx.login({
+      success: function (res) {
+        console.log("res.code====="+res.code);
+
+
+
+      }
+
+    });
+  },
+  methods: {
+
   }
 }
 </script>

@@ -16,12 +16,13 @@
     "navigationBarBackgroundColor": "#F7F7F7",
     "navigationBarTitleText": "PhantomBuy",
     "navigationBarTextStyle": "black"
+
   },
   "tabBar": {
     "color": "#272636",
     "selectedColor": "#FFD161",
     "backgroundColor": "#F7F7F7",
-    "borderStyle": "#a8a8a8",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/home/main",

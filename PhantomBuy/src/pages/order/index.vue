@@ -114,7 +114,7 @@
 
 </script>
 
-<style scoped>
+<style>
   .order{
     background-color:#F7F7F7;
     position: fixed;

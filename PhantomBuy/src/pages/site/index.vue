@@ -1,9 +1,12 @@
 <template>
   <div class="animated fadeIn">
     <!--search是个组件-->
+
+    <input v-model="a"/>
     <view class="section">
-      <search></search>
+      <search v-bind:site="site_detail" @search="SearchProducts" ref="find"></search>
     </view>
+
 
     <!--商品种类-->
     <div class="swiper-home">
@@ -11,7 +14,8 @@
                    :scroll-x="true"
                    :style="'{width: auto;overflow:hidden;height:20px;}'">
         <ul>
-          <li class="site_product" v-for="(item, i) in site_product_category_list" :key="i">
+          <li class="site_product" v-for="(item, i) in site_product_category_list" :key="i"
+              @click="getSingleKindProductList(item)">
             <span>{{item.productCategoryName}}</span></li>
         </ul>
       </scroll-view>
@@ -45,6 +49,7 @@
         </view>
       </wxc-panel>
     </div>
+
   </div>
 </template>
 
@@ -53,73 +58,117 @@
   import search from "../../components/search/search";
   import  fly from "../../utils/fly";
   import tabs from "../../components/tabs/tabs";
+  import {pageDTO} from "../../common/model/pageDTO";
   export default {
     data() {
       return {
-        // brand_list: [],
-        toView: "red",
-        scrollTop: 100,
         ListSiteProductCategory: [],
         site_product_category_list: [],
         product_detail_list: [],
-        detail: '12',
         has_border: true,
-        search_border: false
+        site_detail: {},
+        pageDto: new pageDTO(),
+        pageDtoSetting: {},
+        search: "搜索",
+        a: ''
       };
     },
     components: {
       "search": search,
       "tabs": tabs
-
     },
     created() {
     },
     onLoad(options){
-      this.getListSiteProductCategory(options);
-      this.getSingleKindProductList(options);
+      // load site_detail
+      if (options !== undefined)
+        this.site_detail = JSON.parse(options.site);
+      //  site product category
+      this.pageDtoSetting = this.pageDto;
+      this.getListSiteProductCategory();
+      // site product list
+      this.getAllProductList();
     },
+    async onPullDownRefresh() {
+      // to doing..
+      // 停止下拉刷新
+      wx.stopPullDownRefresh();
+    },
+    onReachBottom() {
+      this.toNextPage();
+      this.getAllProductList();
+    },
+
     computed: {},
     methods: {
-      getListSiteProductCategory(option) {
-        let entityDTO = {entityDTO: option};
+      getListSiteProductCategory() {
+        this.show_loading();
+        let entityDTO = {entityDTO: {siteId: this.site_detail.siteId}};
         fly.post('phantombuy/site/listSiteProductCategory', entityDTO).then((res) => {
           if (res.data.code === '1') {
             if (res.data.data.records.length > 0)   this.site_product_category_list = res.data.data.records;
           }
         });
       },
-      getSingleKindProductList(options) {
-        // let entityDTO = {entityDTO: {siteId: "3", productCategoryId: ""}, pageDTO: {pageNo: "1", pageSize: 36}};
-        let siteId = options.siteId;
-        let entityDTO = {entityDTO: {siteId: siteId, productCategoryId: ""}, pageDTO: {pageNo: "1", pageSize: 36}};
+      getAllProductList() {
+        let siteId = this.site_detail.siteId;
+
+        let entityDTO = {
+          entityDTO: {siteId: siteId, productCategoryId: ""},
+          pageDTO: this.pageDtoSetting
+        };
         fly.post("phantombuy/product/list", entityDTO).then((res) => {
           if (res.data.code === '1') {
-
-            //this.product_detail_list = res.data.data.records.slice(0, 9);
-            if (res.data.data.records.length > 0) this.product_detail_list = res.data.data.records;
-//            this.product_detail_list  = this.product_detail_list.slice(0,8);
+            if (res.data.data.records.length > 0) this.product_detail_list = this.product_detail_list.concat(res.data.data.records);
+            this.hide_loading();
           } else {
-
           }
         });
       },
       toProductDetail(productId) {
-        //url: '/pages/test/test?dataObj='+JSON.stringify(this.data.dataObj)
-        //url: '/pages/test/test?str='+this.data.testStr,
         wx.navigateTo({
           url: '/pages/productDetail/main?productId=' + productId,
-
         });
+      },
+      show_loading() {
+        wx.showLoading({
+          title: '加载中',
+        })
+      },
+      hide_loading() {
+        wx.hideLoading();
+      },
 
-//        wx.navigateTo({
-//          url: '/pages/site/main'
-//        })
-      }
-    }
+      toNextPage() {
+        this.pageDtoSetting = this.pageDto.nextPage(this.pageDtoSetting);
+      },
+      toPreviousPage(){
+        this.pageDtoSetting = this.pageDto.previousPage(this.pageDtoSetting);
+      },
+      // 获取 某一类产品
+      getSingleKindProductList(productCategory) {
+        let queryDDTO = {
+          entityDTO: {siteId: this.site_detail.siteId, productCategoryId: productCategory.productCategoryId},
+          orderDTO: {propertyName: "sale_price_usd,original_price_usd"},
+          pageDTO: this.pageDtoSetting
+        };
+        console.log(productCategory);
+        fly.post("phantombuy/product/list", queryDDTO).then((res) => {
+          if (res.data.code === '1') {
+            if (res.data.data.records.length > 0) this.product_detail_list = res.data.data.records;
+            this.hide_loading();
+          } else {
+          }
+        });
+      },
+      SearchProducts(){
+        console.log(this.$refs.find.search_key);
+      },
+    },
   }
 </script>
 
-<style scoped>
+<style>
   .animated {
     background-color: #F7F7F7;
     font-family: "Microsoft Yahei";
@@ -186,31 +235,32 @@
   }
 
   .product_profile {
-    width: 33%;
+    width: 50%;
     height: 256px;
     flex-direction: row;
-    float: left;
-    /*display: flex;*/
   }
 
   .first-face {
-    display: flex;
+    /*display: flex;*/
     justify-content: center;
     align-item: center;
   }
 
   .face {
-    margin: 16px;
-    padding: 4px;
-    width: 84px;
-    height: 104px;
     object-fit: contain;
     border-radius: 10%;
+    vertical-align: middle;
+    width: 70%;
+    height: 104px;
+    margin-top: 5%;
+    margin-bottom: 5%;
+    margin-left: 5%;
   }
 
   .site_product_detail .product_detail {
     width: 100%;
     height: 80px;
+
   }
 
   .product_detail .list-group {
@@ -219,6 +269,7 @@
     flex-direction: column;
     margin-bottom: 0;
     padding: 4px 10px 4px 10px;
+    margin-left: 5%;
   }
 
   .product_detail .list-group-item {

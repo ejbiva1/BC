@@ -29,7 +29,7 @@
           </view>
           <view class="product_size info_padding">
             <view>
-            <p style=" font-size: 14px; " class="info_padding">尺码:</p>
+              <p style=" font-size: 14px; " class="info_padding">尺码:</p>
             </view>
             <view class="button-wrap" v-for="(item, i) in sizes" :key="i">
               <wxc-button :plain="plain" size="small" :type="type" :value="item" :btnStyle="btn_style"></wxc-button>
@@ -80,8 +80,8 @@
     methods: {
 
       getProductDetail(option){
-        // let entityDTO = {entityDTO: option};
-        let entityDTO = {entityDTO: {productId: "11769"}};
+        let entityDTO = {entityDTO: option};
+//        let entityDTO = {entityDTO: {productId: "11769"}};
         fly.post("phantombuy/product/get", entityDTO).then((res)=> {
           if (res.data.code === '1') {
             //console.log(res.data.data);
@@ -94,7 +94,7 @@
   }
 </script>
 
-<style scoped>
+<style>
   .animated {
     background-color: #F7F7F7;
     height: 100%;
@@ -136,7 +136,7 @@
   }
 
   .site_name {
-    margin-top:5%;
+    margin-top: 5%;
     font-size: 14px;
     position: relative;
   }
@@ -173,7 +173,7 @@
     width: 100%;
   }
 
-  .product_color_text{
+  .product_color_text {
     height: 30%;
   }
 

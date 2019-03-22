@@ -60,7 +60,7 @@
     export default {}
 </script>
 
-<style scoped>
+<style>
   .userImg{
     margin-top: 20rpx;
     margin-left:20rpx;

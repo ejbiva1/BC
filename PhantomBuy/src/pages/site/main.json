@@ -4,6 +4,7 @@
     "wxc-icon": "/static/minui/@minui/wxc-icon/dist/index",
     "wxc-search": "/static/minui/@minui/wxc-search/dist/index",
     "wxc-panel": "/static/minui/@minui/wxc-panel/dist/index"
-  }
+  },
+  "enablePullDownRefresh": true
 
 }

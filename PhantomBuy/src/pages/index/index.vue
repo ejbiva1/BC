@@ -66,7 +66,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .userinfo {
   display: flex;
   flex-direction: column;
