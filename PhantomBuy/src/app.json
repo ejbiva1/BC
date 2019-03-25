@@ -1,10 +1,14 @@
 {
   "pages": [
-    "pages/home/main",
-    "pages/site/main",
     "pages/order/main",
-    "pages/myOrder/main",
+    "pages/login/main",
+
     "pages/my/main",
+    "pages/home/main",
+
+    "pages/site/main",
+    "pages/myOrder/main",
+
     "pages/brand/main",
     "pages/shop/main",
     "pages/checkout/main",
@@ -21,7 +25,7 @@
     "color": "#272636",
     "selectedColor": "#FFD161",
     "backgroundColor": "#F7F7F7",
-    "borderStyle": "#a8a8a8",
+    "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/home/main",

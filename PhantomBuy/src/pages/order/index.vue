@@ -1,9 +1,9 @@
 <template>
 
     <div class="order">
-      <div class="titleBlock">
-        Michael Kors
-      </div>
+      <view class="titleBlock" >
+        {{cart_list.brandNameCh}}
+      </view>
 
       <div class="sliderLeft" style="margin-top:40rpx;">
       <slider-left>
@@ -87,17 +87,61 @@
 </template>
 
 <script type="text/ecmascript-6">
+    import  fly from "../../utils/fly";
     export default {
-      name: 'slide',//左滑删除
+      name: 'slide',
+
       data() {
         return {
           pageBackgroundColor: 'lightgray',
+          cart_list: {}
         }
       },
       components: {
       },
-
+      created() {
+        this.getCartList();
+      },
       methods: {
+        getCartList() {
+          //读取storage如果有sessionID就在header里带上
+          var SessionId = null;
+          wx.getStorage({
+            key: 'cookieKey',
+            success: function (data) {
+              console.log(data);
+              const cookieSession = String(data.data);
+              SessionId = cookieSession.split('=')[1].split(';')[0];
+              //fly.config.headers["JSESSIONID"] = SessionId;
+            },
+            fail: function (err) {
+              console.log(err)
+            }
+          })
+
+          fly.post("phantombuy/cart/list",{}, {"JSESSIONID":SessionId}).then((res) => {
+            console.log(`后台拿回购物车数据:`,res);
+            if (res.data.code == `888`) {
+              //跳转授权页
+              console.log(`请先登录:`, res);
+              /*wx.navigateTo({
+                url: '/pages/login/main'
+              })*/
+            }
+            else if(res.data.code == `1`) {
+              //成功
+              if (res.data.data.records.length > 0) {
+                this.cart_list = res.data.data.records;
+              }
+            }
+            else {
+              //失败
+              console.log(`购物车数据:`,res);
+            }
+          }).catch(err => {
+            console.log(`api请求出错:`,err);
+          })
+        },
         itemBlockChangeColor: function () {
           let bgColor = this.pageBackgroundColor;
           if (bgColor == 'lightgray') {

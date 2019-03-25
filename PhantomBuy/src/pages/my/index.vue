@@ -52,12 +52,11 @@
 
       </div>
       <!--<div class="signOut">退出账号</div>-->
-
-  </div>
+    </div>
 </template>
 
 <script type="text/ecmascript-6">
-    export default {}
+  export default {}
 </script>
 
 <style scoped>
