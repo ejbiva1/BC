@@ -15,7 +15,7 @@
   </div>
 </template>
 
-<script>
+<script type="text/ecmascript-6">
   import  fly from "../../utils/fly";
   export default {
 

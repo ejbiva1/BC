@@ -21,7 +21,7 @@
       </scroll-view>
     </div>
 
-    <!--该种类商品列表-->
+    <!--商品列表-->
     <div class="site_product_total">
       <wxc-panel :border="has_border">
         <view class="site_products">
@@ -35,7 +35,7 @@
               <ul class="list-group list-group-flush">
                 <li class="salesTitle" title="双面毛衣外套"><span>{{item.productNameCn}}</span></li>
                 <li class="list-group-item">
-                  <span style="text-decoration: line-through">{{item.originalPriceRmb}}元</span>
+                  <span style="text-decoration: line-through;text-align: left;padding-left:-5px;">{{item.originalPriceRmb}}元</span>
                   <span style="color:red;padding-left: 10px;">{{item.salePriceRmb}}元</span>
                 </li>
                 <li class="updateTime" title="更新时间:2019年2月1日">更新时间:<span>{{item.updateDate}}</span>
@@ -70,7 +70,7 @@
         pageDto: new pageDTO(),
         pageDtoSetting: {},
         search: "搜索",
-        a: ''
+        get_all_products: true
       };
     },
     components: {
@@ -96,7 +96,8 @@
     },
     onReachBottom() {
       this.toNextPage();
-      this.getAllProductList();
+      if (!this.get_all_products) this.getSingleKindProductList();
+      if (this.get_all_products)  this.getAllProductList();
     },
 
     computed: {},
@@ -110,7 +111,9 @@
           }
         });
       },
+      // all
       getAllProductList() {
+        if (!this.get_all_products) this.get_all_products = !this.get_all_products;
         let siteId = this.site_detail.siteId;
 
         let entityDTO = {
@@ -120,6 +123,22 @@
         fly.post("phantombuy/product/list", entityDTO).then((res) => {
           if (res.data.code === '1') {
             if (res.data.data.records.length > 0) this.product_detail_list = this.product_detail_list.concat(res.data.data.records);
+            this.hide_loading();
+          } else {
+          }
+        });
+      },
+      getSingleKindProductList(productCategory) {
+        if (this.get_all_products) this.get_all_products = !this.get_all_products;
+        let queryDDTO = {
+          entityDTO: {siteId: this.site_detail.siteId, productCategoryId: productCategory.productCategoryId},
+          orderDTO: {propertyName: "sale_price_usd,original_price_usd"},
+          pageDTO: this.pageDtoSetting
+        };
+        console.log(productCategory);
+        fly.post("phantombuy/product/list", queryDDTO).then((res) => {
+          if (res.data.code === '1') {
+            if (res.data.data.records.length > 0) this.product_detail_list = res.data.data.records;
             this.hide_loading();
           } else {
           }
@@ -138,32 +157,15 @@
       hide_loading() {
         wx.hideLoading();
       },
-
       toNextPage() {
         this.pageDtoSetting = this.pageDto.nextPage(this.pageDtoSetting);
       },
-      toPreviousPage(){
-        this.pageDtoSetting = this.pageDto.previousPage(this.pageDtoSetting);
-      },
       // 获取 某一类产品
-      getSingleKindProductList(productCategory) {
-        let queryDDTO = {
-          entityDTO: {siteId: this.site_detail.siteId, productCategoryId: productCategory.productCategoryId},
-          orderDTO: {propertyName: "sale_price_usd,original_price_usd"},
-          pageDTO: this.pageDtoSetting
-        };
-        console.log(productCategory);
-        fly.post("phantombuy/product/list", queryDDTO).then((res) => {
-          if (res.data.code === '1') {
-            if (res.data.data.records.length > 0) this.product_detail_list = res.data.data.records;
-            this.hide_loading();
-          } else {
-          }
-        });
-      },
+
       SearchProducts(){
         console.log(this.$refs.find.search_key);
       },
+
     },
   }
 </script>
@@ -177,7 +179,7 @@
   .swiper-home {
     width: 100%;
     height: 15%;
-    padding: 10px 10px 5px 0px;
+    padding: 20px 10px 0px 0px;
     display: flex;
     white-space: nowrap;
   }
@@ -212,6 +214,8 @@
     width: 100%;
     justify-content: center;
     align-item: center;
+    display: flex;
+    justify-content: space-between;
   }
 
   .site_products {
@@ -220,6 +224,7 @@
     /*justify-content: center;  这个属性必须 注释，它定义了项目在主轴的对齐方式*/
     flex-wrap: wrap;
     align-content: center;
+    justify-content: space-between;
 
     /*flex-direction///
       flex-wrap
@@ -230,31 +235,25 @@
     */
     font-family: 'Open Sans', sans-serif;
     background: linear-gradient(top, #222, #333);
-    width: 100%;
+    /*width: 100%;*/
 
   }
 
   .product_profile {
     width: 50%;
-    height: 256px;
-    flex-direction: row;
-  }
+    text-align: center;
+    vertical-align: middle;
 
-  .first-face {
-    /*display: flex;*/
-    justify-content: center;
-    align-item: center;
   }
 
   .face {
     object-fit: contain;
-    border-radius: 10%;
     vertical-align: middle;
-    width: 70%;
-    height: 104px;
-    margin-top: 5%;
-    margin-bottom: 5%;
-    margin-left: 5%;
+    width: 3rem;
+    height: 3rem;
+    margin-top: 10%;
+    margin-bottom: 6%;
+    align-items: center;
   }
 
   .site_product_detail .product_detail {

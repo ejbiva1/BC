@@ -1,10 +1,10 @@
 <template>
   <div class="animated fadeIn">
     <!--<view class="section">-->
-      <!--<view class="flex-wrp">-->
-        <!--<view class="flex-item site_bonus" :class="{navigate_active: isSite}" @click="showDiscountSiteList">折扣</view>-->
-        <!--<view class="flex-item site_all" :class="{navigate_active: !isSite}" @click="showAllSites">全部</view>-->
-      <!--</view>-->
+    <!--<view class="flex-wrp">-->
+    <!--<view class="flex-item site_bonus" :class="{navigate_active: isSite}" @click="showDiscountSiteList">折扣</view>-->
+    <!--<view class="flex-item site_all" :class="{navigate_active: !isSite}" @click="showAllSites">全部</view>-->
+    <!--</view>-->
     <!--</view>-->
 
     <view class="site_section">
@@ -57,10 +57,10 @@
 
         fly.post("phantombuy/site/list", query_dto).then((res) => {
           if (res.data.code === '1') {
-            if (res.data.data.records.length > 0) this.site_list = res.data.data.records;
-            for (let i = 0; i < this.site_list.length; i++) {
-            }
-            this.display_site_list = this.sitePromotionList(this.site_list, true);
+            if (res.data.data.records.length > 0) this.display_site_list = res.data.data.records;
+//            for (let i = 0; i < this.site_list.length; i++) {
+//            }
+//            this.display_site_list = this.sitePromotionList(this.site_list, true);
 
             this.hide_loading();
           } else {
