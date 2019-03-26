@@ -97,15 +97,7 @@
     },
     onReachBottom() {
       this.toNextPage();
-      //current_prod_categoryid: 0,       看这两个数据变化情况
-      // previous_pro_cate_id: 0
-      if (this.current_prod_categoryid == 0) {
-        this.getAllProductList();
-      } else if (this.current_prod_categoryid != this.previous_pro_cate_id) {
-        this.product_detail_list = [];
-      } else if (this.current_prod_categoryid == this.previous_pro_cate_id && this.current_prod_categoryid != 0) {
-        this.getAllProductList();
-      }
+      this.loadReachBottomList();
     },
 
     computed: {},
@@ -119,7 +111,7 @@
           }
         });
       },
-      // all
+      // all 只负责: 首次加载 + 点击 服装分类按钮
       getAllProductList() {
         // 页面首次加载
         let siteId = this.site_detail.siteId;
@@ -140,6 +132,57 @@
             pageDTO: this.pageDtoSetting
           };
         }
+        // 是否清空 product_list
+        this.isEmptyProductList();
+
+        fly.post("phantombuy/product/list", entityDTO).then((res) => {
+          if (res.data.code === '1') {
+            //if (res.data.data.records.length > 0)
+            this.product_detail_list = res.data.data.records
+            this.hide_loading();
+          } else {
+
+          }
+        });
+      },
+      getSingleKindProductList(productCategory) {
+
+        this.show_loading();
+        this.previous_pro_cate_id = this.current_prod_categoryid;
+        this.current_prod_categoryid = productCategory.productCategoryId;
+
+        this.getAllProductList();
+      },
+
+      loadReachBottomList(){
+        //current_prod_categoryid: 0,       看这两个数据变化情况
+        // previous_pro_cate_id: 0
+        //
+      if (this.current_prod_categoryid != this.previous_pro_cate_id && this.previous_pro_cate_id != 0) {
+          this.product_detail_list = [];
+        } 
+
+        let siteId = this.site_detail.siteId;
+
+        let entityDTO;
+        if (this.current_prod_categoryid == 0) {
+          entityDTO = {
+            entityDTO: {
+              siteId: siteId,
+              productCategoryId: ""
+            },
+            pageDTO: this.pageDtoSetting
+          };
+        } else {
+          entityDTO = {
+            entityDTO: {siteId: this.site_detail.siteId, productCategoryId: this.current_prod_categoryid},
+            orderDTO: {propertyName: "sale_price_usd,original_price_usd"},
+            pageDTO: this.pageDtoSetting
+          };
+        }
+
+        // 是否清空 product_list
+        this.isEmptyProductList();
 
         fly.post("phantombuy/product/list", entityDTO).then((res) => {
           if (res.data.code === '1') {
@@ -150,13 +193,6 @@
 
           }
         });
-      },
-      getSingleKindProductList(productCategory) {
-
-        this.previous_pro_cate_id = this.current_prod_categoryid;
-        this.current_prod_categoryid = productCategory.productCategoryId;
-
-        this.getAllProductList();
       },
       toProductDetail(productId) {
         wx.navigateTo({
@@ -179,6 +215,14 @@
       SearchProducts(){
         console.log(this.$refs.find.search_key);
       },
+      isEmptyProductList() {
+        if (this.current_prod_categoryid != this.previous_pro_cate_id && this.current_prod_categoryid) {
+          this.product_detail_list = [];
+          return true;
+        } else {
+          return false;
+        }
+      }
 
     },
   }
