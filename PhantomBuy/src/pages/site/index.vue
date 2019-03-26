@@ -96,12 +96,48 @@
       wx.stopPullDownRefresh();
     },
     onReachBottom() {
+    this.previous_pro_cate_id = this.current_prod_categoryid;
+    this.current_prod_categoryid =  this.current_prod_categoryid;
       this.toNextPage();
       this.loadReachBottomList();
     },
 
     computed: {},
     methods: {
+      getProducts(){
+      let siteId = this.site_detail.siteId;
+
+              let entityDTO;
+              if (this.current_prod_categoryid == 0) {
+                entityDTO = {
+                  entityDTO: {
+                    siteId: siteId,
+                    productCategoryId: ""
+                  },
+                  pageDTO: this.pageDtoSetting
+                };
+              } else {
+                entityDTO = {
+                  entityDTO: {siteId: this.site_detail.siteId, productCategoryId: this.current_prod_categoryid},
+                  orderDTO: {propertyName: "sale_price_usd,original_price_usd"},
+                  pageDTO: this.pageDtoSetting
+                };
+              }
+
+
+              fly.post("phantombuy/product/list", entityDTO).then((res) => {
+                if (res.data.code === '1') {
+                  //if (res.data.data.records.length > 0)
+                  for(let i = 0; i < res.data.data.records.length ; i++){
+                 this.product_detail_list.push(res.data.data.records[i]);
+                  }
+
+                  this.hide_loading();
+                } else {
+
+                }
+              });
+      },
       getListSiteProductCategory() {
         this.show_loading();
         let entityDTO = {entityDTO: {siteId: this.site_detail.siteId}};
@@ -113,88 +149,50 @@
       },
       // all 只负责: 首次加载 + 点击 服装分类按钮
       getAllProductList() {
-        // 页面首次加载
-        let siteId = this.site_detail.siteId;
-
-        let entityDTO;
-        if (this.current_prod_categoryid == 0) {
-          entityDTO = {
-            entityDTO: {
-              siteId: siteId,
-              productCategoryId: ""
-            },
-            pageDTO: this.pageDtoSetting
-          };
-        } else {
-          entityDTO = {
-            entityDTO: {siteId: this.site_detail.siteId, productCategoryId: this.current_prod_categoryid},
-            orderDTO: {propertyName: "sale_price_usd,original_price_usd"},
-            pageDTO: this.pageDtoSetting
-          };
-        }
-        // 是否清空 product_list
-        this.isEmptyProductList();
-
-        fly.post("phantombuy/product/list", entityDTO).then((res) => {
-          if (res.data.code === '1') {
-            //if (res.data.data.records.length > 0)
-            this.product_detail_list = res.data.data.records
-            this.hide_loading();
-          } else {
-
-          }
-        });
+      //  product_detail_list  置空
+         this.product_detail_list = [];
+         this.getProducts();
       },
       getSingleKindProductList(productCategory) {
 
         this.show_loading();
         this.previous_pro_cate_id = this.current_prod_categoryid;
         this.current_prod_categoryid = productCategory.productCategoryId;
+        this.product_detail_list = []
 
-        this.getAllProductList();
+         this.getProducts();
       },
 
       loadReachBottomList(){
         //current_prod_categoryid: 0,       看这两个数据变化情况
         // previous_pro_cate_id: 0
-        //
-      if (this.current_prod_categoryid != this.previous_pro_cate_id && this.previous_pro_cate_id != 0) {
-          this.product_detail_list = [];
-        } 
+        //            就是这里逻辑还 有问题
+        // 1. 首次加载  current_prod_categoryid = 0, previous_pro_date_id  = 0
+      //if ( // 首次加载， reachBottom current and previous = 0
+        //   (this.current_prod_categoryid == 0  && this.previous_pro_cate_id == 0)
+           // 首次加载后， 第一次调用某一种类商品
+          // || (this.current_prod_categoryid != 0 && this.previous_pro_cate_id == 0) ||
 
-        let siteId = this.site_detail.siteId;
+          // (this.current_prod_categoryid == this.previous_pro_cate_id) ||
+          // (this.current_prod_categoryid != this.previous_pro_cate_id && this.previous_pro_cate_id != 0)) {
+          // this.getProducts();
+        //}else if(this.current_prod_categoryid != this.previous_pro_cate_id
+          //        ){
+         // this.product_detail_list = [];
+         // this.getProducts();
 
-        let entityDTO;
-        if (this.current_prod_categoryid == 0) {
-          entityDTO = {
-            entityDTO: {
-              siteId: siteId,
-              productCategoryId: ""
-            },
-            pageDTO: this.pageDtoSetting
-          };
-        } else {
-          entityDTO = {
-            entityDTO: {siteId: this.site_detail.siteId, productCategoryId: this.current_prod_categoryid},
-            orderDTO: {propertyName: "sale_price_usd,original_price_usd"},
-            pageDTO: this.pageDtoSetting
-          };
-        }
+        //}
 
-        // 是否清空 product_list
-        this.isEmptyProductList();
+        if(this.current_prod_categoryid != this.previous_pro_cate_id  ){
 
-        fly.post("phantombuy/product/list", entityDTO).then((res) => {
-          if (res.data.code === '1') {
-            //if (res.data.data.records.length > 0)
-            this.product_detail_list = this.product_detail_list.concat(res.data.data.records);
-            this.hide_loading();
-          } else {
+        this.product_detail_list = [];
+                  this.getProducts();
+                  }else {
+                   this.getProducts();
+                  }
+        },
 
-          }
-        });
-      },
-      toProductDetail(productId) {
+       toProductDetail(productId) {
         wx.navigateTo({
           url: '/pages/productDetail/main?productId=' + productId,
         });
