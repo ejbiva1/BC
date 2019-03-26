@@ -1,28 +1,30 @@
 {
   "pages": [
     "pages/home/main",
-    "pages/site/main",
     "pages/order/main",
-    "pages/myOrder/main",
+    "pages/login/main",
     "pages/my/main",
+    "pages/site/main",
+    "pages/myOrder/main",
     "pages/brand/main",
     "pages/shop/main",
     "pages/checkout/main",
     "pages/myInfo/main",
-    "pages/productDetail/main"
+    "pages/productDetail/main",
+    "pages/address/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#F7F7F7",
     "navigationBarTitleText": "PhantomBuy",
     "navigationBarTextStyle": "black"
-
   },
   "tabBar": {
     "color": "#272636",
     "selectedColor": "#FFD161",
     "backgroundColor": "#F7F7F7",
     "borderStyle": "white",
+    "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/home/main",

@@ -21,7 +21,7 @@
         </div>
         </navigator>
 
-        <div class="myDataBlock">
+        <div class="myDataBlock" @click="checkAllMyAddress">
           <div class="twoSideRow">
             <div class="myDataTitle">
               我的收货地址
@@ -52,24 +52,34 @@
 
       </div>
       <!--<div class="signOut">退出账号</div>-->
-
-  </div>
+    </div>
 </template>
 
 <script type="text/ecmascript-6">
-    export default {}
+  export default {
+    data(){
+      return {};
+    },
+    methods:{
+      checkAllMyAddress() {
+        wx.navigateTo({
+          url: '/pages/address/main',
+        });
+      }
+    }
+  }
 </script>
 
 <style>
   .userImg{
-    margin-top: 20rpx;
-    margin-left:20rpx;
-    padding: 0rpx;
+    margin-top: 0.20rem;
+    margin-left:0.20rem;
+    padding: 0rem;
     width:20%;
   }
   .userName{
-    margin-top: 60rpx;
-    margin-left:20rpx;
+    margin-top: 0.60rem;
+    margin-left:0.20rem;
   }
   .my{
     background-color:#F7F7F7;
@@ -81,27 +91,27 @@
 
   }
   .navLink{
-    margin-left: 20rpx;
-    margin-right: 20rpx;
+    margin-left: 0.20rem;
+    margin-right: 0.20rem;
   }
   .myOrderDataBlock{
     background-color: white;
-    margin-top: 20rpx;
-    padding-top:20rpx;
-    padding-bottom: 20rpx;
-    padding-left: 20rpx;
-    padding-right: 20rpx;
+    margin-top: 0.20rem;
+    padding-top:0.20rem;
+    padding-bottom: 0.20rem;
+    padding-left: 0.20rem;
+    padding-right: 0.20rem;
   }
   .myDataBlock{
 
     background-color: white;
-    margin-top: 20rpx;
-    margin-left: 20rpx;
-    margin-right: 20rpx;
-    padding-top:20rpx;
-    padding-bottom: 20rpx;
-    padding-left: 20rpx;
-    padding-right: 20rpx;
+    margin-top: 0.20rem;
+    margin-left: 0.20rem;
+    margin-right: 0.20rem;
+    padding-top:0.20rem;
+    padding-bottom: 0.20rem;
+    padding-left: 0.20rem;
+    padding-right: 0.20rem;
   }
   .row{
     display: flex;

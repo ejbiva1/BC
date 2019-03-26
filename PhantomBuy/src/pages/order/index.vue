@@ -1,11 +1,11 @@
 <template>
 
     <div class="order">
-      <div class="titleBlock">
-        Michael Kors
-      </div>
+      <view class="titleBlock" >
+        {{cart_list.brandNameCh}}
+      </view>
 
-      <div class="sliderLeft" style="margin-top:40rpx;">
+      <div class="sliderLeft" style="margin-top:40rem;">
       <slider-left>
       <div class="itemBlock" @click="itemBlockChangeColor" :style="{'background-color':pageBackgroundColor
       }">
@@ -87,17 +87,61 @@
 </template>
 
 <script type="text/ecmascript-6">
+    import  fly from "../../utils/fly";
     export default {
-      name: 'slide',//左滑删除
+      name: 'slide',
+
       data() {
         return {
           pageBackgroundColor: 'lightgray',
+          cart_list: {}
         }
       },
       components: {
       },
-
+      created() {
+        this.getCartList();
+      },
       methods: {
+        getCartList() {
+          //读取storage如果有sessionID就在header里带上
+          var SessionId = null;
+          wx.getStorage({
+            key: 'cookieKey',
+            success: function (data) {
+              console.log(data);
+              const cookieSession = String(data.data);
+              SessionId = cookieSession.split('=')[1].split(';')[0];
+              //fly.config.headers["JSESSIONID"] = SessionId;
+            },
+            fail: function (err) {
+              console.log(err)
+            }
+          })
+
+          fly.post("phantombuy/cart/list",{}, {"JSESSIONID":SessionId}).then((res) => {
+            console.log(`后台拿回购物车数据:`,res);
+            if (res.data.code == `888`) {
+              //跳转授权页
+              console.log(`请先登录:`, res);
+              /*wx.navigateTo({
+                url: '/pages/login/main'
+              })*/
+            }
+            else if(res.data.code == `1`) {
+              //成功
+              if (res.data.data.records.length > 0) {
+                this.cart_list = res.data.data.records;
+              }
+            }
+            else {
+              //失败
+              console.log(`购物车数据:`,res);
+            }
+          }).catch(err => {
+            console.log(`api请求出错:`,err);
+          })
+        },
         itemBlockChangeColor: function () {
           let bgColor = this.pageBackgroundColor;
           if (bgColor == 'lightgray') {
@@ -126,26 +170,26 @@
     flex-direction: row;
   }
   .titleBlock{
-    margin-top: 20rpx;
-    margin-left: 46rpx;
-    margin-right: 46rpx;
+    margin-top: 0.20rem;
+    margin-left: 0.46rem;
+    margin-right: 0.46rem;
     background-color: white;
     display: flex;
     justify-content: center;
-    padding-top: 40rpx;
-    padding-bottom: 40rpx;
+    padding-top: 0.40rem;
+    padding-bottom: 0.40rem;
   }
   .itemImage {
     width:20%;
-    margin-left: 40rpx;
+    margin-left: 0.40rem;
   }
   .titleImage{
     width:100%;
   }
   .itemBlock{
     width:100%;
-    padding-top: 40rpx;
-    padding-bottom: 40rpx;
+    padding-top: 0.40rem;
+    padding-bottom: 0.40rem;
   }
   .itemTitle{
     font-size: normal;
@@ -154,19 +198,19 @@
     font-size: small;
   }
   .itemTitle{
-    margin-left: 30rpx;
-    margin-top: 15rpx;
+    margin-left: 30rem;
+    margin-top: 15rem;
   }
   .itemRow{
     display: flex;
     flex-direction: row;
-    margin-left: 30rpx;
-    margin-top:20rpx;
+    margin-left: 0.30rem;
+    margin-top:0.20rem;
   }
   .counterBlock {
     background-color: #fff;
-    margin-left: 30rpx;
-    width:175rpx;
+    margin-left: 0.30rem;
+    width:1.75rem;
   }
   .counter{
     margin:0;
@@ -175,27 +219,27 @@
   .total{
     display: block;
     float: right;
-    margin-right:20rpx;
+    margin-right:0.20rem;
     font-size: small;
-    margin-bottom: 10rpx;
+    margin-bottom: 0.10rem;
   }
   .priceBlock{
     background-color: white;
     font-size: small;
-    margin-left: 46rpx;
-    margin-right: 46rpx;
-    margin-top:40rpx;
-    padding-top: 20rpx;
-    padding-left:20rpx;
+    margin-left: 0.46rem;
+    margin-right: 0.46rem;
+    margin-top:0.40rem;
+    padding-top: 0.20rem;
+    padding-left:0.20rem;
   }
   .paddingButtom20{
-    padding-bottom: 20rpx;
+    padding-bottom: 0.20rem;
   }
 
   .checkoutButton{
     float: right;
-    margin-top: 180rpx;
-    margin-right: 46rpx;
+    margin-top: 1.80rem;
+    margin-right: 0.46rem;
   }
 
 
