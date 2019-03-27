@@ -8,19 +8,128 @@
     </view>
 
 
+    <section class="sort_container">
+      <div class="sort_item" :class="{choose_type:sortBy == 'food'}">
+        <div class="sort_item_container" @click="chooseType('food')">
+          <div class="sort_item_border">
+            <span :class="{category_title: sortBy == 'food'}">全部商品</span>
+            <!--SVG 是可缩放矢量图形 ， polygon 是一种颜色、渐变、填充等格式； -->
+            <!--<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg" version="1.1" class="sort_icon">-->
+              <!--<polygon points="0,3 10,3 5,8"/>-->
+            <!--</svg>-->
+          </div>
+        </div>
+
+        <transition name="showlist" v-show="category">
+          <section v-show="sortBy == 'food'" class="category_container sort_detail_type">
+            <section class="category_left">
+              <ul>
+                <li v-for="(item, index) in category" :key="index" class="category_left_li"
+                    :class="{category_active:restaurant_category_id == item.id}"
+                    @click="selectCategoryName(item.id, index)">
+                  <section>
+                    <img :src="getImgPath(item.image_url)" v-if="index" class="category_icon">
+                    <span>{{item.name}}</span>
+                  </section>
+                  <section>
+                    <span class="category_count">{{item.count}}</span>
+                    <svg v-if="index" width="8" height="8" xmlns="http://www.w3.org/2000/svg" version="1.1"
+                         class="category_arrow">
+                      <path d="M0 0 L6 4 L0 8" stroke="#bbb" stroke-width="1" fill="none"/>
+                    </svg>
+                  </section>
+                </li>
+              </ul>
+            </section>
+            <section class="category_right">
+              <ul>
+                <li v-for="(item, index) in categoryDetail" v-if="index" :key="index" class="category_right_li"
+                    @click="getCategoryIds(item.id, item.name)"
+                    :class="{category_right_choosed: restaurant_category_ids == item.id || (!restaurant_category_ids)&&index == 0}">
+                  <span>{{item.name}}</span>
+                  <span>{{item.count}}</span>
+                </li>
+              </ul>
+            </section>
+          </section>
+        </transition>
+
+        <div class="sort_item" :class="{choose_type:sortBy == 'food'}">
+          <div class="sort_item_container" @click="chooseType('food')">
+            <div class="sort_item_border">
+              <span :class="{category_title: sortBy == 'food'}">全部商品</span>
+              <!--SVG 是可缩放矢量图形 ， polygon 是一种颜色、渐变、填充等格式； -->
+              <!--<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg" version="1.1" class="sort_icon">-->
+                <!--<polygon points="0,3 10,3 5,8"/>-->
+              <!--</svg>-->
+            </div>
+          </div>
+
+          <transition name="showlist" v-show="category">
+            <section v-show="sortBy == 'food'" class="category_container sort_detail_type">
+              <section class="category_left">
+                <ul>
+                  <li v-for="(item, index) in category" :key="index" class="category_left_li"
+                      :class="{category_active:restaurant_category_id == item.id}"
+                      @click="selectCategoryName(item.id, index)">
+                    <section>
+                      <img :src="getImgPath(item.image_url)" v-if="index" class="category_icon">
+                      <span>{{item.name}}</span>
+                    </section>
+                    <section>
+                      <span class="category_count">{{item.count}}</span>
+                      <svg v-if="index" width="8" height="8" xmlns="http://www.w3.org/2000/svg" version="1.1"
+                           class="category_arrow">
+                        <path d="M0 0 L6 4 L0 8" stroke="#bbb" stroke-width="1" fill="none"/>
+                      </svg>
+                    </section>
+                  </li>
+                </ul>
+              </section>
+              <section class="category_right">
+                <ul>
+                  <li v-for="(item, index) in categoryDetail" v-if="index" :key="index" class="category_right_li"
+                      @click="getCategoryIds(item.id, item.name)"
+                      :class="{category_right_choosed: restaurant_category_ids == item.id || (!restaurant_category_ids)&&index == 0}">
+                    <span>{{item.name}}</span>
+                    <span>{{item.count}}</span>
+                  </li>
+                </ul>
+              </section>
+            </section>
+          </transition>
+        </div>
+      </div>
+    </section>
+
     <!--商品种类-->
+    <div class="swiper-home">
+      <scroll-view class="scroll-view_x"
+                   :scroll-x="true"
+                   :style="'{width: auto;}'">
+        <ul>
+          <li class="site_product" v-for="(item, i) in site_product_male_category_list" :key="i"
+              :class="{choose_category: is_active}"
+              @click="getSingleKindProductList(item)">
+            <span>{{item.productCategoryName}}</span></li>
+        </ul>
+      </scroll-view>
+
+
+    </div>
+
     <div class="swiper-home">
       <scroll-view class="scroll-view_x"
                    :scroll-x="true"
                    :style="'{width: auto;overflow:hidden;height:20px;}'">
         <ul>
-          <li class="site_product" v-for="(item, i) in site_product_category_list" :key="i"
+          <li class="site_product" v-for="(item, i) in site_product_female_category_list" :key="i"
+              :class="{choose_category: is_active}"
               @click="getSingleKindProductList(item)">
             <span>{{item.productCategoryName}}</span></li>
         </ul>
       </scroll-view>
     </div>
-
     <!--商品列表-->
     <div class="site_product_total">
       <wxc-panel :border="has_border">
@@ -64,6 +173,8 @@
       return {
         ListSiteProductCategory: [],
         site_product_category_list: [],
+        site_product_female_category_list: [],
+        site_product_male_category_list: [],
         product_detail_list: [],
         has_border: true,
         site_detail: {},
@@ -71,7 +182,8 @@
         pageDtoSetting: {},
         search: "搜索",
         current_prod_categoryid: 0,
-        previous_pro_cate_id: 0
+        previous_pro_cate_id: 0,
+        is_active: false
       };
     },
     components: {
@@ -96,103 +208,94 @@
       wx.stopPullDownRefresh();
     },
     onReachBottom() {
-    this.previous_pro_cate_id = this.current_prod_categoryid;
-    this.current_prod_categoryid =  this.current_prod_categoryid;
+      this.previous_pro_cate_id = this.current_prod_categoryid;
+      this.current_prod_categoryid = this.current_prod_categoryid;
       this.toNextPage();
       this.loadReachBottomList();
     },
 
     computed: {},
     methods: {
-      getProducts(){
-      let siteId = this.site_detail.siteId;
-
-              let entityDTO;
-              if (this.current_prod_categoryid == 0) {
-                entityDTO = {
-                  entityDTO: {
-                    siteId: siteId,
-                    productCategoryId: ""
-                  },
-                  pageDTO: this.pageDtoSetting
-                };
-              } else {
-                entityDTO = {
-                  entityDTO: {siteId: this.site_detail.siteId, productCategoryId: this.current_prod_categoryid},
-                  orderDTO: {propertyName: "sale_price_usd,original_price_usd"},
-                  pageDTO: this.pageDtoSetting
-                };
-              }
-
-
-              fly.post("phantombuy/product/list", entityDTO).then((res) => {
-                if (res.data.code === '1') {
-                  //if (res.data.data.records.length > 0)
-                  for(let i = 0; i < res.data.data.records.length ; i++){
-                 this.product_detail_list.push(res.data.data.records[i]);
-                  }
-
-                  this.hide_loading();
-                } else {
-
-                }
-              });
-      },
       getListSiteProductCategory() {
         this.show_loading();
         let entityDTO = {entityDTO: {siteId: this.site_detail.siteId}};
         fly.post('phantombuy/site/listSiteProductCategory', entityDTO).then((res) => {
           if (res.data.code === '1') {
             if (res.data.data.records.length > 0)   this.site_product_category_list = res.data.data.records;
+            this.site_product_female_category_list = this.site_product_category_list.filter((item, i) => {
+              return item.sex == 0;
+            });
+
+            this.site_product_male_category_list = this.site_product_category_list.filter((item, i) => {
+              return item.sex == 1;
+            });
           }
         });
       },
       // all 只负责: 首次加载 + 点击 服装分类按钮
       getAllProductList() {
-      //  product_detail_list  置空
-         this.product_detail_list = [];
-         this.getProducts();
+        //  product_detail_list  置空
+        this.product_detail_list = [];
+        this.getProducts();
       },
       getSingleKindProductList(productCategory) {
 
         this.show_loading();
         this.previous_pro_cate_id = this.current_prod_categoryid;
         this.current_prod_categoryid = productCategory.productCategoryId;
-        this.product_detail_list = []
+        this.product_detail_list = [];
+        this.pageDtoSetting = this.pageDto;
+        this.is_active = true;
 
-         this.getProducts();
+        this.getProducts();
       },
-
       loadReachBottomList(){
         //current_prod_categoryid: 0,       看这两个数据变化情况
         // previous_pro_cate_id: 0
-        //            就是这里逻辑还 有问题
-        // 1. 首次加载  current_prod_categoryid = 0, previous_pro_date_id  = 0
-      //if ( // 首次加载， reachBottom current and previous = 0
-        //   (this.current_prod_categoryid == 0  && this.previous_pro_cate_id == 0)
-           // 首次加载后， 第一次调用某一种类商品
-          // || (this.current_prod_categoryid != 0 && this.previous_pro_cate_id == 0) ||
+        if (this.current_prod_categoryid != this.previous_pro_cate_id) {
+          this.pageDtoSetting = this.pageDto;
+          this.product_detail_list = [];
+          this.getProducts();
+        } else {
+          this.getProducts();
+        }
+      },
+      getProducts(){
+        let siteId = this.site_detail.siteId;
 
-          // (this.current_prod_categoryid == this.previous_pro_cate_id) ||
-          // (this.current_prod_categoryid != this.previous_pro_cate_id && this.previous_pro_cate_id != 0)) {
-          // this.getProducts();
-        //}else if(this.current_prod_categoryid != this.previous_pro_cate_id
-          //        ){
-         // this.product_detail_list = [];
-         // this.getProducts();
+        let entityDTO;
+        if (this.current_prod_categoryid == 0) {
+          entityDTO = {
+            entityDTO: {
+              siteId: siteId,
+              productCategoryId: ""
+            },
+            pageDTO: this.pageDtoSetting
+          };
+        } else {
+          entityDTO = {
+            entityDTO: {siteId: this.site_detail.siteId, productCategoryId: this.current_prod_categoryid},
+            orderDTO: {propertyName: "sale_price_usd,original_price_usd"},
+            pageDTO: this.pageDtoSetting
+          };
+        }
 
-        //}
 
-        if(this.current_prod_categoryid != this.previous_pro_cate_id  ){
+        fly.post("phantombuy/product/list", entityDTO).then((res) => {
+          if (res.data.code === '1') {
+            //if (res.data.data.records.length > 0)
+            for (let i = 0; i < res.data.data.records.length; i++) {
+              this.product_detail_list.push(res.data.data.records[i]);
+            }
 
-        this.product_detail_list = [];
-                  this.getProducts();
-                  }else {
-                   this.getProducts();
-                  }
-        },
+            this.hide_loading();
+          } else {
 
-       toProductDetail(productId) {
+          }
+        });
+      },
+
+      toProductDetail(productId) {
         wx.navigateTo({
           url: '/pages/productDetail/main?productId=' + productId,
         });
@@ -208,19 +311,10 @@
       toNextPage() {
         this.pageDtoSetting = this.pageDto.nextPage(this.pageDtoSetting);
       },
-      // 获取 某一类产品
-
+      // 关键字搜索
       SearchProducts(){
         console.log(this.$refs.find.search_key);
       },
-      isEmptyProductList() {
-        if (this.current_prod_categoryid != this.previous_pro_cate_id && this.current_prod_categoryid) {
-          this.product_detail_list = [];
-          return true;
-        } else {
-          return false;
-        }
-      }
 
     },
   }
@@ -232,10 +326,59 @@
     font-family: "Microsoft Yahei";
   }
 
+  .sort_container {
+    background-color: #fff;
+    border-bottom: 0.025rem solid #f1f1f1;
+    position: fixed;
+    top: 1.95rem;
+    right: 0;
+    width: 100%;
+    display: flex;
+    z-index: 13;
+    box-sizing: border-box;
+  }
+
+  .sort_container .sort_item {
+    font-size: 0.55rem;
+    color: #444;
+    text-align: center;
+    line-height: 1rem;
+  }
+
+  .sort_item_container {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    z-index: 14;
+    background-color: #fff;
+    box-sizing: border-box;
+    padding-top: 0.3rem;
+  }
+
+  .sort_item_border {
+    height: 1rem;
+    border-right: 0.025rem solid #e4e4e4;;
+  }
+
+  .sort_icon {
+    vertical-align: middle;
+    transition: all 0.3s;
+    fill: #666;
+  }
+
+  .choose_type .sort_item_container .category_title {
+    color: #3190e8;
+  }
+
+  .choose_type .sort_item_container .sort_icon {
+    transform: rotate(180deg);
+    fill: #3190e8;
+  }
+
   .swiper-home {
     width: 100%;
     height: 15%;
-    padding: 20px 10px 0px 0px;
+    /*padding: 20px 10px 0px 0px;*/
     display: flex;
     white-space: nowrap;
   }
@@ -344,6 +487,10 @@
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
+  }
+
+  .choose_category {
+    background-color: red;
   }
 
 </style>
