@@ -1,6 +1,5 @@
 {
   "usingComponents": {
-    "wxc-label":"/static/minui/@minui/wxc-label/dist/index",
-    "wxc-loading": "/static/minui/@minui/wxc-loading/dist/index"
+    "wxc-label":"/static/minui/@minui/wxc-label/dist/index"
   }
 }

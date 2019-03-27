@@ -5,7 +5,7 @@
         {{cart_list.brandNameCh}}
       </view>
 
-      <div class="sliderLeft" style="margin-top:40rem;">
+      <div class="sliderLeft" style="margin-top:40rpx;">
       <slider-left>
       <div class="itemBlock" @click="itemBlockChangeColor" :style="{'background-color':pageBackgroundColor
       }">
@@ -88,59 +88,96 @@
 
 <script type="text/ecmascript-6">
     import  fly from "../../utils/fly";
+    var settingKey = '';
     export default {
-      name: 'slide',
 
       data() {
         return {
           pageBackgroundColor: 'lightgray',
-          cart_list: {}
+          cart_list: {},
+          settingKey: ''
         }
       },
       components: {
       },
-      created() {
-        this.getCartList();
+      onLoad(options) {
+        this.getSettingKey()
       },
       methods: {
-        getCartList() {
-          //读取storage如果有sessionID就在header里带上
-          var SessionId = null;
+        /*
+        * 这段getSettingKey需要复用
+        * */
+        getSettingKey () {
+          const self = this
+          wx.getStorage({
+            key: 'settingKey',
+            success: function (data) {
+              console.log(data)
+              settingKey = data.data
+              if (settingKey === '1'){
+                // 已经授权调用所需接口
+                /*
+                * 修改此处，调用所需使用的接口函数
+                * */
+                self.getCartList();
+              } else if (settingKey === '0' ) {
+                // 未授权，跳转授权页面
+                wx.navigateTo({
+                  url: '/pages/login/main'
+                })
+              } else {
+                self.getSettingKey()
+              }
+            },
+            // 没有获得到SettingKey的时候重复调用本函数
+            fail: function (err) {
+              self.getSettingKey()
+            }
+          })
+        },
+        getCartList () {
+          const self = this
+          // 读取storage如果有sessionID就在header里带上
+          var sessionId = null
           wx.getStorage({
             key: 'cookieKey',
             success: function (data) {
               console.log(data);
               const cookieSession = String(data.data);
-              SessionId = cookieSession.split('=')[1].split(';')[0];
-              //fly.config.headers["JSESSIONID"] = SessionId;
+              sessionId = cookieSession.split('=')[1].split(';')[0];
+              fly.config.headers["Cookie"] = "JSESSIONID="+sessionId;
+              fly.post("phantombuy/cart/list",{entityDTO: {}}).then((res) => {
+                console.log(`后台拿回购物车数据:`,res);
+                if (res.data.code === `888`) {
+                  //跳转授权页
+                  console.log(`请先登录:`, res);
+                  wx.navigateTo({
+                    url: '/pages/login/main'
+                  })
+                }
+                else if(res.data.code === `1`) {
+                  //成功
+                  if (res.data.data.records.length > 0) {
+                    this.cart_list = res.data.data.records;
+                  }
+                }
+                else {
+                  //失败
+                  console.log(`购物车数据:`,res);
+                }
+              }).catch(err => {
+                console.log(`api请求出错:`,err);
+              })
             },
             fail: function (err) {
               console.log(err)
+              wx.navigateTo({
+                url: '/pages/login/main'
+              })
             }
           })
 
-          fly.post("phantombuy/cart/list",{}, {"JSESSIONID":SessionId}).then((res) => {
-            console.log(`后台拿回购物车数据:`,res);
-            if (res.data.code == `888`) {
-              //跳转授权页
-              console.log(`请先登录:`, res);
-              /*wx.navigateTo({
-                url: '/pages/login/main'
-              })*/
-            }
-            else if(res.data.code == `1`) {
-              //成功
-              if (res.data.data.records.length > 0) {
-                this.cart_list = res.data.data.records;
-              }
-            }
-            else {
-              //失败
-              console.log(`购物车数据:`,res);
-            }
-          }).catch(err => {
-            console.log(`api请求出错:`,err);
-          })
+
         },
         itemBlockChangeColor: function () {
           let bgColor = this.pageBackgroundColor;
@@ -158,7 +195,7 @@
 
 </script>
 
-<style>
+<style scoped>
   .order{
     background-color:#F7F7F7;
     position: fixed;
@@ -170,26 +207,26 @@
     flex-direction: row;
   }
   .titleBlock{
-    margin-top: 0.20rem;
-    margin-left: 0.46rem;
-    margin-right: 0.46rem;
+    margin-top: 20rpx;
+    margin-left: 46rpx;
+    margin-right: 46rpx;
     background-color: white;
     display: flex;
     justify-content: center;
-    padding-top: 0.40rem;
-    padding-bottom: 0.40rem;
+    padding-top: 40rpx;
+    padding-bottom: 40rpx;
   }
   .itemImage {
     width:20%;
-    margin-left: 0.40rem;
+    margin-left: 40rpx;
   }
   .titleImage{
     width:100%;
   }
   .itemBlock{
     width:100%;
-    padding-top: 0.40rem;
-    padding-bottom: 0.40rem;
+    padding-top: 40rpx;
+    padding-bottom: 40rpx;
   }
   .itemTitle{
     font-size: normal;
@@ -198,19 +235,19 @@
     font-size: small;
   }
   .itemTitle{
-    margin-left: 30rem;
-    margin-top: 15rem;
+    margin-left: 30rpx;
+    margin-top: 15rpx;
   }
   .itemRow{
     display: flex;
     flex-direction: row;
-    margin-left: 0.30rem;
-    margin-top:0.20rem;
+    margin-left: 30rpx;
+    margin-top:20rpx;
   }
   .counterBlock {
     background-color: #fff;
-    margin-left: 0.30rem;
-    width:1.75rem;
+    margin-left: 30rpx;
+    width:175rpx;
   }
   .counter{
     margin:0;
@@ -219,27 +256,27 @@
   .total{
     display: block;
     float: right;
-    margin-right:0.20rem;
+    margin-right:20rpx;
     font-size: small;
-    margin-bottom: 0.10rem;
+    margin-bottom: 10rpx;
   }
   .priceBlock{
     background-color: white;
     font-size: small;
-    margin-left: 0.46rem;
-    margin-right: 0.46rem;
-    margin-top:0.40rem;
-    padding-top: 0.20rem;
-    padding-left:0.20rem;
+    margin-left: 46rpx;
+    margin-right: 46rpx;
+    margin-top:40rpx;
+    padding-top: 20rpx;
+    padding-left:20rpx;
   }
   .paddingButtom20{
-    padding-bottom: 0.20rem;
+    padding-bottom: 20rpx;
   }
 
   .checkoutButton{
     float: right;
-    margin-top: 1.80rem;
-    margin-right: 0.46rem;
+    margin-top: 180rpx;
+    margin-right: 46rpx;
   }
 
 

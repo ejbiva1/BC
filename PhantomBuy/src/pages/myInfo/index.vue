@@ -16,7 +16,7 @@
   export default {}
 </script>
 
-<style>
+<style scoped>
   .my{
     background-color:#F7F7F7;
     position: fixed;

@@ -1,17 +1,18 @@
 {
   "pages": [
-    "pages/home/main",
     "pages/order/main",
     "pages/login/main",
+
     "pages/my/main",
+    "pages/home/main",
+
     "pages/site/main",
     "pages/myOrder/main",
+
     "pages/brand/main",
     "pages/shop/main",
-    "pages/checkout/main",
     "pages/myInfo/main",
-    "pages/productDetail/main",
-    "pages/address/main"
+    "pages/productDetail/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -23,7 +24,6 @@
     "color": "#272636",
     "selectedColor": "#FFD161",
     "backgroundColor": "#F7F7F7",
-    "borderStyle": "white",
     "borderStyle": "black",
     "list": [
       {

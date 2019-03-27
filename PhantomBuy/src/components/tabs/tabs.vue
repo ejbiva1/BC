@@ -50,7 +50,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .product_tabs {
     width: 100%;
   }

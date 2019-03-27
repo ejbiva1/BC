@@ -1,14 +1,15 @@
 <template>
   <div class="animated fadeIn">
-    <!--<view class="section">-->
-    <!--<view class="flex-wrp">-->
-    <!--<view class="flex-item site_bonus" :class="{navigate_active: isSite}" @click="showDiscountSiteList">折扣</view>-->
-    <!--<view class="flex-item site_all" :class="{navigate_active: !isSite}" @click="showAllSites">全部</view>-->
-    <!--</view>-->
-    <!--</view>-->
+    <view class="section">
+      <view class="flex-wrp">
+        <view class="flex-item site_discount" :class="{navigate_active: isSite}" @click="showDiscountSiteList">折扣</view>
+        <view class="flex-item site_all" :class="{navigate_active: !isSite}" @click="showAllSites">全部</view>
+      </view>
+    </view>
+
 
     <view class="site_section">
-      <view v-for="(items,i) in display_site_list" :key="i" @click="toSite(items)">
+      <view v-for="(items,i) in site_list" :key="i" @click="toSite(items.siteId)">
         <site-card v-bind:item="items"></site-card>
       </view>
     </view>
@@ -26,29 +27,24 @@
   export default {
     data() {
       return {
-        display_site_list: [],
+        site_list: [],
         isSite: true,
         brand_list: [],
-        is_show: true,
-        is_loading: false,
-        site_list: []
+        is_show: true
 
       };
     },
     components: {
       'site-card': sitecard,
+
     },
     created() {
-      this.show_loading();
+      //this.brand_list = brand_list;
       this.getSiteList();
-    },
-    onLoad(){
-
     },
     computed: {},
     methods: {
       getSiteList() {
-        this.show_loading();
         let query_dto = {
           entityDTO: {},
           orderDTOs: [{}],
@@ -56,73 +52,35 @@
         };
 
         fly.post("phantombuy/site/list", query_dto).then((res) => {
+          // call api success
           if (res.data.code === '1') {
-            if (res.data.data.records.length > 0) this.display_site_list = res.data.data.records;
-//            for (let i = 0; i < this.site_list.length; i++) {
-//            }
-//            this.display_site_list = this.sitePromotionList(this.site_list, true);
+            if (res.data.data.records.length > 0) this.site_list = res.data.data.records;
 
-            this.hide_loading();
           } else {
-            this.hide_loading();
           }
 
         });
       },
-      toSite(single_site){
+      toSite(siteId){
         //// 进入某一站点，购买商品
-        //url: '/pages/test/test?dataObj='+JSON.stringify(this.data.dataObj)
-        if (single_site !== undefined) {
+        // url: '/pages/productDetail/main?productId=' + productId,
           wx.navigateTo({
-            url: '/pages/site/main?site=' + JSON.stringify(single_site)
-          })
-        }
-
-
+          url: '/pages/site/main?siteId=' + siteId
+        })
       },
       showDiscountSiteList() {
         if (!this.isSite) this.isSite = true;
-        this.display_site_list = this.sitePromotionList(this.site_list, true);
-
+        console.log("Site List Show");
       },
       showAllSites() {
         if (this.isSite) this.isSite = false;
-        this.display_site_list = this.sitePromotionList(this.site_list, false);
-      },
-      show_loading() {
-        wx.showLoading({
-          title: '加载中',
-        })
-      },
-      hide_loading(){
-        wx.hideLoading();
-      },
-      sitePromotionList(site_list, is_promote){
-        // 没有优惠
-
-        let promotion_site_list = [];
-        if (!is_promote) {
-          promotion_site_list = site_list.filter((item, i) => {
-            return item;
-          });
-
-        }
-
-
-        // 有优惠
-        if (is_promote) {
-          promotion_site_list = site_list.filter((item, i) => {
-            return item.sitePromotionList.length > 0;
-          });
-
-        }
-        return promotion_site_list;
+        console.log("Brand List Show");
       }
     }
   }
 </script>
 
-<style>
+<style scoped>
   .animated {
     background-color: #F7F7F7;
     font-family: "Microsoft Yahei";
@@ -147,7 +105,7 @@
     font-size: 15px;
   }
 
-  .site_bonus {
+  .site_discount {
     background-color: #eaeaea;
     width: 70px;
     height: 30px;

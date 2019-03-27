@@ -37,7 +37,7 @@
   }
 </script>
 
-<style>
+<style scoped>
   .scroll_box {
     width: 100%;
     height: 307 rpx;
