@@ -1,23 +1,29 @@
 <template>
   <div class="my">
-    <div class="headerTab" style="font-size: small;">
-    <wxc-tab
-      default-index="0"
-      active-text-color="#108ee9"
-      active-line-color="#108ee9"
-      component-id="c1"
-      animate="true"
-    >
-      <wxc-tab-panel :tab-index="index" component-id="c1" label="全部"></wxc-tab-panel>
+    <div class="headerTab"  style="font-size: small;">
+      <div class="animated fadeIn">
+        <div class="product_tabs">
+          <div class="product_tabsNav">
+            <div
+              :class="{'selected':tab === 1,'product_tabs_active':true}"
+              @click="changTab(1)" style="text-align:center"
+            >全部
+            </div>
+            <div
+              :class="{'selected':tab === 2,'product_tabs_active':true}"
+              @click="changTab(2)" style="text-align:center"
+            >已付款
+            </div>
+            <div
+              :class="{'selected':tab === 3,'product_tabs_active':true}"
+              @click="changTab(3)" style="text-align:center"
+            >已发货
+            </div>
 
-      <wxc-tab-panel :tab-index="index" component-id="c1" label="已付款"></wxc-tab-panel>
-
-      <wxc-tab-panel :tab-index="index" component-id="c1" label="已发货"></wxc-tab-panel>
-
-    </wxc-tab>
+          </div>
+        </div>
+      </div>
     </div>
-
-
     <div class="block">
       <div class="date">2019年3月4日</div>
       <div class="dataBlock">
@@ -46,16 +52,139 @@
         </div>
       </div>
     </div>
+    <!--
+      <wxc-tab
+        @click="onClick"
+      :default-index="4"
+      active-text-color="#108ee9"
+      active-line-color="#108ee9"
+      component-id="c1"
+      :animate="true"
+    >
+      <wxc-tab-panel  :wx:for="tabs" wx:for-item="tab" :wx:key="tab.content"
+                      :tab-index="index" :tabID="tab.tabID" :label="tab.title" component-id="c1" >
+
+      </wxc-tab-panel>
+
+      <wxc-tab-panel :tab-index="index" component-id="c1" label="全部"></wxc-tab-panel>
+
+      <wxc-tab-panel :tab-index="index" component-id="c1" label="已付款"></wxc-tab-panel>
+
+      <wxc-tab-panel :tab-index="index" component-id="c1" label="已发货"></wxc-tab-panel>
+
+    </wxc-tab>
+    -->
+
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import fly from '../../utils/fly'
+  var settingKey = ''
   export default {
-    data() {
-      return {}
+    props: {
+      product: {
+        type: Object
+      }
+    },
+    onLoad() {
+      this.showList(1)
+    },
+    data () {
+      return {
+        tab: 1
+      }
+      /*
+      tabs: [
+        {title: '全部', content: '内容一', tabID: 1},
+        {title: '已付款', content: '内容二', tabID: 2},
+        {title: '已发货', content: '内容三', tabID: 3}
+      ]}
+      */
     },
     methods: {
       onClick: function (e) {
+        console.log(`ComponentId:${e.detail.componentId},you selected:${e.detail.key}`)
+      },
+      changTab (index) {
+        this.tab = index
+        // 修改参数，重新刷新接口，显示不同的列表
+      },
+      showList (state) {
+        /*
+        * 这段getSettingKey需要复用
+        * */
+        const self = this
+        wx.getStorage({
+          key: 'settingKey',
+          success: function (data) {
+            console.log(data)
+            settingKey = data.data
+            if (settingKey === '1'){
+              // 已经授权调用所需接口
+              /*
+              * 修改此处，调用所需使用的接口函数
+              * */
+              self.getCartList();
+            } else if (settingKey === '0' ) {
+              // 未授权，跳转授权页面
+              wx.navigateTo({
+                url: '/pages/login/main'
+              })
+            } else {
+              self.getSettingKey()
+            }
+          },
+          // 没有获得到SettingKey的时候重复调用本函数
+          fail: function (err) {
+            self.getSettingKey()
+          }
+        })
+        /*
+        * 这段getCartList需要复用
+        * */
+        // 读取storage如果有sessionID就在header里带上
+        var sessionId = null
+        wx.getStorage({
+          key: 'cookieKey',
+          success: function (data) {
+            console.log(data)
+            const cookieSession = String(data.data)
+            sessionId = cookieSession.split('=')[1].split(';')[0]
+            fly.config.headers['Cookie'] = 'JSESSIONID=' + sessionId
+            /*
+            * 此处修改需要调用的接口
+            * */
+            fly.post('phantombuy/orderMain/list', {entityDTO: {}}).then((res) => {
+              if (res.data.code === `888`) {
+                // 跳转授权页
+                console.log(`请先登录:`, res);
+                wx.navigateTo({
+                  url: '/pages/login/main'
+                })
+              }
+              else if(res.data.code === `1`) {
+                //成功
+                if (res.data.data.records.length > 0) {
+                  this.cart_list = res.data.data.records;
+                }
+              }
+              else {
+                //失败
+                console.log(`我的订单数据:`, res)
+              }
+            }).catch(err => {
+              console.log(`api请求出错:`, err)
+            })
+          },
+          fail: function (err) {
+            console.log(err)
+            wx.navigateTo({
+              url: '/pages/login/main'
+            })
+          }
+        })
+
       }
     }
   }
@@ -115,6 +244,30 @@
   .payPrice{
     float: right;
     font-size: small;
+  }
+  .product_tabs {
+    width: 100%;
+  }
+
+  .product_tabs .product_tabsNav {
+    padding-left:0.2rem;
+    /*height: 0.8rem;*/
+    /*width:38%;*/
+    line-height: 0.8rem;
+    display: flex;
+  }
+
+  .product_tabs .product_tabs_active {
+    flex: 1;
+  }
+
+  .product_tabsNav .selected {
+    color: #87caee;
+    border-bottom: 1px solid #87caee;
+  }
+
+  .tabs_container{
+    position: relative;
   }
 </style>
 
