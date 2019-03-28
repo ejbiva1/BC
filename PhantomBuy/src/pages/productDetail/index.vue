@@ -18,7 +18,7 @@
             <text class="original_price_rmb">{{product_detail.originalPriceRmb}}元</text>
             <text class="sale_price_rmb" style="color:red; font-size: 14px;">{{product_detail.salePriceRmb}}元</text>
           </view>
-          <view class="product_color info_padding">
+          <view class="product_color info_padding" v-if="size.length != 0">
             <view class="product_color_text">
               <text>颜色:</text>
               <text> Navy</text>
@@ -27,13 +27,21 @@
               <wxc-button :plain="plain" size="small" :type="type" :value="item" :btnStyle="btn_style"></wxc-button>
             </view>
           </view>
-          <view class="product_size info_padding">
+          <view class="product_size info_padding" v-if="size.length != 0">
             <view>
               <p style=" font-size: 14px; " class="info_padding">尺码:</p>
             </view>
-            <view class="button-wrap" v-for="(item, i) in product_detail." :key="i">
+            <view class="button-wrap" v-for="(item, i) in product_detail" :key="i">
               <wxc-button :plain="plain" size="small" :type="type" :value="item" :btnStyle="btn_style"></wxc-button>
             </view>
+          </view>
+          <view>
+          <view>
+                        <p style=" font-size: 14px; " class="info_padding">数量:</p>
+                      </view>
+                      <view class="button-wrap" v-for="(item, i) in product_detail" :key="i">
+                                  <wxc-counter :number="1" :max="max_num" :min="min_num" @click="onChangeNumber"></wxc-counter>
+                                  </view>
           </view>
         </view>
       </wxc-panel>
@@ -51,10 +59,15 @@
       <!--<view class="button buy_once">立即结算</view>-->
     </view>
 
+   <wxc-toast
+       :is-show="toast_show"
+       :text="text"></wxc-toast>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+
+<!--当前页面基本逻辑: 1. 商品数量至少为1  2. 先选择颜色，再有尺码  3. 加入购物车时需要添加判断: 数量、选择、尺码   4. 加入购物车时需要添加 用户是否授权这一操作-->
   import fly from '../../utils/fly';
   import tabs from "../../components/tabs/tabs";
   export default {
@@ -66,7 +79,11 @@
         plain: true,
         btn_style: 'min-width: 66rpx;padding: 5rpx;border-radius: 6rpx',
         type: "secondary",
-        has_border: true
+        has_border: true,
+        max_num: 10000,
+        min_num: 1,
+        text: "服务器内部错误",
+        toast_show: false
 
 
       };
@@ -87,10 +104,19 @@
           if (res.data.code === '1') {
             //console.log(res.data.data);
             if (res.data.data !== undefined) this.product_detail = res.data.data;
+          }else {
+          if(!this.toast_show) this.toast_show = !this.toast_show;
+            setTimeout(() => {
+                  this.toast_show = false;
+                 }, 1500)
+
           }
         });
 
-      }
+      },
+      onChangeNumber (e) {
+            console.log(e.detail);
+          }
     },
   }
 </script>

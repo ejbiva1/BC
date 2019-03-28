@@ -159,6 +159,9 @@
       </wxc-panel>
     </div>
 
+ <wxc-toast
+       :is-show="toast_show"
+       :text="text"></wxc-toast>
   </div>
 </template>
 
@@ -183,7 +186,9 @@
         search: "搜索",
         current_prod_categoryid: 0,
         previous_pro_cate_id: 0,
-        is_active: false
+        is_active: false,
+        toast_show: false,
+        text: '服务器内部错误'
       };
     },
     components: {
@@ -229,6 +234,11 @@
             this.site_product_male_category_list = this.site_product_category_list.filter((item, i) => {
               return item.sex == 1;
             });
+          }ele {
+             if(!this.toast_show) this.toast_show = !this.toast_show;
+               setTimeout(() => {
+                  this.toast_show = false;
+                 }, 1500)
           }
         });
       },
