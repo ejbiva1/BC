@@ -87,8 +87,8 @@
 </template>
 
 <script type="text/ecmascript-6">
-    import  fly from "../../utils/fly";
-    var settingKey = '';
+    import fly from '../../utils/fly'
+    var settingKey = ''
     export default {
 
       data() {
@@ -135,6 +135,9 @@
             }
           })
         },
+        /*
+        * 这段getCartList需要复用
+        * */
         getCartList () {
           const self = this
           // 读取storage如果有sessionID就在header里带上
@@ -146,6 +149,9 @@
               const cookieSession = String(data.data);
               sessionId = cookieSession.split('=')[1].split(';')[0];
               fly.config.headers["Cookie"] = "JSESSIONID="+sessionId;
+              /*
+              * 此处修改需要调用的接口
+              * */
               fly.post("phantombuy/cart/list",{entityDTO: {}}).then((res) => {
                 console.log(`后台拿回购物车数据:`,res);
                 if (res.data.code === `888`) {
@@ -176,8 +182,6 @@
               })
             }
           })
-
-
         },
         itemBlockChangeColor: function () {
           let bgColor = this.pageBackgroundColor;
