@@ -1,9 +1,12 @@
 <template>
   <div class="animated fadeIn">
     <!--search是个组件-->
+
+    <input v-model="a"/>
     <view class="section">
-      <search></search>
+      <search v-bind:site="site_detail" @search="SearchProducts" ref="find"></search>
     </view>
+
 
     <!--商品种类-->
     <div class="swiper-home">
@@ -11,13 +14,14 @@
                    :scroll-x="true"
                    :style="'{width: auto;overflow:hidden;height:20px;}'">
         <ul>
-          <li class="site_product" v-for="(item, i) in site_product_category_list" :key="i">
+          <li class="site_product" v-for="(item, i) in site_product_category_list" :key="i"
+              @click="getSingleKindProductList(item)">
             <span>{{item.productCategoryName}}</span></li>
         </ul>
       </scroll-view>
     </div>
 
-    <!--该种类商品列表-->
+    <!--商品列表-->
     <div class="site_product_total">
       <wxc-panel :border="has_border">
         <view class="site_products">
@@ -31,7 +35,7 @@
               <ul class="list-group list-group-flush">
                 <li class="salesTitle" title="双面毛衣外套"><span>{{item.productNameCn}}</span></li>
                 <li class="list-group-item">
-                  <span style="text-decoration: line-through">{{item.originalPriceRmb}}元</span>
+                  <span style="text-decoration: line-through;text-align: left;padding-left:-5px;">{{item.originalPriceRmb}}元</span>
                   <span style="color:red;padding-left: 10px;">{{item.salePriceRmb}}元</span>
                 </li>
                 <li class="updateTime" title="更新时间:2019年2月1日">更新时间:<span>{{item.updateDate}}</span>
@@ -45,6 +49,7 @@
         </view>
       </wxc-panel>
     </div>
+
   </div>
 </template>
 
@@ -53,73 +58,138 @@
   import search from "../../components/search/search";
   import  fly from "../../utils/fly";
   import tabs from "../../components/tabs/tabs";
+  import {pageDTO} from "../../common/model/pageDTO";
   export default {
     data() {
       return {
-        // brand_list: [],
-        toView: "red",
-        scrollTop: 100,
         ListSiteProductCategory: [],
         site_product_category_list: [],
         product_detail_list: [],
-        detail: '12',
         has_border: true,
-        search_border: false
+        site_detail: {},
+        pageDto: new pageDTO(),
+        pageDtoSetting: {},
+        search: "搜索",
+        current_prod_categoryid: 0,
+        previous_pro_cate_id: 0
       };
     },
     components: {
       "search": search,
       "tabs": tabs
-
     },
     created() {
     },
     onLoad(options){
-      this.getListSiteProductCategory(options);
-      this.getSingleKindProductList(options);
+      // load site_detail
+      if (options !== undefined)
+        this.site_detail = JSON.parse(options.site);
+      //  site product category
+      this.pageDtoSetting = this.pageDto;
+      this.getListSiteProductCategory();
+      // site product list
+      this.getAllProductList();
     },
+    async onPullDownRefresh() {
+      // to doing..
+      // 停止下拉刷新
+      wx.stopPullDownRefresh();
+    },
+    onReachBottom() {
+      this.previous_pro_cate_id = this.current_prod_categoryid;
+      // this.current_prod_categoryid =  this.current_prod_categoryid;
+      this.toNextPage();
+      this.loadReachBottomList();
+    },
+
     computed: {},
     methods: {
-      getListSiteProductCategory(option) {
-        let entityDTO = {entityDTO: option};
+      getListSiteProductCategory() {
+        this.show_loading();
+        let entityDTO = {entityDTO: {siteId: this.site_detail.siteId}};
         fly.post('phantombuy/site/listSiteProductCategory', entityDTO).then((res) => {
           if (res.data.code === '1') {
             if (res.data.data.records.length > 0)   this.site_product_category_list = res.data.data.records;
           }
         });
       },
-      getSingleKindProductList(options) {
-        // let entityDTO = {entityDTO: {siteId: "3", productCategoryId: ""}, pageDTO: {pageNo: "1", pageSize: 36}};
-        let siteId = options.siteId;
-        let entityDTO = {entityDTO: {siteId: siteId, productCategoryId: ""}, pageDTO: {pageNo: "1", pageSize: 36}};
+      getProducts(){
+        let siteId = this.site_detail.siteId;
+        let entityDTO;
+        if (this.current_prod_categoryid == 0) {
+          entityDTO = {
+            entityDTO: {
+              siteId: siteId,
+              productCategoryId: ""
+            },
+            pageDTO: this.pageDtoSetting
+          };
+        } else {
+          entityDTO = {
+            entityDTO: {siteId: this.site_detail.siteId, productCategoryId: this.current_prod_categoryid},
+            orderDTO: {propertyName: "sale_price_usd,original_price_usd"},
+            pageDTO: this.pageDtoSetting
+          };
+        }
         fly.post("phantombuy/product/list", entityDTO).then((res) => {
           if (res.data.code === '1') {
-
-            //this.product_detail_list = res.data.data.records.slice(0, 9);
-            if (res.data.data.records.length > 0) this.product_detail_list = res.data.data.records;
-//            this.product_detail_list  = this.product_detail_list.slice(0,8);
+            //if (res.data.data.records.length > 0)
+            for (let i = 0; i < res.data.data.records.length; i++) {
+              this.product_detail_list.push(res.data.data.records[i]);
+            }
+            this.hide_loading();
           } else {
-
           }
         });
       },
+      getAllProductList() {
+        //  product_detail_list  置空
+        this.product_detail_list = [];
+        this.pageDtoSetting = this.pageDto;
+        this.getProducts();
+      },
+      getSingleKindProductList(productCategory) {
+        this.show_loading();
+        this.previous_pro_cate_id = this.current_prod_categoryid;
+        this.current_prod_categoryid = productCategory.productCategoryId;
+        this.product_detail_list = [];
+        this.pageDtoSetting = this.pageDto;
+        this.getProducts();
+      },
+      loadReachBottomList(){
+        //current_prod_categoryid: 0,       看这两个数据变化情况
+        // previous_pro_cate_id: 0
+        //
+        if (this.current_prod_categoryid != this.previous_pro_cate_id) {
+          this.product_detail_list = [];
+        }
+        this.getProducts();
+      },
       toProductDetail(productId) {
-        //url: '/pages/test/test?dataObj='+JSON.stringify(this.data.dataObj)
-        //url: '/pages/test/test?str='+this.data.testStr,
         wx.navigateTo({
           url: '/pages/productDetail/main?productId=' + productId,
-
         });
+      },
+      show_loading() {
+        wx.showLoading({
+          title: '加载中',
+        })
+      },
+      hide_loading() {
+        wx.hideLoading();
+      },
+      toNextPage() {
+        this.pageDtoSetting = this.pageDto.nextPage(this.pageDtoSetting);
+      },
+      SearchProducts(){
+        console.log(this.$refs.find.search_key);
+      },
 
-//        wx.navigateTo({
-//          url: '/pages/site/main'
-//        })
-      }
-    }
+    },
   }
 </script>
 
-<style scoped>
+<style>
   .animated {
     background-color: #F7F7F7;
     font-family: "Microsoft Yahei";
@@ -128,7 +198,7 @@
   .swiper-home {
     width: 100%;
     height: 15%;
-    padding: 10px 10px 5px 0px;
+    padding: 20px 10px 0px 0px;
     display: flex;
     white-space: nowrap;
   }
@@ -163,6 +233,8 @@
     width: 100%;
     justify-content: center;
     align-item: center;
+    display: flex;
+    justify-content: space-between;
   }
 
   .site_products {
@@ -171,6 +243,7 @@
     /*justify-content: center;  这个属性必须 注释，它定义了项目在主轴的对齐方式*/
     flex-wrap: wrap;
     align-content: center;
+    justify-content: space-between;
 
     /*flex-direction///
       flex-wrap
@@ -181,36 +254,31 @@
     */
     font-family: 'Open Sans', sans-serif;
     background: linear-gradient(top, #222, #333);
-    width: 100%;
+    /*width: 100%;*/
 
   }
 
   .product_profile {
-    width: 33%;
-    height: 256px;
-    flex-direction: row;
-    float: left;
-    /*display: flex;*/
-  }
+    width: 50%;
+    text-align: center;
+    vertical-align: middle;
 
-  .first-face {
-    display: flex;
-    justify-content: center;
-    align-item: center;
   }
 
   .face {
-    margin: 16px;
-    padding: 4px;
-    width: 84px;
-    height: 104px;
     object-fit: contain;
-    border-radius: 10%;
+    vertical-align: middle;
+    width: 3rem;
+    height: 3rem;
+    margin-top: 10%;
+    margin-bottom: 6%;
+    align-items: center;
   }
 
   .site_product_detail .product_detail {
     width: 100%;
     height: 80px;
+
   }
 
   .product_detail .list-group {
@@ -219,6 +287,7 @@
     flex-direction: column;
     margin-bottom: 0;
     padding: 4px 10px 4px 10px;
+    margin-left: 5%;
   }
 
   .product_detail .list-group-item {
