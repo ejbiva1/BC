@@ -2,17 +2,15 @@
   "pages": [
     "pages/order/main",
     "pages/login/main",
-
     "pages/my/main",
     "pages/home/main",
-
     "pages/site/main",
     "pages/myOrder/main",
-
     "pages/brand/main",
     "pages/shop/main",
     "pages/myInfo/main",
-    "pages/productDetail/main"
+    "pages/productDetail/main",
+    "pages/address/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

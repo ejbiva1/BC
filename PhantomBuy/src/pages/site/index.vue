@@ -1,121 +1,116 @@
 <template>
   <div class="animated fadeIn">
     <!--search是个组件-->
+
+    <input v-model="a"/>
     <view class="section">
-      <search></search>
+      <search v-bind:site="site_detail" @search="SearchProducts" ref="find"></search>
     </view>
 
-<<<<<<< HEAD
 
-    <section class="sort_container">
-      <div class="sort_item" :class="{choose_type:sortBy == 'food'}">
-        <div class="sort_item_container" @click="chooseType('food')">
-          <div class="sort_item_border">
-            <span :class="{category_title: sortBy == 'food'}">全部商品</span>
-            <!--SVG 是可缩放矢量图形 ， polygon 是一种颜色、渐变、填充等格式； -->
-            <!--<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg" version="1.1" class="sort_icon">-->
-              <!--<polygon points="0,3 10,3 5,8"/>-->
-            <!--</svg>-->
-          </div>
-        </div>
+    <!--<section class="sort_container">-->
+      <!--<div class="sort_item" :class="{choose_type:sortBy == 'food'}">-->
+        <!--<div class="sort_item_container" @click="chooseType('food')">-->
+          <!--<div class="sort_item_border">-->
+            <!--<span :class="{category_title: sortBy == 'food'}">全部商品</span>-->
+            <!--&lt;!&ndash;SVG 是可缩放矢量图形 ， polygon 是一种颜色、渐变、填充等格式； &ndash;&gt;-->
+            <!--&lt;!&ndash;<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg" version="1.1" class="sort_icon">&ndash;&gt;-->
+              <!--&lt;!&ndash;<polygon points="0,3 10,3 5,8"/>&ndash;&gt;-->
+            <!--&lt;!&ndash;</svg>&ndash;&gt;-->
+          <!--</div>-->
+        <!--</div>-->
 
-        <transition name="showlist" v-show="category">
-          <section v-show="sortBy == 'food'" class="category_container sort_detail_type">
-            <section class="category_left">
-              <ul>
-                <li v-for="(item, index) in category" :key="index" class="category_left_li"
-                    :class="{category_active:restaurant_category_id == item.id}"
-                    @click="selectCategoryName(item.id, index)">
-                  <section>
-                    <img :src="getImgPath(item.image_url)" v-if="index" class="category_icon">
-                    <span>{{item.name}}</span>
-                  </section>
-                  <section>
-                    <span class="category_count">{{item.count}}</span>
-                    <svg v-if="index" width="8" height="8" xmlns="http://www.w3.org/2000/svg" version="1.1"
-                         class="category_arrow">
-                      <path d="M0 0 L6 4 L0 8" stroke="#bbb" stroke-width="1" fill="none"/>
-                    </svg>
-                  </section>
-                </li>
-              </ul>
-            </section>
-            <section class="category_right">
-              <ul>
-                <li v-for="(item, index) in categoryDetail" v-if="index" :key="index" class="category_right_li"
-                    @click="getCategoryIds(item.id, item.name)"
-                    :class="{category_right_choosed: restaurant_category_ids == item.id || (!restaurant_category_ids)&&index == 0}">
-                  <span>{{item.name}}</span>
-                  <span>{{item.count}}</span>
-                </li>
-              </ul>
-            </section>
-          </section>
-        </transition>
+        <!--<transition name="showlist" v-show="category">-->
+          <!--<section v-show="sortBy == 'food'" class="category_container sort_detail_type">-->
+            <!--<section class="category_left">-->
+              <!--<ul>-->
+                <!--<li v-for="(item, index) in category" :key="index" class="category_left_li"-->
+                    <!--:class="{category_active:restaurant_category_id == item.id}"-->
+                    <!--@click="selectCategoryName(item.id, index)">-->
+                  <!--<section>-->
+                    <!--<img :src="getImgPath(item.image_url)" v-if="index" class="category_icon">-->
+                    <!--<span>{{item.name}}</span>-->
+                  <!--</section>-->
+                  <!--<section>-->
+                    <!--<span class="category_count">{{item.count}}</span>-->
+                    <!--<svg v-if="index" width="8" height="8" xmlns="http://www.w3.org/2000/svg" version="1.1"-->
+                         <!--class="category_arrow">-->
+                      <!--<path d="M0 0 L6 4 L0 8" stroke="#bbb" stroke-width="1" fill="none"/>-->
+                    <!--</svg>-->
+                  <!--</section>-->
+                <!--</li>-->
+              <!--</ul>-->
+            <!--</section>-->
+            <!--<section class="category_right">-->
+              <!--<ul>-->
+                <!--<li v-for="(item, index) in categoryDetail" v-if="index" :key="index" class="category_right_li"-->
+                    <!--@click="getCategoryIds(item.id, item.name)"-->
+                    <!--:class="{category_right_choosed: restaurant_category_ids == item.id || (!restaurant_category_ids)&&index == 0}">-->
+                  <!--<span>{{item.name}}</span>-->
+                  <!--<span>{{item.count}}</span>-->
+                <!--</li>-->
+              <!--</ul>-->
+            <!--</section>-->
+          <!--</section>-->
+        <!--</transition>-->
 
-        <div class="sort_item" :class="{choose_type:sortBy == 'food'}">
-          <div class="sort_item_container" @click="chooseType('food')">
-            <div class="sort_item_border">
-              <span :class="{category_title: sortBy == 'food'}">全部商品</span>
-              <!--SVG 是可缩放矢量图形 ， polygon 是一种颜色、渐变、填充等格式； -->
-              <!--<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg" version="1.1" class="sort_icon">-->
-                <!--<polygon points="0,3 10,3 5,8"/>-->
-              <!--</svg>-->
-            </div>
-          </div>
+        <!--<div class="sort_item" :class="{choose_type:sortBy == 'food'}">-->
+          <!--<div class="sort_item_container" @click="chooseType('food')">-->
+            <!--<div class="sort_item_border">-->
+              <!--<span :class="{category_title: sortBy == 'food'}">全部商品</span>-->
+              <!--&lt;!&ndash;SVG 是可缩放矢量图形 ， polygon 是一种颜色、渐变、填充等格式； &ndash;&gt;-->
+              <!--&lt;!&ndash;<svg width="10" height="10" xmlns="http://www.w3.org/2000/svg" version="1.1" class="sort_icon">&ndash;&gt;-->
+                <!--&lt;!&ndash;<polygon points="0,3 10,3 5,8"/>&ndash;&gt;-->
+              <!--&lt;!&ndash;</svg>&ndash;&gt;-->
+            <!--</div>-->
+          <!--</div>-->
 
-          <transition name="showlist" v-show="category">
-            <section v-show="sortBy == 'food'" class="category_container sort_detail_type">
-              <section class="category_left">
-                <ul>
-                  <li v-for="(item, index) in category" :key="index" class="category_left_li"
-                      :class="{category_active:restaurant_category_id == item.id}"
-                      @click="selectCategoryName(item.id, index)">
-                    <section>
-                      <img :src="getImgPath(item.image_url)" v-if="index" class="category_icon">
-                      <span>{{item.name}}</span>
-                    </section>
-                    <section>
-                      <span class="category_count">{{item.count}}</span>
-                      <svg v-if="index" width="8" height="8" xmlns="http://www.w3.org/2000/svg" version="1.1"
-                           class="category_arrow">
-                        <path d="M0 0 L6 4 L0 8" stroke="#bbb" stroke-width="1" fill="none"/>
-                      </svg>
-                    </section>
-                  </li>
-                </ul>
-              </section>
-              <section class="category_right">
-                <ul>
-                  <li v-for="(item, index) in categoryDetail" v-if="index" :key="index" class="category_right_li"
-                      @click="getCategoryIds(item.id, item.name)"
-                      :class="{category_right_choosed: restaurant_category_ids == item.id || (!restaurant_category_ids)&&index == 0}">
-                    <span>{{item.name}}</span>
-                    <span>{{item.count}}</span>
-                  </li>
-                </ul>
-              </section>
-            </section>
-          </transition>
-        </div>
-      </div>
-    </section>
+          <!--<transition name="showlist" v-show="category">-->
+            <!--<section v-show="sortBy == 'food'" class="category_container sort_detail_type">-->
+              <!--<section class="category_left">-->
+                <!--<ul>-->
+                  <!--<li v-for="(item, index) in category" :key="index" class="category_left_li"-->
+                      <!--:class="{category_active:restaurant_category_id == item.id}"-->
+                      <!--@click="selectCategoryName(item.id, index)">-->
+                    <!--<section>-->
+                      <!--<img :src="getImgPath(item.image_url)" v-if="index" class="category_icon">-->
+                      <!--<span>{{item.name}}</span>-->
+                    <!--</section>-->
+                    <!--<section>-->
+                      <!--<span class="category_count">{{item.count}}</span>-->
+                      <!--<svg v-if="index" width="8" height="8" xmlns="http://www.w3.org/2000/svg" version="1.1"-->
+                           <!--class="category_arrow">-->
+                        <!--<path d="M0 0 L6 4 L0 8" stroke="#bbb" stroke-width="1" fill="none"/>-->
+                      <!--</svg>-->
+                    <!--</section>-->
+                  <!--</li>-->
+                <!--</ul>-->
+              <!--</section>-->
+              <!--<section class="category_right">-->
+                <!--<ul>-->
+                  <!--<li v-for="(item, index) in categoryDetail" v-if="index" :key="index" class="category_right_li"-->
+                      <!--@click="getCategoryIds(item.id, item.name)"-->
+                      <!--:class="{category_right_choosed: restaurant_category_ids == item.id || (!restaurant_category_ids)&&index == 0}">-->
+                    <!--<span>{{item.name}}</span>-->
+                    <!--<span>{{item.count}}</span>-->
+                  <!--</li>-->
+                <!--</ul>-->
+              <!--</section>-->
+            <!--</section>-->
+          <!--</transition>-->
+        <!--</div>-->
+      <!--</div>-->
+    <!--</section>-->
 
-=======
->>>>>>> bd7a3c24ee4d07d71e79b1415e3e6f445d1194fd
     <!--商品种类-->
     <div class="swiper-home">
       <scroll-view class="scroll-view_x"
                    :scroll-x="true"
                    :style="'{width: auto;}'">
         <ul>
-<<<<<<< HEAD
           <li class="site_product" v-for="(item, i) in site_product_male_category_list" :key="i"
               :class="{choose_category: is_active}"
               @click="getSingleKindProductList(item)">
-=======
-          <li class="site_product" v-for="(item, i) in site_product_category_list" :key="i">
->>>>>>> bd7a3c24ee4d07d71e79b1415e3e6f445d1194fd
             <span>{{item.productCategoryName}}</span></li>
         </ul>
       </scroll-view>
@@ -123,7 +118,6 @@
 
     </div>
 
-<<<<<<< HEAD
     <div class="swiper-home">
       <scroll-view class="scroll-view_x"
                    :scroll-x="true"
@@ -137,9 +131,6 @@
       </scroll-view>
     </div>
     <!--商品列表-->
-=======
-    <!--该种类商品列表-->
->>>>>>> bd7a3c24ee4d07d71e79b1415e3e6f445d1194fd
     <div class="site_product_total">
       <wxc-panel :border="has_border">
         <view class="site_products">
@@ -153,7 +144,7 @@
               <ul class="list-group list-group-flush">
                 <li class="salesTitle" title="双面毛衣外套"><span>{{item.productNameCn}}</span></li>
                 <li class="list-group-item">
-                  <span style="text-decoration: line-through">{{item.originalPriceRmb}}元</span>
+                  <span style="text-decoration: line-through;text-align: left;padding-left:-5px;">{{item.originalPriceRmb}}元</span>
                   <span style="color:red;padding-left: 10px;">{{item.salePriceRmb}}元</span>
                 </li>
                 <li class="updateTime" title="更新时间:2019年2月1日">更新时间:<span>{{item.updateDate}}</span>
@@ -167,6 +158,7 @@
         </view>
       </wxc-panel>
     </div>
+
   </div>
 </template>
 
@@ -175,20 +167,16 @@
   import search from "../../components/search/search";
   import  fly from "../../utils/fly";
   import tabs from "../../components/tabs/tabs";
+  import {pageDTO} from "../../common/model/pageDTO";
   export default {
     data() {
       return {
-        // brand_list: [],
-        toView: "red",
-        scrollTop: 100,
         ListSiteProductCategory: [],
         site_product_category_list: [],
         site_product_female_category_list: [],
         site_product_male_category_list: [],
         product_detail_list: [],
-        detail: '12',
         has_border: true,
-<<<<<<< HEAD
         site_detail: {},
         pageDto: new pageDTO(),
         pageDtoSetting: {},
@@ -196,23 +184,24 @@
         current_prod_categoryid: 0,
         previous_pro_cate_id: 0,
         is_active: false
-=======
-        search_border: false
->>>>>>> bd7a3c24ee4d07d71e79b1415e3e6f445d1194fd
       };
     },
     components: {
       "search": search,
       "tabs": tabs
-
     },
     created() {
     },
     onLoad(options){
-      this.getListSiteProductCategory(options);
-      this.getSingleKindProductList(options);
+      // load site_detail
+      if (options !== undefined)
+        this.site_detail = JSON.parse(options.site);
+      //  site product category
+      this.pageDtoSetting = this.pageDto;
+      this.getListSiteProductCategory();
+      // site product list
+      this.getAllProductList();
     },
-<<<<<<< HEAD
     async onPullDownRefresh() {
       // to doing..
       // 停止下拉刷新
@@ -230,12 +219,6 @@
       getListSiteProductCategory() {
         this.show_loading();
         let entityDTO = {entityDTO: {siteId: this.site_detail.siteId}};
-=======
-    computed: {},
-    methods: {
-      getListSiteProductCategory(option) {
-        let entityDTO = {entityDTO: option};
->>>>>>> bd7a3c24ee4d07d71e79b1415e3e6f445d1194fd
         fly.post('phantombuy/site/listSiteProductCategory', entityDTO).then((res) => {
           if (res.data.code === '1') {
             if (res.data.data.records.length > 0)   this.site_product_category_list = res.data.data.records;
@@ -249,7 +232,6 @@
           }
         });
       },
-<<<<<<< HEAD
       // all 只负责: 首次加载 + 点击 服装分类按钮
       getAllProductList() {
         //  product_detail_list  置空
@@ -314,31 +296,9 @@
       },
 
       toProductDetail(productId) {
-=======
-      getSingleKindProductList(options) {
-        // let entityDTO = {entityDTO: {siteId: "3", productCategoryId: ""}, pageDTO: {pageNo: "1", pageSize: 36}};
-        let siteId = options.siteId;
-        let entityDTO = {entityDTO: {siteId: siteId, productCategoryId: ""}, pageDTO: {pageNo: "1", pageSize: 36}};
-        fly.post("phantombuy/product/list", entityDTO).then((res) => {
-          if (res.data.code === '1') {
-
-            //this.product_detail_list = res.data.data.records.slice(0, 9);
-            if (res.data.data.records.length > 0) this.product_detail_list = res.data.data.records;
-//            this.product_detail_list  = this.product_detail_list.slice(0,8);
-          } else {
-
-          }
-        });
-      },
-      toProductDetail(productId) {
-        //url: '/pages/test/test?dataObj='+JSON.stringify(this.data.dataObj)
-        //url: '/pages/test/test?str='+this.data.testStr,
->>>>>>> bd7a3c24ee4d07d71e79b1415e3e6f445d1194fd
         wx.navigateTo({
           url: '/pages/productDetail/main?productId=' + productId,
-
         });
-<<<<<<< HEAD
       },
       show_loading() {
         wx.showLoading({
@@ -357,18 +317,10 @@
       },
 
     },
-=======
-
-//        wx.navigateTo({
-//          url: '/pages/site/main'
-//        })
-      }
-    }
->>>>>>> bd7a3c24ee4d07d71e79b1415e3e6f445d1194fd
   }
 </script>
 
-<style scoped>
+<style>
   .animated {
     background-color: #F7F7F7;
     font-family: "Microsoft Yahei";
@@ -426,11 +378,7 @@
   .swiper-home {
     width: 100%;
     height: 15%;
-<<<<<<< HEAD
     /*padding: 20px 10px 0px 0px;*/
-=======
-    padding: 10px 10px 5px 0px;
->>>>>>> bd7a3c24ee4d07d71e79b1415e3e6f445d1194fd
     display: flex;
     white-space: nowrap;
   }
@@ -465,6 +413,8 @@
     width: 100%;
     justify-content: center;
     align-item: center;
+    display: flex;
+    justify-content: space-between;
   }
 
   .site_products {
@@ -473,6 +423,7 @@
     /*justify-content: center;  这个属性必须 注释，它定义了项目在主轴的对齐方式*/
     flex-wrap: wrap;
     align-content: center;
+    justify-content: space-between;
 
     /*flex-direction///
       flex-wrap
@@ -483,36 +434,31 @@
     */
     font-family: 'Open Sans', sans-serif;
     background: linear-gradient(top, #222, #333);
-    width: 100%;
+    /*width: 100%;*/
 
   }
 
   .product_profile {
-    width: 33%;
-    height: 256px;
-    flex-direction: row;
-    float: left;
-    /*display: flex;*/
-  }
+    width: 50%;
+    text-align: center;
+    vertical-align: middle;
 
-  .first-face {
-    display: flex;
-    justify-content: center;
-    align-item: center;
   }
 
   .face {
-    margin: 16px;
-    padding: 4px;
-    width: 84px;
-    height: 104px;
     object-fit: contain;
-    border-radius: 10%;
+    vertical-align: middle;
+    width: 3rem;
+    height: 3rem;
+    margin-top: 10%;
+    margin-bottom: 6%;
+    align-items: center;
   }
 
   .site_product_detail .product_detail {
     width: 100%;
     height: 80px;
+
   }
 
   .product_detail .list-group {
@@ -521,6 +467,7 @@
     flex-direction: column;
     margin-bottom: 0;
     padding: 4px 10px 4px 10px;
+    margin-left: 5%;
   }
 
   .product_detail .list-group-item {

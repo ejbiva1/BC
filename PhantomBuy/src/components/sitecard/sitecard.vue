@@ -4,25 +4,31 @@
       <view class="site_baseinfo">
         <view class="site_img_section">
           <image :src="item.siteLogoUrl" class="site_img"/>
-
         </view>
         <view class="site_right">
           <header class="site_detail_header">
             <h5 class="site_title ellipsis">{{item.brandNameCh}}</h5>
           </header>
-          <view class="rating_order_num">
-            <div class="rating_order_num_right">
-              <strong class="delivery_style delivery_left">免运策略:满100免运</strong>
-            </div>
-          </view>
+          <!--<view class="rating_order_num">-->
+          <!--<div class="rating_order_num_right">-->
+          <!--<strong class="delivery_style delivery_left" v-if="site_promotion !== undefined">{{site_promotion.promotionCategoryName}}:-->
+          <!--{{site_promotion.sitePromotionName}}</strong>-->
+          <!--<strong class="delivery_style delivery_left" v-if="site_promotion === undefined"></strong>-->
+          <!--</div>-->
+          <!--</view>-->
         </view>
       </view>
 
       <view class="site_discount">
-        <p class="fee">
-          25%off,Coupon Code VES25.Free Shipping with $99 purchase + Free Store Pickup
-        </p>
+        <div class="fee" v-if="site_promotion_list.length >0" v-for="(item, i)  in site_promotion_list" :key="i">
+          <div class="promotion_name">
+            {{item.promotionCategoryName}}
+          </div>
+          <div class="promotion_detail">
+            {{item.sitePromotionName}}
+          </div>
 
+        </div>
       </view>
     </view>
 
@@ -34,7 +40,9 @@
 <script type="text/ecmascript-6">
   export default {
     data(){
-      return {};
+      return {
+        site_promotion_list: []
+      };
     },
     props: {
       item: {
@@ -43,14 +51,27 @@
       },
     },
     onLoad(){
+      this.showPromotionMessage();
     },
     created(){
       //console.log(this.$props.item);
+    },
+    methods: {
+      showPromotionMessage(){
+        if (this.$props.item.sitePromotionList.length > 0) {
+          this.site_promotion_list = this.$props.item.sitePromotionList;
+
+        }
+
+//        console.log(this.site_promotion);
+//        console.log(this.site_promotion === undefined);
+      }
     }
+
   }
 </script>
 
-<style scoped>
+<style>
   font {
     font-size: 15px;
   }
@@ -58,6 +79,8 @@
   .site {
     border-bottom: .025rem solid #f1f1f1;
     padding: 0.2rem 0.2rem;
+    height: 2rem;
+    width: 100%;
   }
 
   .site_baseinfo {
@@ -99,6 +122,8 @@
   .site_detail_header {
     display: flex;
     align-items: center;
+    height: 0.6rem;
+    line-height: 0.6rem;
   }
 
   .site_title {
@@ -111,7 +136,6 @@
   }
 
   .ellipsis {
-    overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
@@ -140,15 +164,32 @@
   .site_discount {
     flex: auto;
     witdh: 100%;
-    height: 10%;
+    /*height: 10%;*/
   }
 
   .site_discount .fee {
     display: flex;
     padding-left: .2rem;
-    font-size: .25rem;
+    font-size: .30rem;
     color: black;
+    min-height: 1.0rem;
+    flex-direction: row;
+    justify-content: space-between;
+
   }
+
+  .site_discount .fee .promotion_name {
+    width: 20%;
+    height: 0.5rem;
+  }
+
+  .site_discount .fee .promotion_detail {
+    width: 80%;
+    height: 0.5rem;
+    display: flex;
+    flex-wrap: nowrap;
+  }
+
 
 </style>
 
