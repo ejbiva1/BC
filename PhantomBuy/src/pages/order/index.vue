@@ -1,36 +1,36 @@
 <template>
-
-    <div class="order">
-      <view class="titleBlock" >
-        {{cart_list.brandNameCh}}
+  <div class="order">
+    <div v-for="(item, i) in cart_list" :key="i">
+      <view class="titleBlock"  >
+        {{item.brandNameCh}}
       </view>
 
-      <div class="sliderLeft" style="margin-top:40rpx;">
+      <div class="sliderLeft" style="margin-top:40rpx;" v-for="(cartListItem, j) in item.cartList" :key="j">
       <slider-left>
       <div class="itemBlock" @click="itemBlockChangeColor" :style="{'background-color':pageBackgroundColor
-      }">
+      }" id="“1">
           <div class="row">
             <div class="itemImage">
               <image src="/static/images/test.jpg" class="titleImage" mode="widthFix"/>
             </div>
             <div class="itemDetail">
-              <div class="itemTitle">双面毛衣外套</div>
+              <div class="itemTitle">{{cartListItem.productName}}</div>
               <div class="row">
                 <div class="itemRow">
                   <div class="itemColor smallFont">颜色：</div>
-                  <div class="itemColorDetail smallFont">蓝色</div>
+                  <div class="itemColorDetail smallFont">{{cartListItem.color}}</div>
                 </div>
                 <div class="itemRow">
                   <div class="itemSize smallFont">尺码：</div>
-                  <div class="itemSizeDetail smallFont">S</div>
+                  <div class="itemSizeDetail smallFont">{{cartListItem.size}}</div>
                 </div>
                 <div class="itemRow">
                 <div class="itemPrice smallFont">价格：</div>
-                <div class="itemPriceDetail smallFont">1200</div>
+                <div class="itemPriceDetail smallFont">{{cartListItem.productRmbPrice}}</div>
               </div>
               </div>
               <div class="counterBlock" @tap.stop="catchtapControl">
-                <wxc-counter  class="counter" number="1" max="100" min="1" color="#000"></wxc-counter>
+                <wxc-counter  v-on:changenumber="onChangeNumber" class="counter" :number="cartListItem.quantity" max="100" min="1" color="#000"></wxc-counter>
               </div>
             </div>
             <!--
@@ -45,12 +45,13 @@
         <div class="total">
           <div class="row">
             <div class="totalTitle">合计：</div>
-            <div class="totalDetail">1200 元</div>
+            <div class="totalDetail">{{cartListItem.productRmbPriceTotal}} 元</div>
           </div>
         </div>
       </div>
       </slider-left>
       </div>
+
 
       <div class="priceBlock">
         <div class="row paddingButtom20">
@@ -82,28 +83,36 @@
         <wxc-button  size="normal" type="secondary"  value="去结算"></wxc-button>
       </div>
 
-
+    </div>
     </div>
 </template>
 
 <script type="text/ecmascript-6">
     import fly from '../../utils/fly'
+    import {pageDTO} from "../../common/model/pageDTO"
     var settingKey = ''
     export default {
-
-      data() {
+      data () {
         return {
-          pageBackgroundColor: 'lightgray',
-          cart_list: {},
+          pageBackgroundColor: 'white',
+          cart_list: [],
           settingKey: ''
         }
       },
       components: {
       },
-      onLoad(options) {
-        this.getSettingKey()
+      onLoad (options) {
+        if (options !== undefined){
+          this.getSettingKey()
+        }
       },
       methods: {
+        onChangeNumber (e) {
+          console.log(e.mp.detail.number)
+          // 先调用update
+          // 调用calculateFee，分修改了的物品勾选和未勾选状态
+          // list
+        },
         /*
         * 这段getSettingKey需要复用
         * */
@@ -119,7 +128,7 @@
                 /*
                 * 修改此处，调用所需使用的接口函数
                 * */
-                self.getCartList();
+                self.getOrderList()
               } else if (settingKey === '0' ) {
                 // 未授权，跳转授权页面
                 wx.navigateTo({
@@ -138,7 +147,7 @@
         /*
         * 这段getCartList需要复用
         * */
-        getCartList () {
+        getOrderList () {
           const self = this
           // 读取storage如果有sessionID就在header里带上
           var sessionId = null
@@ -155,20 +164,20 @@
               fly.post("phantombuy/cart/list",{entityDTO: {}}).then((res) => {
                 console.log(`后台拿回购物车数据:`,res);
                 if (res.data.code === `888`) {
-                  //跳转授权页
+                  // 跳转授权页
                   console.log(`请先登录:`, res);
                   wx.navigateTo({
                     url: '/pages/login/main'
                   })
                 }
-                else if(res.data.code === `1`) {
-                  //成功
-                  if (res.data.data.records.length > 0) {
-                    this.cart_list = res.data.data.records;
+                else if (res.data.code === `1`) {
+                  // 成功
+                  if (res.data.data.length > 0) {
+                    self.cart_list = res.data.data
                   }
                 }
                 else {
-                  //失败
+                  // 失败
                   console.log(`购物车数据:`,res);
                 }
               }).catch(err => {
@@ -184,13 +193,23 @@
           })
         },
         itemBlockChangeColor: function () {
-          let bgColor = this.pageBackgroundColor;
-          if (bgColor == 'lightgray') {
-            bgColor = 'white';
+          let bgColor = this.pageBackgroundColor
+          if (bgColor === 'lightgray') {
+            // 取消选择
+            bgColor = 'white'
+            // 此处调用calculateFee
           } else {
-            bgColor = 'lightgray';
+            // 选择
+            bgColor = 'lightgray'
+            // 此处调用calculateFee
           }
-          this.pageBackgroundColor = bgColor;
+          this.pageBackgroundColor = bgColor
+        },
+        calculateFee: function () {
+          /*
+          * {entityDTO: {cartIdList: [83, 88]}}
+          * 需要先获取所有勾选的cartId，做成List传回去
+          * */
         },
         catchtapControl: function () {},
       }
@@ -219,6 +238,7 @@
     justify-content: center;
     padding-top: 40rpx;
     padding-bottom: 40rpx;
+    padding-right:20rpx;
   }
   .itemImage {
     width:20%;
@@ -252,6 +272,7 @@
     background-color: #fff;
     margin-left: 30rpx;
     width:175rpx;
+    margin-top: 20rpx;
   }
   .counter{
     margin:0;
@@ -272,6 +293,7 @@
     margin-top:40rpx;
     padding-top: 20rpx;
     padding-left:20rpx;
+    padding-right:20rpx;
   }
   .paddingButtom20{
     padding-bottom: 20rpx;
