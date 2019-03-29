@@ -26,8 +26,10 @@
             </view>
             <view>
               <ul class="col">
-                <li v-for="(item, i) in productColorResponseList" :key="i">
-                  <img :src="item.imageUrl" @click="chooseProductColor(item)"/>
+                <li v-for="(item, index) in productColorResponseList" :key="index">
+                  <img :src="item.imageUrl"
+                       @click="chooseProductColor(item, index)"
+                       :class="{productColorActivity: productColorIndex == index}"/>
                 </li>
               </ul>
             </view>
@@ -40,8 +42,9 @@
             </view>
             <view>
               <ul class="col" id="wrap1">
-                <li v-for="(item, i) in productSizeList" :key="i">
-                  <a href="javascript:;" data-prime="2" @click="chooseSize">{{item}}</a>
+                <li v-for="(item, index) in productSizeList" :key="index">
+                  <a data-prime="2" @click="chooseProductSize(item, index)"
+                     :class="{ productSizeActivity: productSizeIndex == index }">{{item}}</a>
                 </li>
               </ul>
             </view>
@@ -73,12 +76,22 @@
       <!--<view class="button buy_once">立即结算</view>-->
     </view>
 
+
+    <wxc-toast
+      :is-show="show_toast"
+      :text="error_msg"
+      icon="warning"
+      icon-color="#ff5777"
+    ></wxc-toast>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
   import fly from '../../utils/fly';
   import tabs from "../../components/tabs/tabs";
+  import {appMessages} from "../../common/constants/message";
+  import {authorize} from "../../utils/authorized";
+
   export default {
     data() {
       return {
@@ -91,8 +104,13 @@
         productColorResponseList: [],
         productSizeList: [],
         productImageList: [],
-        productColorSizeResponse: {}
-
+        productColorSizeResponse: {},
+        quantity: 0,
+        skuId: 0,
+        show_toast: false,
+        error_msg: '',
+        productSizeIndex: 0, // 商品尺码索引,
+        productColorIndex: 0 // 商品颜色索引
 
       };
     },
@@ -100,8 +118,8 @@
       'tab': tabs
     },
     onLoad(options) {
+      this.show_loading();
       this.getProductDetail(options);
-
     },
     methods: {
 
@@ -117,27 +135,130 @@
               this.productColorResponseList = this.product_detail.productColorSizeResponse.productColorResponseList;
               // 商品 size
               this.productSizeList = this.product_detail.productColorSizeResponse.productSizeList;
-              console.log(this.productSizeList);
+              //console.log(this.productSizeList);
             }
+          } else {
+
           }
+
+          this.hide_loading();
         });
 
       },
-      chooseSize(){
-        // 先选择颜色，再显示尺码
+      // 先选择颜色，再显示尺码
+      chooseProductSize(item, index){
+        this.productSizeIndex = index;
+        this.skuId = 1;
         console.log("chooseSize");
+
       },
-      chooseProductColor(productColor){
+      chooseProductColor(productColor, index){
+        this.productColorIndex = index;
         console.log(productColor);
       },
       onChangeNumber(e){
         // 获取选择商品数量
         console.log(e.mp.detail.number);
+        this.quantity = e.mp.detail.number;
       },
       addBuyCart(){
+        // 已授权
+        if (this.skuId == 0 || this.quantity == 0) {
+          this.showErrMsg();
+        } else {
+          // 看当前用户是否已授权
+          this.getSettingKey();
+        }
+      },
+      showErrMsg(){
+        if (this.skuId == 0) {
+          this.error_msg = appMessages.CHOOSE_SIZE_ERROR;
+          this.showToast();
+          return;
+        } else if (this.quantity == 0) {
+          this.error_msg = appMessages.CHOOSE_QUANTITY_ERROR;
+          this.showToast();
+          return;
+        }
+      },
+      showToast(){
+        this.show_toast = true;
+        setTimeout(()=> {
+          if (this.show_toast)   this.show_toast = !this.show_toast;
+        }, 2000);
+      },
+      show_loading() {
+        wx.showLoading({
+          title: '加载中',
+        })
+      },
+      hide_loading() {
+        setTimeout(function () {
+          wx.hideLoading()
+        }, 1500);
 
       },
+      getSettingKey () {
+        let self = this;
+        let settingKey
+        wx.getStorage({
+          key: 'settingKey',
+          success: function (data) {
+            //console.log(data)
+            settingKey = data.data;
+            if (settingKey === '1') {
+//              self.addBuyCartSuccessfully();
+              self.getSessionId();
+            } else if (settingKey === '0') {
+              // 未授权，跳转授权页面
+              wx.navigateTo({
+                url: '/pages/login/main'
+              })
+            } else {
+              this.getSettingKey()
+            }
+          },
+          // 没有获得到SettingKey的时候重复调用本函数
+          fail: function (err) {
+            this.getSettingKey()
+          }
+        })
+      },
 
+      getSessionId() {
+        let self = this;
+        wx.getStorage({
+          key: 'cookieKey',
+          success: function (data) {
+            console.log(data);
+            const cookieSession = String(data.data);
+            let sessionId = cookieSession.split('=')[1].split(';')[0];
+            self.addBuyCartSuccessfully(sessionId);
+            // return sessionId;
+          },
+          fail: function (err) {
+            console.log(err)
+            wx.navigateTo({
+              url: '/pages/login/main'
+            })
+          }
+        })
+      },
+      addBuyCartSuccessfully(sessionId){
+        fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
+        console.log(sessionId);
+
+        let entityDTO = {
+          "entityDTO": {
+            "quantity": this.quantity,
+            "skuId": 306178
+          }
+
+        };
+        fly.post("phantombuy/cart/add", entityDTO).then(res => {
+          console.log(res);
+        });
+      }
     },
   }
 </script>
@@ -319,10 +440,17 @@
     padding: 0;
   }
 
-  .col img{
+  .col img {
     width: 1.2rem;
-    height:1.2rem;
-    border: 1px solid red;
+    height: 1.2rem;
+  }
+
+  .productSizeActivity {
+    border-color: #1890ff;
+  }
+
+  .productColorActivity {
+    border: 1.5px solid #e3393c;
   }
 
 </style>

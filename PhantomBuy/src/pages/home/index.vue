@@ -39,11 +39,10 @@
       'site-card': sitecard,
     },
     created() {
-      this.show_loading();
-      this.getSiteList();
     },
     onLoad(){
-
+      this.show_loading();
+      this.getSiteList();
     },
     computed: {},
     methods: {
