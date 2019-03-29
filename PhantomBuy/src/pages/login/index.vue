@@ -10,7 +10,7 @@
         <text>获得你的公开信息(昵称，头像等)</text>
       </div>
     </div>
-    <button class="loginButton" v-i="buttonVisible" open-type="getUserInfo" @click="getUserInfoClick">授权登录</button>
+    <button class="loginButton"  open-type="getUserInfo"  @getuserinfo="onAuth">授权登录</button>
 
   </div>
 </template>
@@ -18,19 +18,46 @@
 <script type="text/ecmascript-6">
   import  fly from "../../utils/fly";
   export default {
-    //这段登录不需要授权
     mounted () {
-      const self = this
-      wx.login({
-        success (res) {
-          if (res.code) {
-            self.code = res.code
-            self.wxGetUserInfo(res.code)
-          }
-        }
-      })
+      /*
+       */
     },
     methods: {
+      onAuth (e) {
+        if(e.mp.detail.userInfo) {//点击了“允许”按钮，
+          //登录，获取sessionID，再返回上一页
+          const self = this
+          wx.login({
+            success (res) {
+              if (res.code) {
+                self.code = res.code
+                //储存getUserInfo接口的信息，需要后端配合
+                //self.wxGetUserInfo(res.code)
+                fly.post("phantombuy/auth/weChatAppletlogin",{
+                  entityDTO: {
+                    weChatAppletLoginCode : self.code
+                  }
+                }).then(res => {
+                  console.log(`后台交互拿回数据:`,res);
+                //把cookie存到storage里面
+                if(res.headers['set-cookie']){
+                  wx.setStorageSync('cookieKey', res.headers['set-cookie'])
+                  wx.setStorageSync('settingKey', '1')
+                  wx.navigateBack({
+                    delta: 1
+                  })
+                }else{
+                  wx.setStorageSync('settingKey', '0')
+                }
+              }).catch(err => {
+                  console.log(`api请求出错:`, err)
+                wx.setStorageSync('settingKey', '0')
+              })
+              }
+            }
+          })
+        }
+      },
       wxGetUserInfo (code) {
         const self = this
         fly.post("phantombuy/auth/weChatAppletlogin",{
@@ -39,15 +66,15 @@
           }
         }).then(res => {
           console.log(`后台交互拿回数据:`,res);
-          //跳转应该放在授权的接口里面的，这里好像不太对
-          /*
-          wx.switchTab({
-            url: '../home/main'
-          })
-          */
-        }).catch(err => {
+        //跳转应该放在授权的接口里面的，这里好像不太对
+        /*
+         wx.switchTab({
+         url: '../home/main'
+         })
+         */
+      }).catch(err => {
           console.log(`api请求出错:`,err);
-        })
+      })
       }
     }
   }
