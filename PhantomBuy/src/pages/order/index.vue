@@ -1,38 +1,38 @@
 <template>
   <div class="order">
-    <div v-for="(item, i) in cart_list" :key="i">
+    <scroll-view v-for="(item, i) in cart_list" :key="i">
       <view class="titleBlock"  >
         {{item.brandNameCh}}
       </view>
 
-      <div class="sliderLeft" style="margin-top:40rpx;" v-for="(cartListItem, j) in item.cartList" :key="j">
+      <view class="sliderLeft" style="margin-top:40rpx;" v-for="(cartListItem, j) in item.cartList" :key="j">
       <slider-left>
-      <div class="itemBlock" @click="itemBlockChangeColor" :style="{'background-color':pageBackgroundColor
+      <view class="itemBlock" @click="itemBlockChangeColor" :style="{'background-color':pageBackgroundColor
       }" id="“1">
-          <div class="row">
-            <div class="itemImage">
-              <image src="/static/images/test.jpg" class="titleImage" mode="widthFix"/>
-            </div>
-            <div class="itemDetail">
-              <div class="itemTitle">{{cartListItem.productName}}</div>
-              <div class="row">
-                <div class="itemRow">
-                  <div class="itemColor smallFont">颜色：</div>
-                  <div class="itemColorDetail smallFont">{{cartListItem.color}}</div>
-                </div>
-                <div class="itemRow">
-                  <div class="itemSize smallFont">尺码：</div>
-                  <div class="itemSizeDetail smallFont">{{cartListItem.size}}</div>
-                </div>
-                <div class="itemRow">
-                <div class="itemPrice smallFont">价格：</div>
-                <div class="itemPriceDetail smallFont">{{cartListItem.productRmbPrice}}</div>
-              </div>
-              </div>
-              <div class="counterBlock" @tap.stop="catchtapControl">
+          <view class="row">
+            <view class="itemImage">
+              <image :src="cartListItem.productImageUrl" class="titleImage" mode="widthFix"/>
+            </view>
+            <view class="itemDetail">
+              <view class="itemTitle">{{cartListItem.productName}}</view>
+              <view class="row">
+                <view class="itemRow">
+                  <view class="itemColor smallFont">颜色：</view>
+                  <view class="itemColorDetail smallFont">{{cartListItem.color}}</view>
+                </view>
+                <view class="itemRow">
+                  <view class="itemSize smallFont">尺码：</view>
+                  <view class="itemSizeDetail smallFont">{{cartListItem.size}}</view>
+                </view>
+                <view class="itemRow">
+                <view class="itemPrice smallFont">价格：</view>
+                <view class="itemPriceDetail smallFont">{{cartListItem.productRmbPrice}} 元</view>
+              </view>
+              </view>
+              <view class="counterBlock" @tap.stop="catchtapControl">
                 <wxc-counter  v-on:changenumber="onChangeNumber" class="counter" :number="cartListItem.quantity" max="100" min="1" color="#000"></wxc-counter>
-              </div>
-            </div>
+              </view>
+            </view>
             <!--
             <view class="stepper">
               <text class="{{minusStatus}}" bindtap="bindMinus">-</text>
@@ -41,49 +41,53 @@
             </view>
             -->
 
-          </div>
-        <div class="total">
-          <div class="row">
-            <div class="totalTitle">合计：</div>
-            <div class="totalDetail">{{cartListItem.productRmbPriceTotal}} 元</div>
-          </div>
-        </div>
-      </div>
+          </view>
+        <view class="total">
+          <view class="row">
+            <view class="totalTitle">合计：</view>
+            <view class="totalDetail">{{cartListItem.productRmbPriceTotal}} 元</view>
+          </view>
+        </view>
+      </view>
       </slider-left>
-      </div>
+      </view>
 
 
-      <div class="priceBlock">
-        <div class="row paddingButtom20">
-          <div class="priceTitle">价格合计：</div>
-          <div class="priceTotalDetail">1200</div>
-          <div class="priceUnit">元</div>
-        </div>
-        <div class="row paddingButtom20">
-          <div class="priceTitle">消费税合计：</div>
-          <div class="texTotalDetail">120</div>
-          <div class="priceUnit">元</div>
-        </div>
-        <div class="row paddingButtom20">
-          <div class="priceTitle">国际快递运费：</div>
-          <div class="delDetail">123</div>
-          <div class="priceUnit">元</div>
-          <div class="weightTitle">（预估</div>
-          <div class="weightDetail">14</div>
-          <div class="weightUnit">磅）</div>
-        </div>
 
-        <div class="row paddingButtom20">
-          <div class="priceTitle">平台手续费：</div>
-          <div class="middlePriceDetail">0</div>
-          <div class="priceUnit">元</div>
-        </div>
-      </div>
-      <div class="checkoutButton">
-        <wxc-button  size="normal" type="secondary"  value="去结算"></wxc-button>
-      </div>
 
-    </div>
+
+    </scroll-view>
+
+    <view class="priceBlock">
+      <view class="row paddingButtom20">
+        <view class="priceTitle">价格合计：</view>
+        <view class="priceTotalDetail">1200</view>
+        <view class="priceUnit">元</view>
+      </view>
+      <view class="row paddingButtom20">
+        <view class="priceTitle">消费税合计：</view>
+        <view class="texTotalDetail">120</view>
+        <view class="priceUnit">元</view>
+      </view>
+      <view class="row paddingButtom20">
+        <view class="priceTitle">国际快递运费：</view>
+        <view class="delDetail">123</view>
+        <view class="priceUnit">元</view>
+        <view class="weightTitle">（预估</view>
+        <view class="weightDetail">14</view>
+        <view class="weightUnit">磅）</view>
+      </view>
+
+      <view class="row paddingButtom20">
+        <view class="priceTitle">平台手续费：</view>
+        <view class="middlePriceDetail">0</view>
+        <view class="priceUnit">元</view>
+      </view>
+    </view>
+
+    <view class="checkoutButton">
+      <wxc-button  size="normal" type="secondary"  value="去结算"></wxc-button>
+    </view>
     </div>
 </template>
 
@@ -211,19 +215,13 @@
           * 需要先获取所有勾选的cartId，做成List传回去
           * */
         },
-        catchtapControl: function () {},
+        catchtapControl: function () {}
       }
     }
-
-
 </script>
 
 <style scoped>
   .order{
-    background-color:#F7F7F7;
-    position: fixed;
-    height:100%;
-    width:100%;
   }
   .row{
     display: flex;
