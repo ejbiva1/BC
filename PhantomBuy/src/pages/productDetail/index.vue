@@ -36,15 +36,15 @@
           </view>
           <!--商品规格属性选择 规格属性样式解决了-->
           <view class="product_size info_padding"
-                v-if="productSizeList.length !=0">
+                v-if="defaultProductSizeList.length !=0">
             <view>
               <p style=" font-size: 14px; " class="info_padding">选择尺码</p>
             </view>
             <view>
-              <ul class="col" id="wrap1">
-                <li v-for="(item, index) in productSizeList" :key="index">
+              <ul class="col">
+                <li v-for="(item, index) in defaultProductSizeList" :key="index">
                   <a data-prime="2" @click="chooseProductSize(item, index)"
-                     :class="{ productSizeActivity: productSizeIndex == index }">{{item}}</a>
+                     :class="{ productSizeActivity: productSizeIndex == index }">{{item.sizeName}}</a>
                 </li>
               </ul>
             </view>
@@ -56,7 +56,7 @@
               <p style=" font-size: 14px; " class="info_padding">数量</p>
             </view>
             <view>
-              <wxc-counter class="counter" number="1" max="100" :min="1" color="#000"
+              <wxc-counter class="counter" number="0" max="100" :min="1" color="#000"
                            v-on:changenumber="onChangeNumber"></wxc-counter>
             </view>
           </view>
@@ -79,8 +79,8 @@
 
     <wxc-toast
       :is-show="show_toast"
-      :text="error_msg"
-      icon="warning"
+      :text="msg"
+      :icon="icon_type"
       icon-color="#ff5777"
     ></wxc-toast>
   </div>
@@ -93,6 +93,7 @@
   import {authorize} from "../../utils/authorized";
 
   export default {
+    // 商品详情页面目前缺少: 1. size inactive 区分  2. 选择image后，  重新加载 size列表  3. 想要弄清楚  加载默认的 img 是什么   4. 页面调整好看些
     data() {
       return {
         product_detail: {},
@@ -109,8 +110,12 @@
         skuId: 0,
         show_toast: false,
         error_msg: '',
-        productSizeIndex: 0, // 商品尺码索引,
-        productColorIndex: 0 // 商品颜色索引
+        success_mag: '',
+        msg: '',
+        icon_type: '',
+        productSizeIndex: '', // 商品尺码索引,
+        productColorIndex: 0, // 商品颜色索引
+        defaultProductSizeList: []
 
       };
     },
@@ -123,6 +128,8 @@
     },
     methods: {
 
+      a(){
+      },
       getProductDetail(option){
         let entityDTO = {entityDTO: option};
         fly.post("phantombuy/product/get", entityDTO).then((res)=> {
@@ -135,7 +142,12 @@
               this.productColorResponseList = this.product_detail.productColorSizeResponse.productColorResponseList;
               // 商品 size
               this.productSizeList = this.product_detail.productColorSizeResponse.productSizeList;
-              //console.log(this.productSizeList);
+              // 默认显示商品image 对应的 skuId列表
+              if (this.productColorResponseList.length >= 0) {
+                this.defaultProductSizeList = this.product_detail.productColorSizeResponse.productColorResponseList[0].skuSizeList;
+
+              }
+
             }
           } else {
 
@@ -145,20 +157,23 @@
         });
 
       },
-      // 先选择颜色，再显示尺码
-      chooseProductSize(item, index){
-        this.productSizeIndex = index;
-        this.skuId = 1;
-        console.log("chooseSize");
-
-      },
+      // 选择商品颜色
       chooseProductColor(productColor, index){
         this.productColorIndex = index;
-        console.log(productColor);
+        //this.defaultProductSizeList =
+        console.log("选择商品颜色");
       },
+      //选择商品尺码
+      chooseProductSize(item, index){
+        this.productSizeIndex = index;
+        this.skuId = item.skuId;
+        console.log("选择商品尺码");
+      },
+
       onChangeNumber(e){
         // 获取选择商品数量
-        console.log(e.mp.detail.number);
+        //console.log(e.mp.detail.number);
+        console.log("选择商品数量");
         this.quantity = e.mp.detail.number;
       },
       addBuyCart(){
@@ -172,11 +187,13 @@
       },
       showErrMsg(){
         if (this.skuId == 0) {
-          this.error_msg = appMessages.CHOOSE_SIZE_ERROR;
+          this.msg = appMessages.CHOOSE_SIZE_ERROR;
+          this.icon_type = "warning";
           this.showToast();
           return;
         } else if (this.quantity == 0) {
-          this.error_msg = appMessages.CHOOSE_QUANTITY_ERROR;
+          this.msg = appMessages.CHOOSE_QUANTITY_ERROR;
+          this.icon_type = "warning";
           this.showToast();
           return;
         }
@@ -207,7 +224,6 @@
             //console.log(data)
             settingKey = data.data;
             if (settingKey === '1') {
-//              self.addBuyCartSuccessfully();
               self.getSessionId();
             } else if (settingKey === '0') {
               // 未授权，跳转授权页面
@@ -224,17 +240,17 @@
           }
         })
       },
-
+      // 获取当前用户sessionId
       getSessionId() {
         let self = this;
         wx.getStorage({
           key: 'cookieKey',
           success: function (data) {
-            console.log(data);
+            //console.log(data);
             const cookieSession = String(data.data);
             let sessionId = cookieSession.split('=')[1].split(';')[0];
             self.addBuyCartSuccessfully(sessionId);
-            // return sessionId;
+
           },
           fail: function (err) {
             console.log(err)
@@ -246,18 +262,26 @@
       },
       addBuyCartSuccessfully(sessionId){
         fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
-        console.log(sessionId);
+        //console.log(sessionId);
 
         let entityDTO = {
           "entityDTO": {
             "quantity": this.quantity,
-            "skuId": 306178
+            "skuId": this.skuId
           }
-
         };
         fly.post("phantombuy/cart/add", entityDTO).then(res => {
-          console.log(res);
+          if (res.data.code === '1') {
+            this.showAddCartMsg(appMessages.ADD_CART_SUCCESS);
+          } else {
+            this.showAddCartMsg(appMessages.ADD_CART_FAILED);
+          }
         });
+      },
+      showAddCartMsg(msg) {
+        this.msg = msg;
+        this.icon_type = "yes";
+        this.showToast();
       }
     },
   }
@@ -397,6 +421,9 @@
   .col {
     flex-basis: 45%;
     flex-shrink: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
   }
 
   ul {

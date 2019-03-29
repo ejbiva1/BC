@@ -14,9 +14,11 @@
                    :scroll-x="true"
                    :style="'{width: auto;overflow:hidden;height:20px;}'">
         <ul>
-          <li class="site_product" v-for="(item, i) in site_product_category_list" :key="i"
-              @click="getSingleKindProductList(item)">
-            <span>{{item.productCategoryName}}</span></li>
+          <li class="site_product" v-for="(item, index) in site_product_category_list" :key="index"
+              @click="getSingleKindProductList(item, index)">
+            <a
+              :class="{ product_category_activity : product_category_id == (index+1)  }">{{item.productCategoryName}}</a>
+          </li>
         </ul>
       </scroll-view>
     </div>
@@ -71,7 +73,8 @@
         pageDtoSetting: {},
         search: "搜索",
         current_prod_categoryid: 0,
-        previous_pro_cate_id: 0
+        previous_pro_cate_id: 0,
+        product_category_id: ''
       };
     },
     components: {
@@ -89,6 +92,7 @@
       this.getListSiteProductCategory();
       // site product list
       this.getAllProductList();
+      console.log(this.product_category_id);
     },
     async onPullDownRefresh() {
       // to doing..
@@ -148,8 +152,10 @@
         this.pageDtoSetting = this.pageDto;
         this.getProducts();
       },
-      getSingleKindProductList(productCategory) {
+      getSingleKindProductList(productCategory, index) {
         this.show_loading();
+        this.product_category_id = index+1;
+        console.log(this.product_category_id);
         this.previous_pro_cate_id = this.current_prod_categoryid;
         this.current_prod_categoryid = productCategory.productCategoryId;
         this.product_detail_list = [];
@@ -157,9 +163,8 @@
         this.getProducts();
       },
       loadReachBottomList(){
-        //current_prod_categoryid: 0,       看这两个数据变化情况
+        //current_prod_categoryid: 0,
         // previous_pro_cate_id: 0
-        //
         if (this.current_prod_categoryid != this.previous_pro_cate_id) {
           this.product_detail_list = [];
         }
@@ -309,5 +314,8 @@
     overflow: hidden;
   }
 
+  .product_category_activity {
+    color: #1890ff;
+  }
 </style>
 
