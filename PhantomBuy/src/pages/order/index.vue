@@ -5,14 +5,14 @@
         {{item.brandNameCh}}
       </view>
 
-      <view class="sliderLeft" style="margin-top:40rpx;" v-for="(cartListItem, j) in item.cartList" :key="j">
+      <view class="sliderLeft" style="margin-top:40rpx;" v-for="(cartListItem, j) in item.cartList" :key="j" >
       <slider-left>
-      <view class="itemBlock" @click="itemBlockChangeColor" :style="{'background-color':pageBackgroundColor
-      }" id="“1">
+      <view class="itemBlock" @click="itemBlockChangeColor(cartListItem, cartListItem.cartId)" :class="[cartIdList.includes(cartListItem.cartId) ? 'orderItemSelected' : 'orderItemUnselected']"
+       :id="cartListItem.cartId">
           <view class="row">
             <view class="itemImage">
               <image :src="cartListItem.productImageUrl" class="titleImage" mode="widthFix"/>
-            </view>
+          </view>
             <view class="itemDetail">
               <view class="itemTitle">{{cartListItem.productName}}</view>
               <view class="row">
@@ -61,26 +61,26 @@
     <view class="priceBlock">
       <view class="row paddingButtom20">
         <view class="priceTitle">价格合计：</view>
-        <view class="priceTotalDetail">1200</view>
+        <view class="priceTotalDetail">{{priceData.final.finalRMB}}</view>
         <view class="priceUnit">元</view>
       </view>
       <view class="row paddingButtom20">
         <view class="priceTitle">消费税合计：</view>
-        <view class="texTotalDetail">120</view>
+        <view class="texTotalDetail">{{priceData.exciseTax.exciseTax}}</view>
         <view class="priceUnit">元</view>
       </view>
       <view class="row paddingButtom20">
         <view class="priceTitle">国际快递运费：</view>
-        <view class="delDetail">123</view>
+        <view class="delDetail">{{priceData.internationalShippingFee.internationalShippingFee}}</view>
         <view class="priceUnit">元</view>
         <view class="weightTitle">（预估</view>
-        <view class="weightDetail">14</view>
+        <view class="weightDetail">{{priceData.internationalShippingFee.estimatedWeight}}</view>
         <view class="weightUnit">磅）</view>
       </view>
 
       <view class="row paddingButtom20">
         <view class="priceTitle">平台手续费：</view>
-        <view class="middlePriceDetail">0</view>
+        <view class="middlePriceDetail">{{priceData.sitePromotionFee.sitePromotionFee}}</view>
         <view class="priceUnit">元</view>
       </view>
     </view>
@@ -95,12 +95,14 @@
     import fly from '../../utils/fly'
     import {pageDTO} from "../../common/model/pageDTO"
     var settingKey = ''
+    var sessionId = null
     export default {
       data () {
         return {
-          pageBackgroundColor: 'white',
+          cartIdList: [],
           cart_list: [],
-          settingKey: ''
+          settingKey: '',
+          priceData: {sitePromotionFee: {sitePromotionFee: 0}, final: {finalRMB: 0}, exciseTax: {exciseTax: 0}, internationalShippingFee: {estimatedWeight: 0,internationalShippingFee: 0}}
         }
       },
       components: {
@@ -154,7 +156,7 @@
         getOrderList () {
           const self = this
           // 读取storage如果有sessionID就在header里带上
-          var sessionId = null
+
           wx.getStorage({
             key: 'cookieKey',
             success: function (data) {
@@ -179,6 +181,7 @@
                   if (res.data.data.length > 0) {
                     self.cart_list = res.data.data
                   }
+
                 }
                 else {
                   // 失败
@@ -196,24 +199,52 @@
             }
           })
         },
-        itemBlockChangeColor: function () {
-          let bgColor = this.pageBackgroundColor
-          if (bgColor === 'lightgray') {
-            // 取消选择
-            bgColor = 'white'
-            // 此处调用calculateFee
-          } else {
-            // 选择
-            bgColor = 'lightgray'
-            // 此处调用calculateFee
+        itemBlockChangeColor: function (res, index) {
+          //先判断，list里面本来就有的话，就删掉，本来没有就加进去
+          var position = this.cartIdList.indexOf(index)
+          if(position === -1) {
+            this.cartIdList.push(index)
+          }else{
+            this.cartIdList.splice(position, 1)
           }
-          this.pageBackgroundColor = bgColor
+          var testRes = this.cartIdList.includes(index)
+          console.log( testRes);
+          console.log(`我就看看点击之后拿了啥:`,res);
+          // 调用calculateFee
+          this.calculateFee(this.cartIdList)
+
         },
-        calculateFee: function () {
+        calculateFee: function (list) {
           /*
           * {entityDTO: {cartIdList: [83, 88]}}
           * 需要先获取所有勾选的cartId，做成List传回去
           * */
+          const self = this
+          fly.config.headers["Cookie"] = "JSESSIONID="+sessionId;
+          /*
+          * 此处修改需要调用的接口
+          * */
+          // var requestList = list_name + ':' + list
+          fly.post("phantombuy/cart/calculateFee",{entityDTO: {cartIdList: list}}).then((res) => {
+            console.log(`后台拿回购物车数据:`,res);
+            if (res.data.code === `888`) {
+              // 跳转授权页
+              console.log(`请先登录:`, res);
+              wx.navigateTo({
+                url: '/pages/login/main'
+              })
+            }
+            else if (res.data.code === `1`) {
+              // 成功
+              self.priceData = res.data.data
+            }
+            else {
+              // 失败
+              console.log(`calculateFee数据:`,res);
+            }
+          }).catch(err => {
+            console.log(`calculateFee请求出错:`,err);
+          })
         },
         catchtapControl: function () {}
       }
@@ -303,6 +334,12 @@
     margin-right: 46rpx;
   }
 
+  .orderItemSelected {
+    background-color: lightgray;
+  }
+  .orderItemUnselected {
+    background-color: white;
+  }
 
 
 
