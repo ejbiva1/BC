@@ -8,50 +8,29 @@
     <!--邮编-->
     <!--邮寄地址--
     <!--设为默认地址-->
-    <view class="address_list">
-      <wxc-panel :border="has_border">
-        <view class="address_home padding">
-          <view class="user_phone">
-            <text>刘先生</text>
-            <text class="phone_padding">12345678909</text>
-          </view>
-          <view class="address">
-            <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-          </view>
-        </view>
-      </wxc-panel>
-
-    </view>
 
     <view>
       <view class="section">
-        <!--<wxc-input type="text" title="收件人手机号" placeholder="请输入手机号"></wxc-input>-->
-        <!--<wxc-input type="number" title="姓名" placeholder="清关使用"></wxc-input>-->
-        <!--<wxc-input type="text" title="身份证" mode="none" placeholder="请输入中国大陆身份证号"></wxc-input>-->
-        <!--<wxc-input type="text" title="身份证上传" placeholder="名字"></wxc-input>-->
-        <!--<wxc-input type="number" title="邮编" placeholder="邮编"></wxc-input>-->
-        <!--<wxc-input type="text" title="邮寄地址" mode="none" placeholder="请输入邮寄地址"></wxc-input>-->
+        <wxc-input type="text" title="收件人手机号" placeholder="请输入手机号" color="#ccc"></wxc-input>
+        <wxc-input type="number" title="姓名" placeholder="清关使用" color="#ccc"></wxc-input>
+        <wxc-input type="text" title="身份证" mode="none" placeholder="请输入中国大陆身份证号"
+                   v-on:blur="validateUserIdNumber" color="#ccc"></wxc-input>
+        <wxc-input type="text" title="身份证上传" placeholder="名字" color="#ccc"></wxc-input>
+        <wxc-input type="number" title="邮编" placeholder="邮编" color="#ccc"></wxc-input>
+        <wxc-input type="text" title="邮寄地址" mode="none" placeholder="请输入邮寄地址" color="#ccc"></wxc-input>
 
-        <input type="text" placeholder="请输入邮寄地址" v-model="address.addressDetail"/>
-        <input type="text" placeholder="身份证号码" v-model="address.idNumber" @change="validateUserIdNumber"/>
-        <input type="text" placeholder="邮编" v-model="address.postCode"/>
-        <input type="text" placeholder="身份证号码" v-model="address.receiver"/>
-        <input type="text" placeholder="请输入手机号" v-model="address.receiverPhone" @change="validateUserPhoneNo"/>
-        <view class="add_address">
-          <view class="button add_new_address" @click="confirmNewAddress">确认</view>
-        </view>
 
         <button @click="uploadImage">上传</button>
       </view>
 
-      <view class="toast">
-        <wxc-toast
-          :is-show="show_toast"
-          :text="msg"
-          :icon="icon_type"
-          icon-color="#ff5777"
-        ></wxc-toast>
-      </view>
+      <!--<view class="toast">-->
+      <!--<wxc-toast-->
+        <!--:is-show="show_toast"-->
+        <!--:text="msg"-->
+        <!--:icon="icon_type"-->
+        <!--icon-color="#ff5777"-->
+      <!--&gt;</wxc-toast>-->
+    <!--</view>-->
     </view>
   </div>
 </template>
@@ -120,8 +99,9 @@
           }
         });
       },
-      validateUserIdNumber(){
+      validateUserIdNumber(e){
         //  验证 身份证 照片是否合规  pc端仅仅验证 图片数量
+        this.address.idNumber = e.mp.detail.value;
         if (regex.validateUserIDCard(this.address.idNumber)) {
 
         } else {
@@ -131,6 +111,7 @@
 
       },
       validateUserPhoneNo(){   // 验证手机号号码
+        this.address.receiverPhone = e.mp.detail.value;
         if (regex.validatePhone(this.address.receiverPhone)) {
 
         } else {
@@ -158,14 +139,7 @@
     justify-content: space-between;
   }
 
-  .address_list {
-    width: 100%;
-    margin-bottom: 1.4rem;
-  }
 
-  .address_home {
-    width: 100%;
-  }
 
   .user_phone {
     font-size: 18px;
