@@ -1,17 +1,11 @@
-<template>
-  <button open-type="getUserInfo" @getuserinfo="bindGetUserInfo" @click="getUserInfoClick">获取权限</button>
-</template>
 <script type="text/ecmascript-6">
-
   import fly from "../src/utils/fly"
-  export default
-  {
+  export default {
     created () {
-
       const logs = wx.getStorageSync('logs') || []
       logs.unshift(Date.now())
+      wx.clearStorageSync()
       wx.setStorageSync('logs', logs)
-
       console.log('app created and cache logs by setStorageSync')
       /*
        wx.getSetting查询是否授权过
@@ -20,7 +14,7 @@
        */
       wx.getSetting({
         success: (res)=> {
-          //已经授权过
+//已经授权过
           if (res.authSetting['scope.userInfo'] === true) {
             const self = this
             wx.login({
@@ -31,29 +25,34 @@
                     entityDTO: {
                       weChatAppletLoginCode: self.code
                     }
-                  }).then(res=> {
+                  }).then(res => {
                     console.log(`后台交互拿回数据:`, res);
-                    //把cookie存到storage里面
+//把cookie存到storage里面
                     if (res.headers['set-cookie']) {
-                      wx.setStorageSync('cookieKey', res.headers['set-cookie']);//保存Cookie到Storage
+                      wx.setStorageSync('cookieKey', res.headers['set-cookie'])
+                      wx.setStorageSync('settingKey', '1')
+                    } else {
+                      wx.setStorageSync('settingKey', '0')
                     }
-                  }).catch(err=> {
-                    console.log(`api请求出错:`, err);
+                  }).catch(err => {
+                    console.log(`api请求出错:`, err)
+                    wx.setStorageSync('settingKey', '0')
                   })
                 }
               }
             })
           }
-          //还没授权过
+//还没授权过
           else {
             console.log(`暂时未授权`);
+            wx.setStorageSync('settingKey', '0')
           }
         }
       })
-    }
+
+    },
+    methods: {}
   }
-
-
 </script>
 
 <style>
