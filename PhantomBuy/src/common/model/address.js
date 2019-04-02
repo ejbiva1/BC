@@ -6,7 +6,7 @@ export class Address {
     this.addressDetail = options.addressDetail;
     this.fileList = options.fileList;
     this.idNumber = options.idNumber;
-    this.isDefault = options.isDefault;
+    this.isDefault = options.isDefault == undefined ? 1 : 0;
     this.postCode = options.postCode;
     this.receiver = options.receiver;
     this.receiverPhone = options.receiverPhone;
