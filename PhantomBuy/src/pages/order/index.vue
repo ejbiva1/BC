@@ -6,8 +6,8 @@
       </view>
 
       <view class="sliderLeft" style="margin-top:40rpx;" v-for="(cartListItem, j) in item.cartList" :key="j" >
-      <slider-left>
-      <view class="itemBlock" @click="itemBlockChangeColor(cartListItem, cartListItem.cartId)" :class="[cartIdList.includes(cartListItem.cartId) ? 'orderItemSelected' : 'orderItemUnselected']"
+      <slider-left v-on:delete="handleDelete" :id="cartListItem.cartId">
+      <view class="itemBlock" @click="itemBlockChangeColor(cartListItem, cartListItem.cartId)" :class="[cartIdList.includes(parseInt(cartListItem.cartId)) ? 'orderItemSelected' : 'orderItemUnselected']"
        :id="cartListItem.cartId">
           <view class="row">
             <view class="itemImage">
@@ -30,7 +30,7 @@
               </view>
               </view>
               <view class="counterBlock" @tap.stop="catchtapControl">
-                <wxc-counter  v-on:changenumber="onChangeNumber" class="counter" :number="cartListItem.quantity" max="100" min="1" color="#000"></wxc-counter>
+                <wxc-counter :id="cartListItem.cartId" v-on:changenumber="onChangeNumber" class="counter" :number="cartListItem.quantity" max="100" min="1" color="#000"></wxc-counter>
               </view>
             </view>
             <!--
@@ -112,12 +112,74 @@
           this.getSettingKey()
         }
       },
+      onShow (options) {
+        if (options !== undefined){
+          this.getOrderList()
+        }
+      },
       methods: {
+        handleDelete (e) {
+          const self = this
+          fly.config.headers['Cookie'] = 'JSESSIONID=' + sessionId
+          // e.mp.currentTarget.id在cartIdList里面的话，要先从list里面删掉
+          var cartID = parseInt(e.mp.currentTarget.id)
+          var position = this.cartIdList.indexOf(cartID)
+          if(position !== -1) {
+            this.cartIdList.splice(position, 1)
+          }
+          // 先调用delete
+          fly.post('phantombuy/cart/delete', {entityDTO: {cartIdList: [e.mp.currentTarget.id]}}).then((res) => {
+            if (res.data.code === `888`) {
+              // 跳转授权页
+              console.log(`请先登录:`, res)
+              wx.navigateTo({
+                url: '/pages/login/main'
+              })
+            }
+            else if (res.data.code === `1`) {
+              // 成功
+              // 调用calculateFee，分修改了的物品勾选和未勾选状态
+              this.calculateFee(this.cartIdList)
+              // list
+              this.getOrderList()
+            }
+            else {
+              // 失败
+              console.log(`update商品数字:`, res)
+            }
+          }).catch(err => {
+            console.log(`update商品数字:`, err)
+          })
+        },
         onChangeNumber (e) {
+          const self = this
+          fly.config.headers['Cookie'] = 'JSESSIONID=' + sessionId
           console.log(e.mp.detail.number)
+          console.log(e.mp.currentTarget.id)
           // 先调用update
-          // 调用calculateFee，分修改了的物品勾选和未勾选状态
-          // list
+          fly.post('phantombuy/cart/update', {entityDTO: {cartId: e.mp.currentTarget.id, quantity: e.mp.detail.number}}).then((res) => {
+            if (res.data.code === `888`) {
+              // 跳转授权页
+              console.log(`请先登录:`, res)
+              wx.navigateTo({
+                url: '/pages/login/main'
+              })
+            }
+            else if (res.data.code === `1`) {
+              // 成功
+              // 调用calculateFee，分修改了的物品勾选和未勾选状态
+              this.calculateFee(this.cartIdList)
+              // list
+              this.getOrderList ()
+            }
+            else {
+              // 失败
+              console.log(`update商品数字:`, res)
+            }
+          }).catch(err => {
+            console.log(`update商品数字:`, err)
+          })
+
         },
         /*
         * 这段getSettingKey需要复用
@@ -129,13 +191,13 @@
             success: function (data) {
               console.log(data)
               settingKey = data.data
-              if (settingKey === '1'){
+              if (settingKey === '1') {
                 // 已经授权调用所需接口
                 /*
                 * 修改此处，调用所需使用的接口函数
                 * */
                 self.getOrderList()
-              } else if (settingKey === '0' ) {
+              } else if (settingKey === '0') {
                 // 未授权，跳转授权页面
                 wx.navigateTo({
                   url: '/pages/login/main'
@@ -150,9 +212,6 @@
             }
           })
         },
-        /*
-        * 这段getCartList需要复用
-        * */
         getOrderList () {
           const self = this
           // 读取storage如果有sessionID就在header里带上
