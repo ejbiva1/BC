@@ -14,9 +14,10 @@
       <view class="section">
         <wxc-panel :border="has_border">
           <!--收件人姓名、电话号码-->
-          <wxc-input type="text" title="收件人手机号" placeholder="请输入手机号" color="#ccc"
+          <wxc-input type="text" title="收件人手机号" placeholder="请输入手机号" color="#ccc" :value="address.receiverPhone"
                      v-on:blur="validateUserPhoneNo"></wxc-input>
-          <wxc-input type="number" title="姓名" placeholder="清关使用" color="#ccc" v-on:blur="validateUserName"></wxc-input>
+          <wxc-input type="number" title="姓名" placeholder="清关使用" color="#ccc" v-on:blur="validateUserName"
+                     :value="address.receiver"></wxc-input>
         </wxc-panel>
       </view>
 
@@ -24,7 +25,7 @@
         <wxc-panel :border="has_border">
           <!--身份证号、上传身份证-->
           <wxc-input type="text" title="身份证" placeholder="请输入中国大陆身份证号"
-                     v-on:blur="validateUserIdNumber" color="#ccc"></wxc-input>
+                     v-on:blur="validateUserIdNumber" color="#ccc" :value="address.idNumber"></wxc-input>
           <!--<wxc-input type="text" title="身份证上传" placeholder="请上传身份证照片" color="#ccc" v-on:input="uploadImage"></wxc-input>-->
           <!--<wxc-input type="text" title="身份证上传" placeholder="这里应该是一个大的button,显示(上传身份证件),显示一个大的框架"-->
           <!--color="#ccc"></wxc-input>-->
@@ -34,16 +35,24 @@
       <view class="section">
         <wxc-panel :border="has_border">
           <!--地址、 邮编-->
-          <wxc-input type="number" title="邮编" placeholder="邮编" color="#ccc" v-on:blur="validatePostCode"></wxc-input>
+          <wxc-input type="number" title="邮编" placeholder="邮编" color="#ccc" v-on:blur="validatePostCode"
+                     :value="address.postCode"></wxc-input>
           <wxc-input type="text" title="邮寄地址" mode="none" placeholder="请输入邮寄地址" color="#ccc"
-                     v-on:blur="validateAddress"></wxc-input>
+                     v-on:blur="validateAddress" :value="address.receiverPhone"></wxc-input>
         </wxc-panel>
       </view>
 
+
+      <!---->
       <view class="section_button">
         <wxc-button size="large" type="dark" value="完成" @click="confirmNewAddress"></wxc-button>
       </view>
 
+      <view class="section_button" v-if="isEditAddress == true">
+        <wxc-button size="large" type="dark" value="删除" @click="deleteAddress"></wxc-button>
+      </view>
+
+      <!---->
 
       <view class="toast">
         <wxc-toast
@@ -63,7 +72,7 @@
   import {regex} from "../../utils/Regex";
   import {common} from "../../utils/common";
   import  fly from "../../utils/fly";
-  //地址列表页
+  //这个页面还剩 删除地址、 更新地址、 添加地址  访问api
   export default {
     name: 'editaddress',
     data() {
@@ -73,13 +82,30 @@
         user_card_image_url: [],
         toast: {},
         show_toast: false,
-        session_Id: ''
+        session_Id: '',
+        isEditAddress: false
       }
     },
     components: {
       'edit-address': EditAddress
     },
     onLoad(options){
+      if (options.address_detail !== undefined) {
+        this.address = JSON.parse(options.address_detail);
+      }
+
+      let flag = options.isEditAddress.trim() === "true" ? true : false;
+      if (!flag) {
+        this.isEditAddress = false
+      }
+
+      if (flag) {
+        this.isEditAddress = true
+      }
+      ;
+      console.log(this.isEditAddress);
+
+
       this.getSettingKey();
       console.log(options);
       // this.session_Id = options;
@@ -201,6 +227,9 @@
       },
       validateUserName(e){
         this.address.receiver = e.mp.detail.value;
+      },
+      deleteAddress(){
+        console.log("delete address");
       },
       showMsg() {
 

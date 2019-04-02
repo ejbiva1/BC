@@ -161,7 +161,8 @@
         icon_type: '',
         msg: '',
         toast: {},
-        session_id: ''
+        session_id: '',
+        address: {}
       }
     },
     onLoad(){
@@ -174,9 +175,19 @@
     },
     methods: {
       editUserAddress(){
+        this.address = {
+
+          addressDetail: "上海市",
+          fileList: "fileList",
+          idNumber: "idNumber",
+          isDefault: 1,
+          postCode: "291306",
+          receiver: "戴瑞",
+          receiverPhone: 18201716178
+        };
         console.log('editUserAddress');
         wx.navigateTo({
-          url: '/pages/editaddress/main'
+          url: '/pages/editaddress/main?isEditAddress= ' + true + '&address_detail=' + JSON.stringify(this.address)
         });
       },
 
@@ -252,7 +263,7 @@
 //        fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
 //        this.session_id = sessionId;
         wx.navigateTo({
-          url: '/pages/editaddress/main?sessionId=' + this.session_id
+          url: '/pages/editaddress/main?isEditAddress=' + false
         })
       },
       showMsg() {
