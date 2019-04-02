@@ -1,42 +1,131 @@
 <template>
   <div class="animated fadeIn">
-    <view class="address_list">
-      <wxc-panel :border="has_border">
-        <view class="address_home padding">
-          <view class="user_phone">
-            <text>刘先生</text>
-            <text class="phone_padding">12345678909</text>
-          </view>
-          <view class="address">
-            <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate">编辑</view>
-          </view>
-        </view>
-      </wxc-panel>
+    <!--<edit-address v-bind:address_detail="addressDetail"></edit-address>-->
+    <!--收件人手机号-->
+    <!--姓名-->
+    <!--身份证-->
+    <!--身份证上传-->
+    <!--邮编-->
+    <!--邮寄地址--
+    <!--设为默认地址-->
 
+    <view>
+      <view class="section">
+        <wxc-input type="text" title="收件人手机号" placeholder="请输入手机号" color="#ccc"></wxc-input>
+        <wxc-input type="number" title="姓名" placeholder="清关使用" color="#ccc"></wxc-input>
+        <wxc-input type="text" title="身份证" mode="none" placeholder="请输入中国大陆身份证号"
+                   v-on:blur="validateUserIdNumber" color="#ccc"></wxc-input>
+        <wxc-input type="text" title="身份证上传" placeholder="名字" color="#ccc"></wxc-input>
+        <wxc-input type="number" title="邮编" placeholder="邮编" color="#ccc"></wxc-input>
+        <wxc-input type="text" title="邮寄地址" mode="none" placeholder="请输入邮寄地址" color="#ccc"></wxc-input>
+
+
+        <button @click="uploadImage">上传</button>
+      </view>
+
+      <!--<view class="toast">-->
+      <!--<wxc-toast-->
+        <!--:is-show="show_toast"-->
+        <!--:text="msg"-->
+        <!--:icon="icon_type"-->
+        <!--icon-color="#ff5777"-->
+      <!--&gt;</wxc-toast>-->
+    <!--</view>-->
     </view>
-
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import  EditAddress from "../../components/editaddress/editaddress.vue";
+  import {Address} from "../../common/model/address";
+  import {regex} from "../../utils/Regex";
+  import {common} from "../../utils/common";
   //地址列表页
   export default {
     name: 'editaddress',
     data() {
       return {
-        has_border: true
+        has_border: true,
+        address: new Address({}),
+        user_card_front_image_url: '',
+        user_card_end_image_url: '',
+        toast: {}
       }
     },
-    onLoad(){
+    components: {
+      'edit-address': EditAddress
+    },
+    onLoad(options){
+      console.log(options);
     },
     created() {
     },
     methods: {
       editUserAddress(){
         console.log('editUserAddress');
+      },
+      confirmNewAddress(){
+        console.log("Confirm New Address");
+        //http://www.phantombuy.com/phantombuy/userAddress/add
+        fly.post("phantombuy/userAddress/add", {entityDTO: this.address}).then(res => {
+          if (res.data.code === '1') {
+            console.log("添加收件地址成功");
+          } else {
+            console.log("添加收件地址失败");
+          }
+        });
+      },
+      uploadImage(){
+        wx.chooseImage({
+          count: 2,
+          izeType: ['original', 'compressed'],
+          sourceType: ['album', 'camera'],
+          success(res){
+            // tempFilePath可以作为img标签的src属性显示图片
+            const tempFilePaths = res.tempFilePaths;
+            //一下上传两张图片
+            //  console.log(res);
+            // 早这里执行上传 文件的代码
+            fly.post("phantombuy/userAddress/uploadAttachment").then(res => {
+              if (res.data.code === '1') {
+                console.log("上传文件成功");
+              } else {
+                console.log("上传文件失败");
+              }
+            });
+          },
+          fail(){
+
+          }
+        });
+      },
+      validateUserIdNumber(e){
+        //  验证 身份证 照片是否合规  pc端仅仅验证 图片数量
+        this.address.idNumber = e.mp.detail.value;
+        if (regex.validateUserIDCard(this.address.idNumber)) {
+
+        } else {
+          this.toast = toast.showErrorMsg("身份证号码验证错误");
+
+        }
+
+      },
+      validateUserPhoneNo(){   // 验证手机号号码
+        this.address.receiverPhone = e.mp.detail.value;
+        if (regex.validatePhone(this.address.receiverPhone)) {
+
+        } else {
+          this.toast = toast.showErrorMsg("手机号码验证错误");
+        }
+      },
+      validateAddress(){ // 验证地址是否合规
+
+      },
+      validatePostCode(){   // 验证邮政编码
+
       }
     }
+
   }
 </script>
 
@@ -50,14 +139,7 @@
     justify-content: space-between;
   }
 
-  .address_list {
-    width: 100%;
-    margin-bottom: 1.4rem;
-  }
 
-  .address_home {
-    width: 100%;
-  }
 
   .user_phone {
     font-size: 18px;

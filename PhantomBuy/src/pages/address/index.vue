@@ -133,23 +133,44 @@
     </view>
 
     <view class="add_address">
-      <view class="button add_new_address">新增收货地址</view>
+      <view class="button add_new_address" @click="addNewAddress">新增收货地址</view>
+    </view>
+
+    <view>
+      <wxc-toast
+        :is-show="show_toast"
+        :text="toast.msg"
+        :icon="toast.icon_type"
+        icon-color="#ff5777"
+      ></wxc-toast>
     </view>
   </div>
 </template>
 
 <script type="text/ecmascript-6">
+  import fly from "../../utils/fly";
+  import {appMessages} from "../../common/constants/message";
+  import {common} from "../../utils/common";
   //地址列表页
   export default {
     name: 'address',
     data() {
       return {
-        has_border: true
+        has_border: true,
+        show_toast: false,
+        icon_type: '',
+        msg: '',
+        toast: {},
+        session_id: ''
       }
     },
     onLoad(){
+      this.getSettingKey();
+      //this.getUserAddressList();
     },
     created() {
+//      this.getSessionId();
+//      this.getUserAddressList();
     },
     methods: {
       editUserAddress(){
@@ -157,6 +178,85 @@
         wx.navigateTo({
           url: '/pages/editaddress/main'
         });
+      },
+
+      getSettingKey () {
+        let self = this;
+        let settingKey
+        wx.getStorage({
+          key: 'settingKey',
+          success: function (data) {
+            //console.log(data)
+            settingKey = data.data;
+            if (settingKey === '1') {
+              self.getSessionId();
+            } else if (settingKey === '0') {
+              // 未授权，跳转授权页面
+              wx.navigateTo({
+                url: '/pages/login/main'
+              })
+            } else {
+              this.getSettingKey()
+            }
+          },
+          // 没有获得到SettingKey的时候重复调用本函数
+          fail: function (err) {
+            this.getSettingKey()
+          }
+        })
+      },
+
+      getSessionId() {
+        let self = this;
+        wx.getStorage({
+          key: 'cookieKey',
+          success: function (data) {
+            //console.log(data);
+            const cookieSession = String(data.data);
+            let sessionId = cookieSession.split('=')[1].split(';')[0];
+            self.getUserAddressList(sessionId);
+
+          },
+          fail: function (err) {
+            console.log(err)
+            wx.navigateTo({
+              url: '/pages/login/main'
+            })
+          }
+        })
+      },
+      getUserAddressList(sessionId){
+        // 获取当前用户 地址列表
+        fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
+        this.session_id = sessionId;
+        fly.post("phantombuy/userAddress/list", {entityDTO: {}}).then(res => {
+          if (res.data.code === '1') {
+
+
+          } else if (res.data.code === '888') {
+
+            console.log("请先登录");
+            this.toast = common.showErrorMsg("服务器内部错误");
+            this.show_toast = true;
+            setTimeout(function () {
+              this.show_toast = false;
+            }, 1500);
+
+          } else {
+            console.log("无结果");
+          }
+        });
+
+      },
+      addNewAddress(){
+//        fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
+//        this.session_id = sessionId;
+        wx.navigateTo({
+          url: '/pages/editaddress/main?sessionId=' + this.session_id
+        })
+      },
+      showMsg() {
+
       }
     }
   }
