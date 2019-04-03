@@ -7,7 +7,7 @@
 
       <view class="sliderLeft" style="margin-top:40rpx;" v-for="(cartListItem, j) in item.cartList" :key="j" >
       <slider-left v-on:delete="handleDelete" :id="cartListItem.cartId">
-      <view class="itemBlock" @click="itemBlockChangeColor(cartListItem, cartListItem.cartId)" :class="[cartIdList.includes(parseInt(cartListItem.cartId)) ? 'orderItemSelected' : 'orderItemUnselected']"
+      <view class="itemBlock" @click="itemBlockChangeColor(cartListItem, cartListItem.cartId)" :class="computedClass"
        :id="cartListItem.cartId">
           <view class="row">
             <view class="itemImage">
@@ -86,7 +86,7 @@
     </view>
 
     <view class="checkoutButton">
-      <wxc-button  size="normal" type="secondary"  value="去结算"></wxc-button>
+      <wxc-button  size="normal" :type="btnType"  value="去结算" v-on:submit="checkout"></wxc-button>
     </view>
     </div>
 </template>
@@ -101,12 +101,19 @@
         return {
           cartIdList: [],
           cart_list: [],
+          btnType: 'disabled',
           settingKey: '',
           priceData: {sitePromotionFee: {sitePromotionFee: 0}, final: {finalRMB: 0}, exciseTax: {exciseTax: 0}, internationalShippingFee: {estimatedWeight: 0,internationalShippingFee: 0}}
         }
       },
       components: {
       },
+      computed: {
+        computedClass(){
+          return this.cartIdList.includes(this.selected_cartId)  ? 'orderItemSelected' : 'orderItemUnselected';
+        }
+      },
+
       onLoad (options) {
         if (options !== undefined){
           this.getSettingKey()
@@ -118,7 +125,17 @@
         }
       },
       methods: {
+        checkout () {
+          if (this.cartIdList.length > 0){
+            wx.navigateTo({
+              url: '/pages/checkout/main'
+            })
+          }
+        },
         handleDelete (e) {
+          wx.showLoading({
+            title: 'Loading'
+          })
           const self = this
           fly.config.headers['Cookie'] = 'JSESSIONID=' + sessionId
           // e.mp.currentTarget.id在cartIdList里面的话，要先从list里面删掉
@@ -152,6 +169,9 @@
           })
         },
         onChangeNumber (e) {
+          wx.showLoading({
+            title: 'Loading'
+          })
           const self = this
           fly.config.headers['Cookie'] = 'JSESSIONID=' + sessionId
           console.log(e.mp.detail.number)
@@ -160,6 +180,7 @@
           fly.post('phantombuy/cart/update', {entityDTO: {cartId: e.mp.currentTarget.id, quantity: e.mp.detail.number}}).then((res) => {
             if (res.data.code === `888`) {
               // 跳转授权页
+              wx.hideLoading()
               console.log(`请先登录:`, res)
               wx.navigateTo({
                 url: '/pages/login/main'
@@ -170,14 +191,17 @@
               // 调用calculateFee，分修改了的物品勾选和未勾选状态
               this.calculateFee(this.cartIdList)
               // list
-              this.getOrderList ()
+              this.getOrderList()
+              wx.hideLoading()
             }
             else {
               // 失败
               console.log(`update商品数字:`, res)
+              wx.hideLoading()
             }
           }).catch(err => {
             console.log(`update商品数字:`, err)
+            wx.hideLoading()
           })
 
         },
@@ -185,6 +209,9 @@
         * 这段getSettingKey需要复用
         * */
         getSettingKey () {
+          wx.showLoading({
+            title: 'Loading'
+          })
           const self = this
           wx.getStorage({
             key: 'settingKey',
@@ -197,8 +224,10 @@
                 * 修改此处，调用所需使用的接口函数
                 * */
                 self.getOrderList()
+                wx.hideLoading()
               } else if (settingKey === '0') {
                 // 未授权，跳转授权页面
+                wx.hideLoading()
                 wx.navigateTo({
                   url: '/pages/login/main'
                 })
@@ -259,6 +288,9 @@
           })
         },
         itemBlockChangeColor: function (res, index) {
+          wx.showLoading({
+            title: 'Loading'
+          })
           //先判断，list里面本来就有的话，就删掉，本来没有就加进去
           var position = this.cartIdList.indexOf(index)
           if(position === -1) {
@@ -266,6 +298,14 @@
           }else{
             this.cartIdList.splice(position, 1)
           }
+          // 为了checkout的btn添加一段
+          // 如果cartIdList有东西就btnType = secondary
+          if (this.cartIdList.length > 0) {
+            this.btnType = 'secondary'
+          }else{
+            this.btnType = 'disabled'
+          }
+
           var testRes = this.cartIdList.includes(index)
           console.log( testRes);
           console.log(`我就看看点击之后拿了啥:`,res);
@@ -296,6 +336,7 @@
             else if (res.data.code === `1`) {
               // 成功
               self.priceData = res.data.data
+              wx.hideLoading()
             }
             else {
               // 失败
@@ -312,6 +353,9 @@
 
 <style scoped>
   .order{
+    background-color: lightgray;
+    height:100%;
+    width:100%;
   }
   .row{
     display: flex;
@@ -388,9 +432,8 @@
   }
 
   .checkoutButton{
-    float: right;
     margin-top: 180rpx;
-    margin-right: 46rpx;
+    margin-left: 446rpx;
   }
 
   .orderItemSelected {
