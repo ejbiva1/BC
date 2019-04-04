@@ -1,24 +1,13 @@
 <template>
   <div class="order">
-    <div id="app">
-      <view
-        v-for="(item , i) in list"
-        :class="activeClass"
-        @click="onClick(item,i)" :key='i'>
-        {{ item }}
-      </view>
-
-    </div>
     <scroll-view v-for="(item, i) in cart_list" :key="i">
-      <view class="titleBlock">
+      <view class="titleBlock"  >
         {{item.brandNameCh}}
       </view>
 
-      <view class="sliderLeft" style="margin-top:40rpx;" v-for="(cartListItem, j) in item.cartList" :key="j"
-            :class="computedClass"
-            @click="itemBlockChangeColor(cartListItem, cartListItem.cartId)">
+      <view class="sliderLeft" style="margin-top:40rpx;" v-for="(cartListItem, j) in item.cartList" :key="j" >
         <slider-left v-on:delete="handleDelete" :id="cartListItem.cartId">
-          <view class="itemBlock"
+          <view class="itemBlock" @click="itemBlockChangeColor(cartListItem, cartListItem.cartId)" :class="computedClass"
                 :id="cartListItem.cartId">
             <view class="row">
               <view class="itemImage">
@@ -41,8 +30,7 @@
                   </view>
                 </view>
                 <view class="counterBlock" @tap.stop="catchtapControl">
-                  <wxc-counter :id="cartListItem.cartId" v-on:changenumber="onChangeNumber" class="counter"
-                               :number="cartListItem.quantity" max="100" min="1" color="#000"></wxc-counter>
+                  <wxc-counter :id="cartListItem.cartId" v-on:changenumber="onChangeNumber" class="counter" :number="cartListItem.quantity" max="100" min="1" color="#000"></wxc-counter>
                 </view>
               </view>
               <!--
@@ -63,6 +51,9 @@
           </view>
         </slider-left>
       </view>
+
+
+
 
 
     </scroll-view>
@@ -95,7 +86,7 @@
     </view>
 
     <view class="checkoutButton">
-      <wxc-button size="normal" type="secondary" value="去结算"></wxc-button>
+      <wxc-button  size="normal" :type="btnType"  value="去结算" v-on:submit="checkout"></wxc-button>
     </view>
   </div>
 </template>
@@ -110,59 +101,46 @@
       return {
         cartIdList: [],
         cart_list: [],
+        btnType: 'disabled',
         settingKey: '',
-        testRes: false,
-        selected_cartId: 0,
-        priceData: {
-          sitePromotionFee: {sitePromotionFee: 0},
-          final: {finalRMB: 0},
-          exciseTax: {exciseTax: 0},
-          internationalShippingFee: {estimatedWeight: 0, internationalShippingFee: 0}
-        },
-        list: ['格斗', '舞蹈', '举重'],
-        select: [],
-        item: '',
-
+        priceData: {sitePromotionFee: {sitePromotionFee: 0}, final: {finalRMB: 0}, exciseTax: {exciseTax: 0}, internationalShippingFee: {estimatedWeight: 0,internationalShippingFee: 0}}
       }
     },
-    components: {},
+    components: {
+    },
     computed: {
       computedClass(){
-        // {orderItemSelected: cartIdList.indexOf(cartListItem.cartId) > -1}
-        return this.cartIdList.includes(this.selected_cartId) ? 'orderItemSelected' : '';
-      },
-      activeClass(){
-        return this.select.includes(this.item) ? 'active' : '';
+        return this.cartIdList.includes(this.selected_cartId)  ? 'orderItemSelected' : 'orderItemUnselected';
       }
     },
     onLoad (options) {
-      if (options !== undefined) {
+      if (options !== undefined){
         this.getSettingKey()
       }
     },
     onShow (options) {
-      if (options !== undefined) {
+      if (options !== undefined){
         this.getOrderList()
       }
     },
     methods: {
-      onClick(item, i) {
-        const index = this.select.indexOf(item);
-        this.item = item;
-        if (index > -1) {
-          this.select.splice(index, 1);
-        } else {
-          this.select.push(item);
-
+      checkout () {
+        if (this.cartIdList.length > 0){
+          wx.navigateTo({
+            url: '/pages/checkout/main'
+          })
         }
       },
       handleDelete (e) {
+        wx.showLoading({
+          title: 'Loading'
+        })
         const self = this
         fly.config.headers['Cookie'] = 'JSESSIONID=' + sessionId
         // e.mp.currentTarget.id在cartIdList里面的话，要先从list里面删掉
         var cartID = parseInt(e.mp.currentTarget.id)
         var position = this.cartIdList.indexOf(cartID)
-        if (position !== -1) {
+        if(position !== -1) {
           this.cartIdList.splice(position, 1)
         }
         // 先调用delete
@@ -190,19 +168,18 @@
         })
       },
       onChangeNumber (e) {
+        wx.showLoading({
+          title: 'Loading'
+        })
         const self = this
         fly.config.headers['Cookie'] = 'JSESSIONID=' + sessionId
         console.log(e.mp.detail.number)
         console.log(e.mp.currentTarget.id)
         // 先调用update
-        fly.post('phantombuy/cart/update', {
-          entityDTO: {
-            cartId: e.mp.currentTarget.id,
-            quantity: e.mp.detail.number
-          }
-        }).then((res) => {
+        fly.post('phantombuy/cart/update', {entityDTO: {cartId: e.mp.currentTarget.id, quantity: e.mp.detail.number}}).then((res) => {
           if (res.data.code === `888`) {
             // 跳转授权页
+            wx.hideLoading()
             console.log(`请先登录:`, res)
             wx.navigateTo({
               url: '/pages/login/main'
@@ -214,20 +191,25 @@
             this.calculateFee(this.cartIdList)
             // list
             this.getOrderList()
+            wx.hideLoading()
           }
           else {
             // 失败
             console.log(`update商品数字:`, res)
+            wx.hideLoading()
           }
         }).catch(err => {
           console.log(`update商品数字:`, err)
+          wx.hideLoading()
         })
-
       },
       /*
        * 这段getSettingKey需要复用
        * */
       getSettingKey () {
+        wx.showLoading({
+          title: 'Loading'
+        })
         const self = this
         wx.getStorage({
           key: 'settingKey',
@@ -240,8 +222,10 @@
                * 修改此处，调用所需使用的接口函数
                * */
               self.getOrderList()
+              wx.hideLoading()
             } else if (settingKey === '0') {
               // 未授权，跳转授权页面
+              wx.hideLoading()
               wx.navigateTo({
                 url: '/pages/login/main'
               })
@@ -258,19 +242,18 @@
       getOrderList () {
         const self = this
         // 读取storage如果有sessionID就在header里带上
-
         wx.getStorage({
           key: 'cookieKey',
           success: function (data) {
             console.log(data);
             const cookieSession = String(data.data);
             sessionId = cookieSession.split('=')[1].split(';')[0];
-            fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
+            fly.config.headers["Cookie"] = "JSESSIONID="+sessionId;
             /*
              * 此处修改需要调用的接口
              * */
-            fly.post("phantombuy/cart/list", {entityDTO: {}}).then((res) => {
-              console.log(`后台拿回购物车数据:`, res);
+            fly.post("phantombuy/cart/list",{entityDTO: {}}).then((res) => {
+              console.log(`后台拿回购物车数据:`,res);
               if (res.data.code === `888`) {
                 // 跳转授权页
                 console.log(`请先登录:`, res);
@@ -283,14 +266,13 @@
                 if (res.data.data.length > 0) {
                   self.cart_list = res.data.data
                 }
-
               }
               else {
                 // 失败
-                console.log(`购物车数据:`, res);
+                console.log(`购物车数据:`,res);
               }
             }).catch(err => {
-              console.log(`api请求出错:`, err);
+              console.log(`api请求出错:`,err);
             })
           },
           fail: function (err) {
@@ -302,23 +284,28 @@
         })
       },
       itemBlockChangeColor: function (res, index) {
+        wx.showLoading({
+          title: 'Loading'
+        })
         //先判断，list里面本来就有的话，就删掉，本来没有就加进去
         var position = this.cartIdList.indexOf(index)
-        if (position === -1) {
+        if(position === -1) {
           this.cartIdList.push(index)
-        } else {
+        }else{
           this.cartIdList.splice(position, 1)
         }
-
-        //console.log(this.cartIdList.includes(parseInt(res.cartId)));
-        this.testRes = this.cartIdList.includes(index)
-        this.selected_cartId = index;
-        console.log(this.cartIdList);
-        //console.log(testRes);
-        //console.log(`我就看看点击之后拿了啥:`, res);
+        // 为了checkout的btn添加一段
+        // 如果cartIdList有东西就btnType = secondary
+        if (this.cartIdList.length > 0) {
+          this.btnType = 'secondary'
+        }else{
+          this.btnType = 'disabled'
+        }
+        var testRes = this.cartIdList.includes(index)
+        console.log( testRes);
+        console.log(`我就看看点击之后拿了啥:`,res);
         // 调用calculateFee
         this.calculateFee(this.cartIdList)
-
       },
       calculateFee: function (list) {
         /*
@@ -326,13 +313,13 @@
          * 需要先获取所有勾选的cartId，做成List传回去
          * */
         const self = this
-        fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
+        fly.config.headers["Cookie"] = "JSESSIONID="+sessionId;
         /*
          * 此处修改需要调用的接口
          * */
         // var requestList = list_name + ':' + list
-        fly.post("phantombuy/cart/calculateFee", {entityDTO: {cartIdList: list}}).then((res) => {
-          console.log(`后台拿回购物车数据:`, res);
+        fly.post("phantombuy/cart/calculateFee",{entityDTO: {cartIdList: list}}).then((res) => {
+          console.log(`后台拿回购物车数据:`,res);
           if (res.data.code === `888`) {
             // 跳转授权页
             console.log(`请先登录:`, res);
@@ -343,140 +330,108 @@
           else if (res.data.code === `1`) {
             // 成功
             self.priceData = res.data.data
+            wx.hideLoading()
           }
           else {
             // 失败
-            console.log(`calculateFee数据:`, res);
+            console.log(`calculateFee数据:`,res);
           }
         }).catch(err => {
-          console.log(`calculateFee请求出错:`, err);
+          console.log(`calculateFee请求出错:`,err);
         })
       },
-      catchtapControl: function () {
-      }
+      catchtapControl: function () {}
     }
   }
 </script>
 
 <style scoped>
-  #app {
-    display: flex;
-    padding: 10px;
+  .order{
+    background-color: lightgray;
+    height:100%;
+    width:100%;
   }
-
-  #app div {
-    padding: 10px;
-    margin: 5px;
-  }
-
-  .active {
-    background: #CCC;
-  }
-
-  .order {
-  }
-
-  .row {
+  .row{
     display: flex;
     flex-direction: row;
   }
-
-  .titleBlock {
-    margin-top: 20 rpx;
-    margin-left: 46 rpx;
-    margin-right: 46 rpx;
+  .titleBlock{
+    margin-top: 20rpx;
+    margin-left: 46rpx;
+    margin-right: 46rpx;
     background-color: white;
     display: flex;
     justify-content: center;
-    padding-top: 40 rpx;
-    padding-bottom: 40 rpx;
-    padding-right: 20 rpx;
+    padding-top: 40rpx;
+    padding-bottom: 40rpx;
+    padding-right:20rpx;
   }
-
   .itemImage {
-    width: 20%;
-    margin-left: 40 rpx;
+    width:20%;
+    margin-left: 40rpx;
   }
-
-  .titleImage {
-    width: 100%;
+  .titleImage{
+    width:100%;
   }
-
-  .itemBlock {
-    width: 100%;
-    padding-top: 40 rpx;
-    padding-bottom: 40 rpx;
+  .itemBlock{
+    width:100%;
+    padding-top: 40rpx;
+    padding-bottom: 40rpx;
   }
-
-  .itemTitle {
+  .itemTitle{
     font-size: normal;
   }
-
   .smallFont {
     font-size: small;
   }
-
-  .itemTitle {
-    margin-left: 30 rpx;
-    margin-top: 15 rpx;
+  .itemTitle{
+    margin-left: 30rpx;
+    margin-top: 15rpx;
   }
-
-  .itemRow {
+  .itemRow{
     display: flex;
     flex-direction: row;
-    margin-left: 30 rpx;
-    margin-top: 20 rpx;
+    margin-left: 30rpx;
+    margin-top:20rpx;
   }
-
   .counterBlock {
     background-color: #fff;
-    margin-left: 30 rpx;
-    width: 175 rpx;
-    margin-top: 20 rpx;
+    margin-left: 30rpx;
+    width:175rpx;
+    margin-top: 20rpx;
   }
-
-  .counter {
-    margin: 0;
-    padding: 0;
+  .counter{
+    margin:0;
+    padding:0;
   }
-
-  .total {
+  .total{
     display: block;
     float: right;
-    margin-right: 20 rpx;
+    margin-right:20rpx;
     font-size: small;
-    margin-bottom: 10 rpx;
+    margin-bottom: 10rpx;
   }
-
-  .priceBlock {
+  .priceBlock{
     background-color: white;
     font-size: small;
-    margin-left: 46 rpx;
-    margin-right: 46 rpx;
-    margin-top: 40 rpx;
-    padding-top: 20 rpx;
-    padding-left: 20 rpx;
-    padding-right: 20 rpx;
+    margin-left: 46rpx;
+    margin-right: 46rpx;
+    margin-top:40rpx;
+    padding-top: 20rpx;
+    padding-left:20rpx;
+    padding-right:20rpx;
   }
-
-  .paddingButtom20 {
-    padding-bottom: 20 rpx;
+  .paddingButtom20{
+    padding-bottom: 20rpx;
   }
-
-  .checkoutButton {
-    float: right;
-    margin-top: 180 rpx;
-    margin-right: 46 rpx;
+  .checkoutButton{
+    margin-top: 180rpx;
+    margin-left: 446rpx;
   }
-
   .orderItemSelected {
-    background-color: red;
+    background-color: lightgray;
   }
-
   .orderItemUnselected {
     background-color: white;
   }
-
-
 </style>
-
