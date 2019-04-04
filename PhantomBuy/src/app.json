@@ -11,9 +11,9 @@
     "pages/shop/main",
     "pages/productDetail/main",
     "pages/address/main",
-    "pages/editaddress/main",
     "pages/checkout/main",
-    "pages/demo/main"
+    "pages/demo/main",
+    "pages/editaddress/main"
   ],
   "window": {
     "backgroundTextStyle": "light",

@@ -42,6 +42,14 @@
         </wxc-panel>
       </view>
 
+      <view class="section">
+        <!--上传身份证照片(限制为2张)-->
+        <view class="section_button">
+          <wxc-button size="large" type="beauty" value="上传身份证照片" @click="uploadImgBtn"
+                      :btnStyle="style"></wxc-button>
+        </view>
+      </view>
+
 
       <!---->
       <view class="section_button">
@@ -71,7 +79,9 @@
   import {Address} from "../../common/model/address";
   import {regex} from "../../utils/Regex";
   import {common} from "../../utils/common";
+  import {service} from "../../common/constants/services";
   import  fly from "../../utils/fly";
+
   //这个页面还剩 删除地址、 更新地址、 添加地址  访问api
   export default {
     name: 'editaddress',
@@ -82,8 +92,10 @@
         user_card_image_url: [],
         toast: {},
         show_toast: false,
-        session_Id: '',
-        isEditAddress: false
+        sessionId: '',
+        addressId: '',
+        isEditAddress: false,
+        style: 'width: 80%;background: #ff9300;border-radius: 66rpx;color: #fff;vertical-align: middle;text-align: center;'
       }
     },
     components: {
@@ -97,18 +109,10 @@
       let flag = options.isEditAddress.trim() === "true" ? true : false;
       if (!flag) {
         this.isEditAddress = false
-      }
-
-      if (flag) {
+      } else {
         this.isEditAddress = true
       }
-      ;
-      console.log(this.isEditAddress);
-
-
       this.getSettingKey();
-      console.log(options);
-      // this.session_Id = options;
     },
     created() {
     },
@@ -161,6 +165,35 @@
       },
       editUserAddress(){
         console.log('editUserAddress');
+        fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
+        let entityDTO = {
+          entityDTO: {addressId: this.addressId !== undefined ? this.addressId : 1}
+        };
+        fly.post("phantombuy/userAddress/update", entityDTO).then(res => {
+          if (res.data.code === '1') {
+
+          } else {
+            this.toast = common.showErrMsg("更新地址错误");
+          }
+        });
+        // edit User Address  传递的数据格式
+//        {
+//          "entityDTO": {
+//          "addressDetail": "string",
+//            "addressId": 0,
+//            "fileList": [
+//            {
+//              "fileUrl": "string",
+//              "originalFileName": "string"
+//            }
+//          ],
+//            "idNumber": "string",
+//            "isDefault": 0,
+//            "postCode": "string",
+//            "receiver": "string",
+//            "receiverPhone": "string"
+//        }
+//        }
       },
       confirmNewAddress(){
         console.log("Confirm New Address");
@@ -174,29 +207,22 @@
           }
         });
       },
-      uploadImage(){
+      // 上传身份证照片
+      uploadImgBtn(){
+        //上传图片的流程是：本地将图片上传到——》微信临时服务器，能够返回临时图片文件地址——》再将临时图片文件地址传输给服务端——》服务端从微信服务器上下载临时图片文件保存在服务端上
+        var self = this;
         wx.chooseImage({
           count: 2,
           izeType: ['original', 'compressed'],
           sourceType: ['album', 'camera'],
           success(res){
             // tempFilePath可以作为img标签的src属性显示图片
-            const tempFilePaths = res.tempFilePaths;
-            if (tempFilePaths.length < 0 || tempFilePaths.length > 2) {
-              this.toast = common.showErrMsg('图片数量有误，请重新上传');
-              return;
+            console.log(res)
+            let tempFilePaths = res.tempFilePaths;
+            for (let i = 0; i < tempFilePaths.length; i++) {
+              let imageUrl = tempFilePaths[i];
+              self.uploadImage(imageUrl, i + 1);
             }
-
-            // 早这里执行上传 文件的代码
-            fly.config.headers["Cookie"] = "JSESSIONID=" + self.sessionId;
-            fly.post("phantombuy/userAddress/uploadAttachment").then(res => {
-              if (res.data.code === '1') {
-
-                console.log("上传文件成功");
-              } else {
-                console.log("上传文件失败");
-              }
-            });
           },
           fail(){
 
@@ -229,11 +255,66 @@
         this.address.receiver = e.mp.detail.value;
       },
       deleteAddress(){
+        fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
+        let entityDTO = {
+          entityDTO: {addressId: this.addressId !== undefined ? this.addressId : 1}
+        };
+        fly.post("phantombuy/userAddress/delete", entityDTO).then(res => {
+          if (res.data.code === '1') {
+          } else {
+            this.toast = common.showErrMsg("删除地址错误");
+          }
+        });
         console.log("delete address");
       },
       showMsg() {
 
+      },
+      // 这里基本好了，有待确认
+      uploadImage: function (imageUrl, imageNo) {
+        let self = this;
+        //console.log(recordId, imageUrl, imageNo);
+        const uploadTask = wx.uploadFile({
+          url: service.BaseUrl + 'phantombuy/userAddress/uploadAttachment',
+          filePath: imageUrl,
+          name: 'image',
+          header: {
+            "Content-Type": "multipart/form-data",
+            "Cookie": "JSESSIONID=" + self.sessionId
+          },
+          // 上传图片时可以携带的数据
+          formData: {
+            'url': imageUrl
+          },
+          success: function (res) {
+            console.log(res);
+//            let data = res.data;
+//            let success = data.match(/"success":(true|false)/g)[0].split(':')[1];
+//            console.log(typeof(success), success);
+//            if (success == "false") {
+//              console.log('上传图片失败');
+//              that.setData({
+//                imageUploadFlag: false
+//              })
+//            }
+//            // 判断最后一张图片上传
+//            if (imageNo == that.data.imageNum) {
+//              wx.hideLoading();
+//              if (that.data.imageUploadFlag) { // 全部提交成功
+//                app.showOk('提交成功');
+//                wx.reLaunch({
+//                  url: '../map/map',
+//                })
+//              } else { // 其中有失败
+//                app.showErr('出错', that.data.imageErr);
+//              }
+//            }
+//            console.log(res)
+          }
+        })
       }
+
+
     }
 
   }
