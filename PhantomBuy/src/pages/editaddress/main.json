@@ -2,7 +2,6 @@
   "usingComponents": {
     "wxc-label": "/static/minui/@minui/wxc-label/dist/index",
     "wxc-icon": "/static/minui/@minui/wxc-icon/dist/index",
-    "wxc-search": "/static/minui/@minui/wxc-search/dist/index",
     "wxc-panel": "/static/minui/@minui/wxc-panel/dist/index",
     "wxc-toast": "/static/minui/@minui/wxc-toast/dist/index",
     "wxc-input": "/static/minui/@minui/wxc-input/dist/index",

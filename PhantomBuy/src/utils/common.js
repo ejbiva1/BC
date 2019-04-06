@@ -6,7 +6,8 @@ class Common {
   showSuccessMsg(msg) {
     return {
       msg: msg,
-      icon_type: "yes"
+      icon_type: "yes",
+      show_toast: true
     };
   };
 
@@ -14,7 +15,8 @@ class Common {
   showErrorMsg(msg) {
     return {
       msg: msg,
-      icon_type: "warning"
+      icon_type: "warning",
+      show_toast: true
     };
   };
 }

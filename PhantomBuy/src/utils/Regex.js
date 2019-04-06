@@ -117,6 +117,22 @@ class Regex {
     return true;
   }
 
+
+  // 页面只显示 身份证 前4位 + 后4位
+  showIdNumber(obj) {
+    return (obj).replace(/(\w)/g, function (a, b, c, d) {
+      return ((c > 1 && c < 6) || c > (obj.length - 5)) ? '*' : a
+    });
+    ;
+  }
+
+
+  // 页面显示  手机号
+  showPhoneNo(obj) {
+    return (obj).replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
+  }
+
+
 }
 
 export const regex = new Regex();
