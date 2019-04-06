@@ -9,54 +9,56 @@
 
       <wxc-panel :border="has_border">
         <view class="product_basic_info">
-          <h6 class="site_name info_padding">{{product_detail.brandNameCh}}</h6>
-          <view class="product_name info_padding">
-            <text class="product_name_cn">{{product_detail.productNameCn}}</text>
-          </view>
-          <view class="product_price info_padding">
-            <text class="original_price_rmb">{{product_detail.originalPriceRmb}}元</text>
-            <text class="sale_price_rmb" style="color:red; font-size: 14px;">{{product_detail.salePriceRmb}}元</text>
+          <view class="product_cn_name info_padding">
+            <h6 class="site_name">{{product_detail.brandNameCh}}</h6>
+            <view class="product_name ">
+              <h6 class="product_name_cn">{{product_detail.productNameCn}}</h6>
+            </view>
+            <view class="product_price ">
+              <text class="original_price_rmb">{{product_detail.originalPriceRmb}}元</text>
+              <text class="sale_price_rmb" style="color:red; font-size: 14px;">{{product_detail.salePriceRmb}}元</text>
+            </view>
           </view>
           <view class="product_color info_padding" v-if="productColorSizeResponse.colorSeqLength > 0">
             <view class="product_color_text">
-              <text>选择颜色</text>
+              <text style="font-weight: bold;">选择颜色</text>
               <text style="font-weight: bold; padding-left: 0.2rem;"><span
                 v-if="product_detail.defaultColorName !== ''">(</span>{{product_detail.defaultColorName}}<span
                 v-if="product_detail.defaultColorName !== ''">)</span></text>
             </view>
             <view>
               <ul class="col">
-                <li v-for="(item, index) in productColorResponseList" :key="index">
+                <div v-for="(item, index) in productColorResponseList" :key="index" class="product_color_img"
+                     style="cursor:pointer;" :class="{productColorActivity: productColorIndex == index}">
                   <img :src="item.imageUrl"
                        @click="chooseProductColor(item, index)"
-                       :class="{productColorActivity: productColorIndex == index}"/>
-                </li>
+                  />
+                </div>
               </ul>
             </view>
           </view>
           <!--商品规格属性选择 规格属性样式解决了-->
           <view class="product_size info_padding"
                 v-if="defaultProductSizeList.length !=0">
-            <view>
-              <p style=" font-size: 14px; " class="info_padding">选择尺码</p>
+            <view class="product_size_tip">
+              <p style=" font-size: 14px; font-weight: bold">选择尺码</p>
             </view>
-            <view>
+            <view view="product_sizes">
               <ul class="col">
                 <li v-for="(item, index) in defaultProductSizeList" :key="index">
                   <a data-prime="2" @click="chooseProductSize(item, index)"
-                     :class="{ productSizeActivity: productSizeIndex == index }">{{item.sizeName}}</a>
+                     :class="{ productSizeActivity: productSizeIndex == index , a: item.isValid == 0}">{{item.sizeName}}</a>
                 </li>
               </ul>
             </view>
           </view>
 
-
           <view class="product_counter info_padding">
-            <view>
-              <p style=" font-size: 14px; " class="info_padding">数量</p>
+            <view class="counter">
+              <p style=" font-size: 14px; ">数量</p>
             </view>
-            <view>
-              <wxc-counter class="counter" number="0" max="100" :min="1" color="#000"
+            <view class="counter">
+              <wxc-counter number="0" max="100" :min="1" color="#000"
                            v-on:changenumber="onChangeNumber"></wxc-counter>
             </view>
           </view>
@@ -113,7 +115,7 @@
         success_mag: '',
         msg: '',
         icon_type: '',
-        productSizeIndex: '', // 商品尺码索引,
+        productSizeIndex: 1000, // 商品尺码索引,
         productColorIndex: 0, // 商品颜色索引
         defaultProductSizeList: []
 
@@ -132,10 +134,11 @@
       },
       getProductDetail(option){
         let entityDTO = {entityDTO: option};
+//        let entityDTO = {entityDTO: {productId: "25229"}};
         fly.post("phantombuy/product/get", entityDTO).then((res)=> {
           if (res.data.code === '1') {
-            //console.log(res.data.data);
             if (res.data.data !== undefined) this.product_detail = res.data.data;
+            if (this.product_detail.defaultColorName !== undefined) this.product_detail.defaultColorName = this.product_detail.defaultColorName.toUpperCase();
             if (this.product_detail.productColorSizeResponse !== undefined) {
               this.productColorSizeResponse = this.product_detail.productColorSizeResponse;
               // 商品 颜色
@@ -160,7 +163,11 @@
       // 选择商品颜色
       chooseProductColor(productColor, index){
         this.productColorIndex = index;
-        //this.defaultProductSizeList =
+        if (this.productColorResponseList.length > 0) {
+          this.defaultProductSizeList = this.productColorResponseList[index].skuSizeList;
+          console.log(this.defaultProductSizeList);
+        }
+
         console.log("选择商品颜色");
       },
       //选择商品尺码
@@ -326,6 +333,10 @@
     position: relative;
   }
 
+  .product_cn_name {
+
+  }
+
   .site_name {
     margin-top: 5%;
     font-size: 16px;
@@ -337,8 +348,7 @@
   }
 
   .product_name .product_name_cn {
-    font-size: 16px;
-    color: black;
+    font: 16px bold black;
   }
 
   .product_price .original_price_rmb {
@@ -358,15 +368,34 @@
     font-size: 14px;
   }
 
+  .product_size_tip {
+    padding-bottom: 0.2rem;
+  }
+
+  .product_sizes {
+    padding-bottom: 0.2rem;
+    padding-top: 0.2rem;
+  }
+
   .product_color {
     font-size: 14px;
     /*height: 1.3rem;*/
     width: 100%;
+    /*padding-bottom: 0.5rem;*/
+    /*padding-top: 0.3rem;*/
   }
 
   .product_color_text {
     height: 30%;
     font-size: 14px;
+    padding-bottom: 0.3rem;
+  }
+
+  .product_color_img {
+    height: 1rem;
+    width: 1rem;
+    display: block;
+    overflow: hidden;
   }
 
   .product_tabs {
@@ -382,7 +411,9 @@
   }
 
   .info_padding {
-    padding-bottom: 0.2rem;
+    padding-bottom: 0.4rem;
+    padding-top: 0.3rem;
+    border-bottom: 1px dotted #d1d1d1;
   }
 
   .carts-footer {
@@ -464,20 +495,28 @@
 
   .counter {
     margin: 0;
-    padding: 0;
+    padding-top: 0.3rem;
   }
 
   .col img {
-    width: 1.2rem;
-    height: 1.2rem;
+    width: 1.0rem;
+    height: 1.0rem;
   }
 
   .productSizeActivity {
     border-color: #1890ff;
+    box-shadow: none !important;
   }
 
   .productColorActivity {
     border: 1.5px solid #e3393c;
+  }
+
+  .a {
+    border-color: #d9d9d9;
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+    color: rgba(0, 0, 0, 0.25);
   }
 
 </style>

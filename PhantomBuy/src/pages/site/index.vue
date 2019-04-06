@@ -7,14 +7,51 @@
       <search v-bind:site="site_detail" @search="SearchProducts" ref="find"></search>
     </view>
 
+    <div class="select">
+      <div class="ass_category">
+        <view class="ass_wrap">
+          <view class="ass_value">
+            <ul class="ass_valueList">
+              <li class="info_padding" v-for="(item ,index) in sub_category" :key="index"
+                  @click="chooseSubCategory(item, index)">
+                <a :class="{subCategoryActivity: sub_category_index == index }">
+                  <i class="fa fa-square-o" aria-hidden="true"></i>{{item}}</a>
+              </li>
+            </ul>
 
+          </view>
+        </view>
+      </div>
+    </div>
     <!--商品种类-->
     <div class="swiper-home">
-      <scroll-view class="scroll-view_x"
+      <scroll-view class="scroll-view_x" v-if="sub_category_index ===0"
                    :scroll-x="true"
                    :style="'{width: auto;overflow:hidden;height:20px;}'">
         <ul>
           <li class="site_product" v-for="(item, index) in site_product_category_list" :key="index"
+              @click="getSingleKindProductList(item, index)">
+            <a
+              :class="{ product_category_activity : product_category_id == (index+1)  }">{{item.productCategoryName}}</a>
+          </li>
+        </ul>
+      </scroll-view>
+      <scroll-view class="scroll-view_x" v-if="sub_category_index ===1"
+                   :scroll-x="true"
+                   :style="'{width: auto;overflow:hidden;height:20px;}'">
+        <ul>
+          <li class="site_product" v-for="(item, index) in site_man_category_list" :key="index"
+              @click="getSingleKindProductList(item, index)">
+            <a
+              :class="{ product_category_activity : product_category_id == (index+1)  }">{{item.productCategoryName}}</a>
+          </li>
+        </ul>
+      </scroll-view>
+      <scroll-view class="scroll-view_x" v-if="sub_category_index ===2"
+                   :scroll-x="true"
+                   :style="'{width: auto;overflow:hidden;height:20px;}'">
+        <ul>
+          <li class="site_product" v-for="(item, index) in site_woman_category_list" :key="index"
               @click="getSingleKindProductList(item, index)">
             <a
               :class="{ product_category_activity : product_category_id == (index+1)  }">{{item.productCategoryName}}</a>
@@ -74,7 +111,13 @@
         search: "搜索",
         current_prod_categoryid: 0,
         previous_pro_cate_id: 0,
-        product_category_id: ''
+        product_category_id: '',
+        sub_category: ['全部', '男款', '女款'],
+        sub_category_index: 0,
+        site_man_category_list: [],
+        site_woman_category_list: [],
+        sex: undefined,
+        index_initial: 1000
       };
     },
     components: {
@@ -93,6 +136,8 @@
       // site product list
       this.getAllProductList();
       console.log(this.product_category_id);
+      this.sub_category_index = 0;
+      this.product_category_id = this.index_initial;
     },
     async onPullDownRefresh() {
       // to doing..
@@ -109,11 +154,27 @@
     computed: {},
     methods: {
       getListSiteProductCategory() {
-        this.show_loading();
         let entityDTO = {entityDTO: {siteId: this.site_detail.siteId}};
         fly.post('phantombuy/site/listSiteProductCategory', entityDTO).then((res) => {
           if (res.data.code === '1') {
-            if (res.data.data.records.length > 0)   this.site_product_category_list = res.data.data.records;
+            if (res.data.data.records.length > 0) {
+              this.site_product_category_list = res.data.data.records;
+              switch (this.sub_category_index) {
+                case 0:    // 全部商品
+//                  this.site_product_category_list = [];
+                  break;
+                case 1:  // 男款
+                  this.site_man_category_list = this.site_product_category_list.filter((item, index) => {
+                    return item.sex == 1;
+                  });
+                  this.break;
+                case 2:  // 女款
+                  this.site_woman_category_list = this.site_product_category_list.filter((item, index) => {
+                    return item.sex == 0;
+                  });
+                  break;
+              }
+            }
           }
         });
       },
@@ -124,7 +185,8 @@
           entityDTO = {
             entityDTO: {
               siteId: siteId,
-              productCategoryId: ""
+              productCategoryId: "",
+              sex: this.sex !== undefined ? this.sex : undefined
             },
             pageDTO: this.pageDtoSetting
           };
@@ -148,13 +210,14 @@
       },
       getAllProductList() {
         //  product_detail_list  置空
+        this.show_loading();
         this.product_detail_list = [];
         this.pageDtoSetting = this.pageDto;
         this.getProducts();
       },
       getSingleKindProductList(productCategory, index) {
         this.show_loading();
-        this.product_category_id = index+1;
+        this.product_category_id = index + 1;
         console.log(this.product_category_id);
         this.previous_pro_cate_id = this.current_prod_categoryid;
         this.current_prod_categoryid = productCategory.productCategoryId;
@@ -187,8 +250,55 @@
         this.pageDtoSetting = this.pageDto.nextPage(this.pageDtoSetting);
       },
       SearchProducts(){
-        console.log(this.$refs.find.search_key);
+        // 站内搜索
+        let entityDTO = {
+          entityDTO: {
+            siteId: this.site_detail.siteId,
+            searchKey: this.$refs.find.search_key !== undefined ? this.$refs.find.search_key : undefined
+          },
+          pageDTO: this.pageDto
+        };
+        fly.post("phantombuy/product/search", entityDTO).then(res => {
+          if (res.data.code === '1') {
+            this.sub_category_index = this.index_initial;
+            this.product_category_id = this.index_initial;
+            this.product_detail_list = [];
+            for (let i = 0; i < res.data.data.records.length; i++) {
+              this.product_detail_list.push(res.data.data.records[i]);
+            }
+
+          } else {
+            console.log('服务器内部错误');
+          }
+        });
       },
+      chooseSubCategory(item, index){
+        this.sub_category_index = index;
+        this.product_category_id = this.index_initial;
+        this.current_prod_categoryid = 0;
+        this.previous_pro_cate_id = 0;
+        switch (this.sub_category_index) {
+          case 0:    // 全部商品
+            this.sex = undefined;
+            this.getAllProductList();
+            break;
+          case 1:  // 男款
+            this.site_man_category_list = this.site_product_category_list.filter((item, index) => {
+              return item.sex == 1;
+            });
+            this.sex = 1;
+            this.getAllProductList();
+
+            break;
+          case 2:  // 女款
+            this.site_woman_category_list = this.site_product_category_list.filter((item, index) => {
+              return item.sex == 0;
+            });
+            this.sex = 0;
+            this.getAllProductList();
+            break;
+        }
+      }
 
     },
   }
@@ -315,6 +425,50 @@
   }
 
   .product_category_activity {
+    color: #1890ff;
+  }
+
+  .select {
+    /*padding-left: 2%;*/
+    width: 100%;
+  }
+
+  .select .ass_wrap {
+    position: relative;
+    _zoom: 1;
+    /*font-weight: normal;*/
+    font-size: 16px;
+    display: flex;
+    justify-content: flex-start;
+  }
+
+  .select .ass_key {
+    display: flex;
+    width: 50px;
+    white-space: nowrap;
+
+    font-weight: bold;
+  }
+
+  .select .ass_value {
+    /*padding-left: 20px;*/
+    overflow: hidden;
+    zoom: 1;
+  }
+
+  .ass_valueList {
+    display: flex;
+    justify-content: space-between;
+    padding-left: 0.2rem;
+    padding-right: 0.3rem;
+  }
+
+  .info_padding {
+    padding-left: 0.2rem;
+    padding-right: 0.3rem;
+  }
+
+  .subCategoryActivity {
     color: #1890ff;
   }
 </style>

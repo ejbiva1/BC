@@ -165,7 +165,7 @@
         address: {}
       }
     },
-    onLoad(){
+    onShow(){
       this.getSettingKey();
       //this.getUserAddressList();
     },

@@ -9,7 +9,7 @@
           <view class="search">
             <view class="search_form search_content_left" style="border-radius:2px; background: #fff;">
               <input class="search_input" placeholder="搜索" style="color: #333;" v-model="search_key"/>
-              <button class="search__button" style="color: #2CB42F" @click="search">搜索</button>
+              <button class="search__button" style="color: #2CB42F" @click="search_products">搜索本站</button>
             </view>
 
           </view>
@@ -59,7 +59,7 @@
           this.site_promotion_list = this.$props.site.sitePromotionList;
         }
       },
-      search() {
+      search_products() {
         this.$emit("search");
       }
     }

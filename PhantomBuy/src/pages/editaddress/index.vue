@@ -101,7 +101,7 @@
     components: {
       'edit-address': EditAddress
     },
-    onLoad(options){
+    onShow(options){
       if (options.address_detail !== undefined) {
         this.address = JSON.parse(options.address_detail);
       }

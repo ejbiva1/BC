@@ -129,7 +129,7 @@
       };
     },
     components: {},
-    onLoad(){
+    onShow(){
       this.getSettingKey();
       // 隐藏身份证号码
       this.idNumber = this.hideIdNumber();
