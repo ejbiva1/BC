@@ -74,7 +74,7 @@
               <ul class="list-group list-group-flush">
                 <li class="salesTitle" title="双面毛衣外套"><span>{{item.productNameCn}}</span></li>
                 <li class="list-group-item">
-                  <span style="text-decoration: line-through;text-align: left;padding-left:-5px;">{{item.originalPriceRmb}}元</span>
+                  <span style="text-decoration: line-through;text-align: left;padding-left:-20px;">{{item.originalPriceRmb}}元</span>
                   <span style="color:red;padding-left: 10px;">{{item.salePriceRmb}}元</span>
                 </li>
                 <li class="updateTime" title="更新时间:2019年2月1日">更新时间:<span>{{item.updateDate}}</span>
@@ -104,7 +104,7 @@
         ListSiteProductCategory: [],
         site_product_category_list: [],
         product_detail_list: [],
-        has_border: true,
+        has_border: false,
         site_detail: {},
         pageDto: new pageDTO(),
         pageDtoSetting: {},
@@ -138,6 +138,7 @@
       console.log(this.product_category_id);
       this.sub_category_index = 0;
       this.product_category_id = this.index_initial;
+      //this.$refs.find.search_key = "";
     },
     async onPullDownRefresh() {
       // to doing..
@@ -350,6 +351,7 @@
     align-item: center;
     display: flex;
     justify-content: space-between;
+    background:#fff;
   }
 
   .site_products {
@@ -407,6 +409,7 @@
 
   .product_detail .list-group-item {
     font: 13px black;
+    text-align:left;
   }
 
   .product_detail .salesTitle {
@@ -459,7 +462,7 @@
   .ass_valueList {
     display: flex;
     justify-content: space-between;
-    padding-left: 0.2rem;
+    /*padding-left: 0.2rem;*/
     padding-right: 0.3rem;
   }
 

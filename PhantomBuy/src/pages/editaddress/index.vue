@@ -9,7 +9,7 @@
     <!--邮寄地址--
     <!--设为默认地址-->
 
-    <view class="container">
+    <view class="address_section">
 
       <view class="section">
         <wxc-panel :border="has_border">
@@ -53,14 +53,12 @@
 
       <!---->
       <view class="section_button">
-        <wxc-button size="large" type="dark" value="完成" @click="confirmNewAddress"></wxc-button>
+        <wxc-button size="large" :btnStyle="button_style" type="beauty" value="完成" @click="confirmNewAddress"></wxc-button>
       </view>
 
       <view class="section_button" v-if="isEditAddress == true">
-        <wxc-button size="large" type="dark" value="删除" @click="deleteAddress"></wxc-button>
+        <wxc-button size="large" :btnStyle="button_style" type="dark" value="删除" @click="deleteAddress"></wxc-button>
       </view>
-
-      <!---->
 
       <view class="toast">
         <wxc-toast
@@ -95,23 +93,26 @@
         sessionId: '',
         addressId: '',
         isEditAddress: false,
-        style: 'width: 80%;background: #ff9300;border-radius: 66rpx;color: #fff;vertical-align: middle;text-align: center;'
+        style: 'width: 80%;background: #ff9300;border-radius: 66rpx;color: #fff;vertical-align: middle;text-align: center;',
+        button_style: 'width: 80%;background: #ff9300;border-radius: 66rpx;color: #fff;vertical-align: middle;text-align: center;'
       }
     },
     components: {
       'edit-address': EditAddress
     },
-    onShow(options){
+    onLoad(options){
+      console.log(options);
       if (options.address_detail !== undefined) {
         this.address = JSON.parse(options.address_detail);
       }
-
       let flag = options.isEditAddress.trim() === "true" ? true : false;
       if (!flag) {
         this.isEditAddress = false
       } else {
         this.isEditAddress = true
       }
+    },
+    onShow(){
       this.getSettingKey();
     },
     created() {
@@ -219,15 +220,45 @@
             // tempFilePath可以作为img标签的src属性显示图片
             console.log(res)
             let tempFilePaths = res.tempFilePaths;
-            for (let i = 0; i < tempFilePaths.length; i++) {
-              let imageUrl = tempFilePaths[i];
-              self.uploadImage(imageUrl, i + 1);
-            }
-          },
-          fail(){
+//            for (let i = 0; i < tempFilePaths.length; i++) {
+//              let imageUrl = tempFilePaths[i];
+//              self.uploadImage(imageUrl, i + 1);
+//            }
 
+            wx.downloadFile({
+              url: tempFilePaths[0], // 仅为示例，并非真实的资源
+              success(res) {
+                // 只要服务器有响应数据，就会把响应内容写入文件并进入 success 回调，业务需要自行判断是否下载到了想要的内容
+                if (res.statusCode === 200) {
+//                  wx.playVoice({
+//                    filePath: res.tempFilePath
+//                  })
+                  console.log(res);
+                }
+              }
+            })
+
+            const uploadTask = wx.uploadFile({
+              url: service.BaseUrl + 'phantombuy/userAddress/uploadAttachment',
+              filePath: tempFilePaths[0],
+              name: 'image',
+              header: {
+                "Content-Type": "multipart/form-data",
+                "Cookie": "JSESSIONID=" + self.sessionId
+              },
+              // 上传图片时可以携带的数据
+              formData: {
+                'url': tempFilePaths[0]
+              },
+              success: function (res) {
+                console.log(res);
+              },
+              fail(){
+
+              }
+            });
           }
-        });
+        })
       },
       validateUserIdNumber(e){
         //  验证 身份证 照片是否合规  pc端仅仅验证 图片数量
@@ -284,10 +315,12 @@
           },
           // 上传图片时可以携带的数据
           formData: {
-            'url': imageUrl
+            "Cookie": "JSESSIONID=" + self.sessionId
           },
           success: function (res) {
             console.log(res);
+            // 后端通过  ['file'] 这个关键字 来获取二进制流
+            // 会传递一个  [name]	 属性， string		是	文件对应的 key，开发者在服务端可以通过这个 key 获取文件的二进制内容
 //            let data = res.data;
 //            let success = data.match(/"success":(true|false)/g)[0].split(':')[1];
 //            console.log(typeof(success), success);
@@ -311,7 +344,7 @@
 //            }
 //            console.log(res)
           }
-        })
+        });
       }
 
 
@@ -326,7 +359,7 @@
     height: 100%;
   }
 
-  .container {
+  .address_section {
     width: 100%;
   }
 
@@ -337,10 +370,11 @@
   }
 
   .section_button {
-    margin-top: 0.5rem;
-    width: 100%;
+    margin-top: 0.2rem;
+    width: 70%;
     vertical-align: middle;
     text-align: center;
+    padding-left: 5%;
   }
 
   .user_phone {
@@ -409,6 +443,8 @@
   .phone_padding {
     padding-left: 0.25rem;
   }
+
+
 
 
 </style>

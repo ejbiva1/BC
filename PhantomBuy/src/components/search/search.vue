@@ -29,20 +29,28 @@
 
       </div>
     </view>
+
+    <view class="toast">
+      <wxc-toast :is-show="toast.show_toast"
+                 :text="toast.msg"
+                 :icon="toast.icon_type"
+                 icon-color="#ff5777"></wxc-toast>
+    </view>
   </view>
 </template>
 
 <script type="text/ecmascript-6">
+  import {common} from "../../utils/common";
   export default {
     title: 'search',
     data() {
       return {
-        search: "搜索",
         show_icon: false,
         bg_color: '#fff',
         btn_color: '#2CB42F',
         site_promotion_list: [],
-        search_key: ''
+        search_key: '',
+        toast: {}
       };
     },
     props: {
@@ -51,6 +59,10 @@
       }
     },
     onLoad() {
+
+    },
+    onShow(){
+      this.search_key = "";
       this.showPromotionMessage();
     },
     methods: {
@@ -60,7 +72,20 @@
         }
       },
       search_products() {
-        this.$emit("search");
+        if(this.search_key == "" || this.search_key === undefined){
+          let self = this;
+          self.toast = common.showErrorMsg('请输入关键字!');
+          setTimeout(function () {
+            self.toast.show_toast = false;
+          }, 1500);
+          return
+        }else {
+          this.$emit("search");
+        }
+
+      },
+      showMsg(){
+        this.toast = common.show
       }
     }
   }
@@ -123,11 +148,11 @@
     overflow: hidden;
     vertical-align: top;
     background: #fff;
-    width: 75%;
+    width: 65%;
   }
 
   .search__button {
-    width: 1.20rem;
+    width: 1.75rem;
     height: 0.60rem;
     line-height: 0.60rem;
     font-size: 0.28rem;

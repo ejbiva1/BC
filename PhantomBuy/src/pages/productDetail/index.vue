@@ -129,9 +129,6 @@
       this.getProductDetail(options);
     },
     methods: {
-
-      a(){
-      },
       getProductDetail(option){
         let entityDTO = {entityDTO: option};
 //        let entityDTO = {entityDTO: {productId: "25229"}};
@@ -153,12 +150,9 @@
 
             }
           } else {
-
           }
-
           this.hide_loading();
         });
-
       },
       // 选择商品颜色
       chooseProductColor(productColor, index){
@@ -198,7 +192,8 @@
           this.icon_type = "warning";
           this.showToast();
           return;
-        } else if (this.quantity == 0) {
+        } else if (this.productSizeList.length !== 0 &&this.quantity == 0) {
+          // 保证 包 and 衣服 同时报错
           this.msg = appMessages.CHOOSE_QUANTITY_ERROR;
           this.icon_type = "warning";
           this.showToast();
