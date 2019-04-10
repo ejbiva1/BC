@@ -1,132 +1,15 @@
 <template>
   <div class="animated fadeIn">
-    <view class="address_list">
-      <wxc-panel :border="has_border">
+    <view class="addresss">
+      <wxc-panel :border="has_border" v-for="(item, index) in address_list" :key="i">
         <view class="address_home padding">
           <view class="user_phone">
-            <text>刘先生</text>
-            <text class="phone_padding">12345678909</text>
+            <text>{{item.receiver}}</text>
+            <text class="phone_padding">{{item.receiverPhone}}</text>
           </view>
           <view class="address">
-            <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate" @click="editUserAddress">编辑</view>
-          </view>
-        </view>
-      </wxc-panel>
-
-      <wxc-panel :border="has_border">
-        <view class="address_home padding">
-          <view class="user_phone">
-            <text>刘先生</text>
-            <text class="phone_padding">12345678909</text>
-          </view>
-          <view class="address">
-            <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate" @click="editUserAddress">编辑</view>
-          </view>
-        </view>
-      </wxc-panel>
-
-      <wxc-panel :border="has_border">
-        <view class="address_home padding">
-          <view class="user_phone">
-            <text>刘先生</text>
-            <text class="phone_padding">12345678909</text>
-          </view>
-          <view class="address">
-            <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate" @click="editUserAddress">编辑</view>
-          </view>
-        </view>
-      </wxc-panel>
-
-      <wxc-panel :border="has_border">
-        <view class="address_home padding">
-          <view class="user_phone">
-            <text>刘先生</text>
-            <text class="phone_padding">12345678909</text>
-          </view>
-          <view class="address">
-            <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate" @click="editUserAddress">编辑</view>
-          </view>
-        </view>
-      </wxc-panel>
-
-      <wxc-panel :border="has_border">
-        <view class="address_home padding">
-          <view class="user_phone">
-            <text>刘先生</text>
-            <text class="phone_padding">12345678909</text>
-          </view>
-          <view class="address">
-            <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate" @click="editUserAddress">编辑</view>
-          </view>
-        </view>
-      </wxc-panel>
-
-      <wxc-panel :border="has_border">
-        <view class="address_home padding">
-          <view class="user_phone">
-            <text>刘先生</text>
-            <text class="phone_padding">12345678909</text>
-          </view>
-          <view class="address">
-            <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate" @click="editUserAddress">编辑</view>
-          </view>
-        </view>
-      </wxc-panel>
-
-      <wxc-panel :border="has_border">
-        <view class="address_home padding">
-          <view class="user_phone">
-            <text>刘先生</text>
-            <text class="phone_padding">12345678909</text>
-          </view>
-          <view class="address">
-            <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate" @click="editUserAddress">编辑</view>
-          </view>
-        </view>
-      </wxc-panel>
-
-      <wxc-panel :border="has_border">
-        <view class="address_home padding">
-          <view class="user_phone">
-            <text>刘先生</text>
-            <text class="phone_padding">12345678909</text>
-          </view>
-          <view class="address">
-            <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate" @click="editUserAddress">编辑</view>
-          </view>
-        </view>
-      </wxc-panel>
-
-      <wxc-panel :border="has_border">
-        <view class="address_home padding">
-          <view class="user_phone">
-            <text>刘先生</text>
-            <text class="phone_padding">12345678909</text>
-          </view>
-          <view class="address">
-            <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate" @click="editUserAddress">编辑</view>
-          </view>
-        </view>
-      </wxc-panel>
-
-      <wxc-panel :border="has_border">
-        <view class="address_home padding">
-          <view class="user_phone">
-            <text>刘先生</text>
-            <text class="phone_padding">12345678909</text>
-          </view>
-          <view class="address">
-            <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate" @click="editUserAddress">编辑</view>
+            <view class="address_detail">{{item.addressDetail}}</view>
+            <view class="operate" @click="editUserAddress(item)">编辑</view>
           </view>
         </view>
       </wxc-panel>
@@ -158,39 +41,24 @@
       return {
         has_border: true,
         show_toast: false,
-        icon_type: '',
-        msg: '',
         toast: {},
         session_id: '',
-        address: {}
+        address: {},
+        address_list: []
       }
     },
     onShow(){
       this.getSettingKey();
-      //this.getUserAddressList();
     },
     created() {
-//      this.getSessionId();
-//      this.getUserAddressList();
     },
     methods: {
-      editUserAddress(){
-        this.address = {
-
-          addressDetail: "上海市",
-          fileList: "fileList",
-          idNumber: "idNumber",
-          isDefault: 1,
-          postCode: "291306",
-          receiver: "戴瑞",
-          receiverPhone: 18201716178
-        };
-        console.log('editUserAddress');
+      editUserAddress(item){
+        this.address = item;
         wx.navigateTo({
           url: '/pages/editaddress/main?isEditAddress= ' + true + '&address_detail=' + JSON.stringify(this.address)
         });
       },
-
       getSettingKey () {
         let self = this;
         let settingKey
@@ -242,7 +110,7 @@
         this.session_id = sessionId;
         fly.post("phantombuy/userAddress/list", {entityDTO: {}}).then(res => {
           if (res.data.code === '1') {
-
+            this.address_list = res.data.data.records;
 
           } else if (res.data.code === '888') {
 
@@ -257,17 +125,13 @@
             console.log("无结果");
           }
         });
-
       },
       addNewAddress(){
-//        fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
-//        this.session_id = sessionId;
         wx.navigateTo({
           url: '/pages/editaddress/main?isEditAddress=' + false
         })
       },
       showMsg() {
-
       }
     }
   }
@@ -283,9 +147,9 @@
     justify-content: space-between;
   }
 
-  .address_list {
+  .addresss {
     width: 100%;
-    margin-bottom: 1.4rem;
+    /*margin-bottom: 1.4rem;*/
   }
 
   .address_home {

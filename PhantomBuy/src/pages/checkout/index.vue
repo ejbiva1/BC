@@ -355,9 +355,6 @@
           url: '/pages/address/main'
         });
       },
-      showMsg(){
-        this.toast = common.show
-      }
 
     }
   }
