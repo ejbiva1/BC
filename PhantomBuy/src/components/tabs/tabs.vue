@@ -1,5 +1,5 @@
 <template>
-  <div class="animated fadeIn">
+  <div>
     <div class="product_tabs">
       <div class="product_tabsNav">
         <div
@@ -57,8 +57,6 @@
 
   .product_tabs .product_tabsNav {
     padding-left:0.2rem;
-    /*height: 0.8rem;*/
-    /*width:38%;*/
     line-height: 0.8rem;
     display: flex;
   }
@@ -78,6 +76,7 @@
     width:90%;
     padding-top: 0.5rem;
     padding-bottom: 1.5rem;
+    padding-left: 0.3rem;
   }
 
 </style>

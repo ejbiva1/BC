@@ -44,20 +44,32 @@
 
       <view class="section">
         <!--上传身份证照片(限制为2张)-->
-        <view class="section_button">
-          <wxc-button size="large" type="beauty" value="上传身份证照片" @click="uploadImgBtn"
-                      :btnStyle="style"></wxc-button>
+        <view class="section_ID_button">
+          <wxc-button plain="true" type="dark"
+                      :btnStyle="style"
+                      @click="uploadImgBtn">
+            <wxc-icon color="#007bff" size="50" type="camera"></wxc-icon>
+            <span style="font-size: 16px;">上传证件</span>
+            <wxc-icon color="#red" size="50" type="arrow-right"></wxc-icon>
+          </wxc-button>
         </view>
       </view>
 
+      <view class="id_cards_img_section" v-if="imgs.length !== 0">
+        <view v-for="(item, index) in imgs" class="id_cards_img" :key="index">
+          <img :src="item.url" style="height: 2.5rem; width: 2rem;"/>
+        </view>
+      </view>
 
-      <!---->
+      <!--#007bff-->
       <view class="section_button">
-        <wxc-button size="large" :btnStyle="button_style" type="beauty" value="完成" @click="confirmNewAddress"></wxc-button>
+        <wxc-button size="large" :btnStyle="button_style" type="beauty" value="完成"
+                    @click="confirmNewAddress"></wxc-button>
       </view>
 
       <view class="section_button" v-if="isEditAddress == true">
-        <wxc-button size="large" :btnStyle="button_style" type="dark" value="删除" @click="deleteAddress"></wxc-button>
+        <wxc-button size="large" :btnStyle="delete_style" type="dark" plain="true" value="删除"
+                    @click="deleteAddress"></wxc-button>
       </view>
 
       <view class="toast">
@@ -93,8 +105,10 @@
         sessionId: '',
         addressId: '',
         isEditAddress: false,
-        style: 'width: 80%;background: #ff9300;border-radius: 66rpx;color: #fff;vertical-align: middle;text-align: center;',
-        button_style: 'width: 80%;background: #ff9300;border-radius: 66rpx;color: #fff;vertical-align: middle;text-align: center;'
+        style: 'width: 100%;border-radius: 46rpx;vertical-align: middle;  box-shadow:0 0 1px #000 inset;',
+        button_style: 'color: #fff;vertical-align: middle;text-align: center;border-radius: 20rpx;',
+        delete_style: 'vertical-align: middle;text-align: center;border-radius: 20rpx;',
+        imgs: []
       }
     },
     components: {
@@ -108,6 +122,12 @@
       let flag = options.isEditAddress.trim() === "true" ? true : false;
       if (!flag) {
         this.isEditAddress = false
+        this.imgs = [
+          {url: '/static/images/1.png'},
+          {
+            url: '/static/images/2.png'
+          }
+        ];
       } else {
         this.isEditAddress = true
       }
@@ -220,43 +240,71 @@
             // tempFilePath可以作为img标签的src属性显示图片
             console.log(res)
             let tempFilePaths = res.tempFilePaths;
+
+            wx.request({
+              url: tempFilePaths[0], // 仅为示例，并非真实的接口地址
+              header: {
+                "Content-Type": "multipart/form-data",
+                "Cookie": "JSESSIONID=" + self.sessionId
+              },
+              success(res) {
+                //console.log(res.data)
+
+                wx.uploadFile({
+                  url: service.BaseUrl + 'phantombuy/userAddress/uploadAttachment',
+                  filePath: tempFilePaths[0],
+                  name: 'image',
+                  header: {
+                    "Content-Type": "multipart/form-data",
+                    "Cookie": "JSESSIONID=" + self.sessionId
+                  },
+                  // 上传图片时可以携带的数据
+                  formData: {
+                    'files': res.data
+                  },
+                  success: function (res) {
+                    console.log(res);
+                  }
+                });
+              }})
+
 //            for (let i = 0; i < tempFilePaths.length; i++) {
 //              let imageUrl = tempFilePaths[i];
 //              self.uploadImage(imageUrl, i + 1);
 //            }
 
-            wx.downloadFile({
-              url: tempFilePaths[0], // 仅为示例，并非真实的资源
-              success(res) {
-                // 只要服务器有响应数据，就会把响应内容写入文件并进入 success 回调，业务需要自行判断是否下载到了想要的内容
-                if (res.statusCode === 200) {
-//                  wx.playVoice({
-//                    filePath: res.tempFilePath
-//                  })
-                  console.log(res);
-                }
-              }
-            })
+//            wx.downloadFile({
+//              url: tempFilePaths[0], // 仅为示例，并非真实的资源
+//              success(res) {
+//                // 只要服务器有响应数据，就会把响应内容写入文件并进入 success 回调，业务需要自行判断是否下载到了想要的内容
+//                if (res.statusCode === 200) {
+////                  wx.playVoice({
+////                    filePath: res.tempFilePath
+////                  })
+//                  console.log(res);
+//                }
+//              }
+//            })
 
-            const uploadTask = wx.uploadFile({
-              url: service.BaseUrl + 'phantombuy/userAddress/uploadAttachment',
-              filePath: tempFilePaths[0],
-              name: 'image',
-              header: {
-                "Content-Type": "multipart/form-data",
-                "Cookie": "JSESSIONID=" + self.sessionId
-              },
-              // 上传图片时可以携带的数据
-              formData: {
-                'url': tempFilePaths[0]
-              },
-              success: function (res) {
-                console.log(res);
-              },
-              fail(){
-
-              }
-            });
+//            const uploadTask = wx.uploadFile({
+//              url: service.BaseUrl + 'phantombuy/userAddress/uploadAttachment',
+//              filePath: tempFilePaths[0],
+//              name: 'image',
+//              header: {
+//                "Content-Type": "multipart/form-data",
+//                "Cookie": "JSESSIONID=" + self.sessionId
+//              },
+//              // 上传图片时可以携带的数据
+//              formData: {
+//                'url': tempFilePaths[0]
+//              },
+//              success: function (res) {
+//                console.log(res);
+//              },
+//              fail(){
+//
+//              }
+//            });
           }
         })
       },
@@ -371,10 +419,19 @@
 
   .section_button {
     margin-top: 0.2rem;
-    width: 70%;
+    width: 80%;
     vertical-align: middle;
     text-align: center;
     padding-left: 5%;
+  }
+
+  .section_ID_button {
+    margin-top: 0.2rem;
+    width: 80%;
+    vertical-align: middle;
+    text-align: center;
+    padding-left: 10%;
+    margin-bottom: 0.8rem;
   }
 
   .user_phone {
@@ -444,7 +501,17 @@
     padding-left: 0.25rem;
   }
 
+  .id_cards_img_section {
+    width: 100%;
+    height: 3rem;
+    border: 2px solid red;
+    display: flex;
+    justify-content: space-between;
+  }
 
+  .id_cards_img {
+
+  }
 
 
 </style>

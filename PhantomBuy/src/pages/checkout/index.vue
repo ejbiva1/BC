@@ -21,14 +21,11 @@
             </div>
           </div>
           <div class="title">身份证照片</div>
-          <div class="IDrow">
-            <div class="leftIDPic">
-              <!--<img :src="address.fileList[0].fileUrl" />-->
-            </div>
-            <div class="rightIDPic">
-              <!--<img :src="address.fileList[1].fileUrl" />-->
-            </div>
-          </div>
+          <view class="IDrow" v-if="imgs.length !== 0">
+            <view v-for="(item, index) in imgs" class="id_cards_img">
+              <img :src="item.url" style="height: 2.5rem; width: 2rem;"/>
+            </view>
+          </view>
         </view>
       </wxc-panel>
     </view>
@@ -125,7 +122,8 @@
           checked: false
         },
         idNumber: '654001199407203726',
-        toast: {}
+        toast: {},
+        imgs: []
       };
     },
     components: {},
@@ -134,7 +132,10 @@
       // 隐藏身份证号码
       this.idNumber = this.hideIdNumber();
       // 隐藏手机号
-
+      this.imgs = [
+        {url: '/static/images/1.png'},
+        {url: '/static/images/2.png'}
+      ];
     },
     created(){
       let data = {

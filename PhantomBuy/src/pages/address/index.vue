@@ -18,11 +18,11 @@
         <view class="address_home padding">
           <view class="user_phone">
             <text>刘先生</text>
-            <text>12345678909</text>
+            <text class="phone_padding">12345678909</text>
           </view>
           <view class="address">
             <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate">编辑</view>
+            <view class="operate" @click="editUserAddress">编辑</view>
           </view>
         </view>
       </wxc-panel>
@@ -31,11 +31,11 @@
         <view class="address_home padding">
           <view class="user_phone">
             <text>刘先生</text>
-            <text>12345678909</text>
+            <text class="phone_padding">12345678909</text>
           </view>
           <view class="address">
             <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate">编辑</view>
+            <view class="operate" @click="editUserAddress">编辑</view>
           </view>
         </view>
       </wxc-panel>
@@ -44,11 +44,11 @@
         <view class="address_home padding">
           <view class="user_phone">
             <text>刘先生</text>
-            <text>12345678909</text>
+            <text class="phone_padding">12345678909</text>
           </view>
           <view class="address">
             <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate">编辑</view>
+            <view class="operate" @click="editUserAddress">编辑</view>
           </view>
         </view>
       </wxc-panel>
@@ -57,11 +57,11 @@
         <view class="address_home padding">
           <view class="user_phone">
             <text>刘先生</text>
-            <text>12345678909</text>
+            <text class="phone_padding">12345678909</text>
           </view>
           <view class="address">
             <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate">编辑</view>
+            <view class="operate" @click="editUserAddress">编辑</view>
           </view>
         </view>
       </wxc-panel>
@@ -70,11 +70,11 @@
         <view class="address_home padding">
           <view class="user_phone">
             <text>刘先生</text>
-            <text>12345678909</text>
+            <text class="phone_padding">12345678909</text>
           </view>
           <view class="address">
             <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate">编辑</view>
+            <view class="operate" @click="editUserAddress">编辑</view>
           </view>
         </view>
       </wxc-panel>
@@ -83,11 +83,11 @@
         <view class="address_home padding">
           <view class="user_phone">
             <text>刘先生</text>
-            <text>12345678909</text>
+            <text class="phone_padding">12345678909</text>
           </view>
           <view class="address">
             <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate">编辑</view>
+            <view class="operate" @click="editUserAddress">编辑</view>
           </view>
         </view>
       </wxc-panel>
@@ -96,11 +96,11 @@
         <view class="address_home padding">
           <view class="user_phone">
             <text>刘先生</text>
-            <text>12345678909</text>
+            <text class="phone_padding">12345678909</text>
           </view>
           <view class="address">
             <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate">编辑</view>
+            <view class="operate" @click="editUserAddress">编辑</view>
           </view>
         </view>
       </wxc-panel>
@@ -109,11 +109,11 @@
         <view class="address_home padding">
           <view class="user_phone">
             <text>刘先生</text>
-            <text>12345678909</text>
+            <text class="phone_padding">12345678909</text>
           </view>
           <view class="address">
             <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate">编辑</view>
+            <view class="operate" @click="editUserAddress">编辑</view>
           </view>
         </view>
       </wxc-panel>
@@ -122,11 +122,11 @@
         <view class="address_home padding">
           <view class="user_phone">
             <text>刘先生</text>
-            <text>12345678909</text>
+            <text class="phone_padding">12345678909</text>
           </view>
           <view class="address">
             <view class="address_detail">上海市浦东新区纳贤路799号上海市浦东新区纳贤路799号</view>
-            <view class="operate">编辑</view>
+            <view class="operate" @click="editUserAddress">编辑</view>
           </view>
         </view>
       </wxc-panel>
@@ -207,12 +207,12 @@
                 url: '/pages/login/main'
               })
             } else {
-              this.getSettingKey()
+              self.getSettingKey()
             }
           },
           // 没有获得到SettingKey的时候重复调用本函数
           fail: function (err) {
-            this.getSettingKey()
+            self.getSettingKey()
           }
         })
       },
@@ -293,7 +293,7 @@
   }
 
   .user_phone {
-    font-size: 18px;
+    font-size: 15px;
     font-weight: bold;
     height: 0.4rem;
     line-height: 0.4rem;
@@ -306,7 +306,7 @@
     flex-direction: row;
     justify-content: space-between;
     flex-wrap: nowrap;
-    font-size: 18px;
+    font-size: 15px;
   }
 
   .address_detail {
@@ -345,7 +345,7 @@
     width: 100%;
     height: 1rem;
     color: white;
-    font-size: 0.3rem;
+    font-size: 15px;
     border-radius: 0;
     border: 0;
     vertical-align: middle;
