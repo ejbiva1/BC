@@ -139,7 +139,7 @@
       checkout () {
         if (this.cartIdList.length > 0){
           wx.navigateTo({
-            url: '../checkout/main?cartIdList=' + this.cartIdList
+            url: '../checkout/main?cartIdList=' + JSON.stringify(this.cartIdList)
           })
         }
       },
