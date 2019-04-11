@@ -1,6 +1,5 @@
 {
   "navigationBarTitleText":"页面标题",
-  "backgroundColor": "black",
   "usingComponents": {
     "wxc-price": "/static/minui/@minui/wxc-price/dist/index",
     "wxc-toast": "/static/minui/@minui/wxc-toast/dist/index",
@@ -9,4 +8,3 @@
     "slider-left": "/static/slider-left/index"
   }
 }
-
