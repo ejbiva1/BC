@@ -8,27 +8,21 @@
             <view class="edit_address" @click="editAddress">修改地址</view>
           </div>
           <div class="blockData">
-            <div class="add">上海市 浦东新区 纳贤路799号</div>
-            <!--<div class="add">{{address.addressDetail}}</div>-->
-            <div class="name">刘凯</div>
-            <!--<div class="name">{{address.receiver}}</div>-->
-            <div class="phoneNum">12345678909</div>
-            <!--<div class="phoneNum">{{address.receiverPhone}}</div>-->
+            <div class="add">{{user_default_address.addressDetail}}</div>
+            <div class="name">{{user_default_address.receiver}}</div>
+            <div class="phoneNum">{{user_default_address.receiverPhone}}</div>
             <div class="row">
               <div class="IDTitle">身份证号</div>
-              <div class="IDNum">{{idNumber}}</div>
-              <!--<div class="IDNum">{{address.idNumber}}</div>-->
+              <div class="IDNum">{{user_default_address.idNumber}}</div>
             </div>
           </div>
           <div class="title">身份证照片</div>
-          <div class="IDrow">
-            <div class="leftIDPic">
-              <!--<img :src="address.fileList[0].fileUrl" />-->
-            </div>
-            <div class="rightIDPic">
-              <!--<img :src="address.fileList[1].fileUrl" />-->
-            </div>
+          <div class="IDrow" v-show="user_default_address.fileList.length !== 0">
+            <view v-for="(item , index) in user_default_address.fileList" :key="index">
+              <img :src="item.fileUrl"/>
+            </view>
           </div>
+
         </view>
       </wxc-panel>
     </view>
@@ -36,34 +30,31 @@
 
     <view class="payment_info">
       <wxc-panel>
-        <view class="left">
+        <view class="left" v-show="total_fee !== undefined">
           <div>
             <div class="title">价格信息汇总</div>
           </div>
-          <div class="row">
+          <div class="price">
             <div class="leftTitle">商品价格合计：</div>
-            <div class="rightData">3076.25元</div>
-            <!--<div class="rightData">{{total_fee.price.price}}</div>-->
+            <div class="rightData">{{price.price}}<span v-show="total_fee!== undefined">元</span></div>
           </div>
-          <div class="row">
+          <div class="price">
             <div class="leftTitle">消费税合计：</div>
-            <div class="rightData">276.86元</div>
-            <!--<div class="rightData">{{total_fee.exciseTax.exciseTax}}</div>-->
+            <div class="rightData">{{exciseTax.exciseTax}}<span v-show="total_fee!== undefined">元</span></div>
           </div>
-          <div class="row">
+          <div class="price">
             <div class="leftTitle">国际快递合计：</div>
-            <div class="rightData">127.91元</div>
-            <!--<div class="rightData">{{total_fee.internationalShippingFee.internationalShippingFee}}</div>-->
+            <div class="rightData">{{internationalShippingFee.internationalShippingFee}}<span
+              v-show="total_fee!== undefined">元</span></div>
           </div>
-          <div class="row">
+          <div class="price">
             <div class="leftTitle">平台佣金合计：</div>
-            <div class="rightData">0元</div>
-            <!--<div class="rightData">{{total_fee.internationalShippingFee.internationalShippingFee}}</div>-->
+            <div class="rightData">{{sitePromotionFee.sitePromotionFee}}<span
+              v-show="total_fee!== undefined">元</span></div>
           </div>
-          <div class="row">
+          <div class="price">
             <div class="leftTitle">人民币合计：</div>
-            <div class="rightData">3481.02元</div>
-            <!--<div class="rightData">{{total_fee.total.total}}</div>-->
+            <div class="rightData">{{total.total}}<span v-show="total_fee!== undefined">元</span></div>
           </div>
           <div class="title">预计送到时间：</div>
           <div class="receivedTime">2019年4月3日至2019年4月7日之间（根据不同时间段会有偏差，仅作为参考）</div>
@@ -112,130 +103,34 @@
   export default {
     data(){
       return {
-        user_default_address: {},
-        total_fee: {},
-        exciseFee: '',
-        finalFee: '',
-        price: '',
-        sitePromotionFee: '',
-        total: '',
+        user_default_address: new Address({}),
+        total_fee: undefined,
+        exciseTax: {},
+        price: {},
+        sitePromotionFee: {},
+        internationalShippingFee: {},
+        total: {},
         sessionId: '',
         agree: {
           value: '同意',
           checked: false
         },
         idNumber: '654001199407203726',
-        toast: {}
+        toast: {},
+        cartIdList: []
       };
     },
     components: {},
     onShow(){
+      this.show_loading();
       this.getSettingKey();
-      // 隐藏身份证号码
-      this.idNumber = this.hideIdNumber();
-      // 隐藏手机号
     },
-    created(){
-      let data = {
-        "code": "1",
-        "message": "success",
-        "data": {
-          "addressId": 26,
-          "addressDetail": "上海市",
-          "postCode": "201305",
-          "receiver": "diaries",
-          "receiverPhone": "18201716178",
-          "idNumber": "654001199407203726",
-          "isDefault": 1,
-          "fileList": [{
-            "originalFileName": "????????.png",
-            "fileUrl": "http://47.104.159.98:8080/address/all/5e0475496f7a4c13a0fd30987107ba24.png"
-          }, {
-            "originalFileName": "???????.jpg",
-            "fileUrl": "http://47.104.159.98:8080/address/all/99ee3cbec46849e9addc18ebb97091be.jpg"
-          }]
-        }
-      };
-      let caculateFee = {
-        "code": "1",
-        "message": "success",
-        "data": {
-          "serviceFee": {
-            "usdExchangeRate": 6.7323,
-            "serviceFee": 0.00,
-            "serviceFeeRate": 0,
-            "miniServiceFee": 0
-          },
-          "site": {
-            "5": {
-              "siteShippingFee": 53.52,
-              "sitePromotionFee": 0.00,
-              "price": 255.42,
-              "exciseTax": 22.99,
-              "cartList": [{
-                "quantity": 1,
-                "productCategoryId": 40,
-                "estimatedWeight": 0.66,
-                "price": 29.99,
-                "skuId": 210417
-              }],
-              "sitePromotionMap": {
-                "1": {
-                  "promotionStrategyOffValue": 2147483647,
-                  "sitePromotionFee": 7.95,
-                  "price": 29.99,
-                  "promotionStrategyOffOffer": 7.95
-                }
-              },
-              "exciseTaxRate": 0.09
-            },
-            "10": {
-              "siteShippingFee": 0.00,
-              "sitePromotionFee": 0.00,
-              "price": 2820.83,
-              "shippingPromotionSnapshot": "Free Shipping with any purchase",
-              "exciseTax": 253.87,
-              "cartList": [{
-                "quantity": 1,
-                "productCategoryId": 46,
-                "estimatedWeight": 2.00,
-                "price": 419.00,
-                "skuId": 373073
-              }],
-              "sitePromotionMap": {
-                "1": {
-                  "promotionName": "Free Shipping with any purchase",
-                  "promotionStrategyOffValue": 0.00,
-                  "sitePromotionFee": 0,
-                  "price": 419.00,
-                  "promotionEffectProductCategory": null,
-                  "promotionStrategyOffPercentage": null,
-                  "promotionStrategyOffPercentageInit": 0.00,
-                  "promotionStrategyOffOffer": null
-                }
-              },
-              "exciseTaxRate": 0.09
-            }
-          },
-          "siteShippingFee": {"siteShippingFee": 53.52},
-          "total": {"total": 3481.02},
-          "sitePromotionFee": {"sitePromotionFee": 0.00},
-          "price": {"price": 3076.25},
-          "exciseTax": {"exciseTax": 276.86},
-          "internationalShippingFee": {"estimatedWeight": 2.66, "internationalShippingFee": 127.91},
-          "productCategoryWeight": {
-            "40": {
-              "taxIncluded": 0.00,
-              "nextFee": 5.00,
-              "initFee": 5.00,
-              "weight": 0.66,
-              "categoryWeight": 0.66
-            }, "46": {"taxIncluded": 0.00, "nextFee": 7.00, "initFee": 7.00, "weight": 2.00, "categoryWeight": 2.00}
-          },
-          "final": {"finalRMB": 3481.02, "final": 3481.02},
-          "linkedSiteIdMap": {}
-        }
-      };
+    onLoad(options){
+      if (options.cartIdList !== undefined) {
+        this.cartIdList = JSON.parse(options.cartIdList);
+      } else {
+        console.log("并没有选中任何商品,不应该跳转到该页面");
+      }
     },
     methods: {
       hideIdNumber(){
@@ -251,7 +146,6 @@
         wx.getStorage({
           key: 'settingKey',
           success: function (data) {
-            //console.log(data)
             settingKey = data.data;
             if (settingKey === '1') {
               self.getSessionId();
@@ -278,9 +172,10 @@
             const cookieSession = String(data.data);
             self.sessionId = cookieSession.split('=')[1].split(';')[0];
             self.getDefaultAddress();
+            self.getProductFee();
+            self.hide_loading();
           },
           fail: function (err) {
-            console.log(err)
             wx.navigateTo({
               url: '/pages/login/main'
             })
@@ -288,31 +183,29 @@
         })
       },
       getProductFee(){
-        // http://www.phantombuy.com/phantombuy/cart/calculateFee
         let entityDTO = {
-          entityDTO: {cartIdList: [123]}
+          entityDTO: {cartIdList: this.cartIdList.length > 0 ? this.cartIdList : []}
         };
         fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
         fly.post('phantombuy/cart/calculateFee', entityDTO).then(res => {
           if (res.data.code === '1') {
             this.total_fee = res.data.data;
-            // exciseFee
-            this.exciseFee = this.total_fee.exciseTax.exciseTax;
-            // finalFee
-            this.finalFee = this.total_fee.final.finalRMB;
-            //price
-            this.price = this.total_fee.price.price;
-            // sitePromotionFee: {sitePromotionFee: 0}
-            this.sitePromotionFee = this.total_fee.sitePromotionFee.sitePromotionFee;
-            //total: {total: 3481.02}
-            this.total = this.total_fee.total.total;
-            this.internationalShippingFee = this.total_fee.internationalShippingFee.internationalShippingFee;
+            // exciseFee、price、sitePromotionFee、total、internationalShippingFee
+            this.exciseTax = this.total_fee.exciseTax;
+            this.price = this.total_fee.price;
+            this.sitePromotionFee = this.total_fee.sitePromotionFee;
+            this.total = this.total_fee.total;
+            this.internationalShippingFee = this.total_fee.internationalShippingFee;
           } else {
+            this.toast = common.showErrMsg("服务器内部错误");
+            let self = this;
+            setTimeout(function () {
+              self.toast.show_toast = false;
+            }, 1500);
           }
         });
       },
       getDefaultAddress(){
-        // http://www.phantombuy.com/phantombuy/userAddress/getDefaultAddress
         let entityDTO = {
           entityDTO: {}
         };
@@ -321,6 +214,11 @@
           if (res.data.code === '1') {
             this.user_default_address = res.data.data;
           } else {
+            this.toast = common.showErrMsg("服务器内部错误");
+            let self = this;
+            setTimeout(function () {
+              self.toast.show_toast = false;
+            }, 1500);
           }
         });
       },
@@ -334,11 +232,9 @@
           }, 1500);
           return
         }
-        // 这里pay 需要跳转到 微信支付页
-        console.log('去支付');
+        // 若用户同意条款协议，这里跳转到 微信支付页
       },
       agreeContract(e){
-        //console.log(e);
         // checkbox 选中
         if (e.mp.detail.value.length !== 0) {
           this.agree.checked = true;
@@ -347,14 +243,18 @@
         }
       },
       editAddress(){
-        console.log('修改默认收件地址');
         wx.navigateTo({
           url: '/pages/address/main'
         });
       },
-      showMsg(){
-        this.toast = common.show
-      }
+      show_loading() {
+        wx.showLoading({
+          title: '加载中',
+        })
+      },
+      hide_loading() {
+        wx.hideLoading();
+      },
     }
   }
 </script>
@@ -365,6 +265,7 @@
     height: 100%;
     width: 100%;
   }
+
   .receive_info {
     padding-top: 0.5rem;
     width: 90%;
@@ -372,32 +273,38 @@
     padding-left: 5%;
     padding-bottom: 0.2rem;
   }
+
   .payment_info {
     width: 90%;
     vertical-align: middle;
     padding-left: 5%;
     padding-bottom: 0.2rem;
   }
+
   .contract_info {
     width: 90%;
     vertical-align: middle;
     padding-left: 5%;
     padding-bottom: 0.2rem;
   }
+
   .receive_address {
     display: flex;
     justify-content: space-between;
   }
+
   .left {
     padding-top: 0.3rem;
     padding-left: 0.3rem;
     padding-bottom: 0.4rem;
   }
+
   .title {
     font-weight: bold;
-    font-size: 16px;
+    font-size: 17px;
     margin-bottom: 0.1rem;
   }
+
   .edit_address {
     font-weight: bold;
     color: red;
@@ -405,6 +312,7 @@
     margin-bottom: 0.1rem;
     padding-right: 0.2rem;
   }
+
   .row {
     display: flex;
     flex-direction: row;
@@ -412,49 +320,68 @@
     padding-bottom: 0.1rem;
     padding-left: 0.1rem;
   }
+
+  .price {
+    display: flex;
+    flex-direction: row;
+    font-size: 15px;
+    padding-bottom: 0.1rem;
+    padding-left: 0.1rem;
+  }
+
   .rightData {
     padding-left: 0.2rem;
   }
+
   .IDrow {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    width: 50%;
+    width: 40%;
     font-size: 14px;
+    height: 4rem;
   }
+
   .blockData {
     font-size: 14px;
     margin-bottom: 0.1rem;
   }
+
   .receivedTime {
     font-size: 14px;
     margin-bottom: 0.1rem;
   }
+
   .agree {
     font-size: 14px;
     margin-bottom: 0.1rem;
   }
+
   .word {
     font-size: 14px;
     margin-bottom: 0.1rem;
   }
+
   .payButton {
     margin-top: 1.05rem;
     width: 90%;
     padding-left: 5%;
     margin-bottom: 0.2rem;
   }
+
   .contract_agree {
     width: 0.3rem;
     height: 0.3rem;
     margin-right: 0.2rem;
     transform: scale(.7)
   }
+
   .IDrow img {
     height: 3rem;
     width: 3rem;
   }
+
   /*checkbox .wx-checkbox-input {*/
   /*width: 0.5rem;*/
   /*height: 0.5rem;*/
