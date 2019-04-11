@@ -1,57 +1,66 @@
 <template>
-  <div class="order">
+  <div>
+    <div class="noItem" v-bind:style="{display: displayData}">
+      尚未选购任意商品,请返回首页选购商品
+    </div>
+    <div class="order"></div>
+
     <scroll-view v-for="(item, i) in cart_list" :key="i">
       <view class="titleBlock"  >
         {{item.brandNameCh}}
       </view>
+      <div v-for="(cartListItem, j) in item.cartList" :key="j">
 
-      <view class="sliderLeft" style="margin-top:40rpx;" v-for="(cartListItem, j) in item.cartList" :key="j" >
-        <slider-left v-on:delete="handleDelete" :id="cartListItem.cartId">
-          <view class="itemBlock" @click="itemBlockChangeColor(cartListItem, cartListItem.cartId)" :class="computedClass"
-                :id="cartListItem.cartId">
-            <view class="row">
-              <view class="itemImage">
-                <image :src="cartListItem.productImageUrl" class="titleImage" mode="widthFix"/>
-              </view>
-              <view class="itemDetail">
-                <view class="itemTitle">{{cartListItem.productName}}</view>
+        <checkbox-group v-on:change="itemBlockChangeColor(cartListItem, cartListItem.cartId)">
+          <checkbox class="sliderLeft" style="margin-top:40rpx;"  >
+            <slider-left v-on:delete.stop="handleDelete" :id="cartListItem.cartId">
+              <view class="itemBlock" :id="cartListItem.cartId">
                 <view class="row">
-                  <view class="itemRow">
-                    <view class="itemColor smallFont">颜色：</view>
-                    <view class="itemColorDetail smallFont">{{cartListItem.color}}</view>
+                  <view class="itemImage">
+                    <image :src="cartListItem.productImageUrl" class="titleImage" mode="widthFix"/>
                   </view>
-                  <view class="itemRow">
-                    <view class="itemSize smallFont">尺码：</view>
-                    <view class="itemSizeDetail smallFont">{{cartListItem.size}}</view>
+                  <view class="itemDetail">
+                    <view class="itemTitle">{{cartListItem.productName}}</view>
+                    <view class="row">
+                      <view class="itemRow">
+                        <view class="itemColor smallFont">颜色：</view>
+                        <view class="itemColorDetail smallFont">{{cartListItem.color}}</view>
+                      </view>
+                      <view class="itemRow">
+                        <view class="itemSize smallFont">尺码：</view>
+                        <view class="itemSizeDetail smallFont">{{cartListItem.size}}</view>
+                      </view>
+                      <view class="itemRow">
+                        <view class="itemPrice smallFont">价格：</view>
+                        <view class="itemPriceDetail smallFont">{{cartListItem.productRmbPrice}} 元</view>
+                      </view>
+                    </view>
+                    <view class="counterBlock" @tap.stop="catchtapControl">
+                      <wxc-counter :id="cartListItem.cartId" v-on:changenumber="onChangeNumber" class="counter" :number="cartListItem.quantity" max="100" min="1" color="#000"></wxc-counter>
+                    </view>
                   </view>
-                  <view class="itemRow">
-                    <view class="itemPrice smallFont">价格：</view>
-                    <view class="itemPriceDetail smallFont">{{cartListItem.productRmbPrice}} 元</view>
+                  <!--
+                  <view class="stepper">
+                    <text class="{{minusStatus}}" bindtap="bindMinus">-</text>
+                    <input type="number" bindchange="bindManual" value="{{num}}" />
+                    <text class="normal" bindtap="bindPlus">+</text>
+                  </view>
+                  -->
+
+                </view>
+                <view class="total">
+                  <view class="row">
+                    <view class="totalTitle">合计：</view>
+                    <view class="totalDetail">{{cartListItem.productRmbPriceTotal}} 元</view>
                   </view>
                 </view>
-                <view class="counterBlock" @tap.stop="catchtapControl">
-                  <wxc-counter :id="cartListItem.cartId" v-on:changenumber="onChangeNumber" class="counter" :number="cartListItem.quantity" max="100" min="1" color="#000"></wxc-counter>
-                </view>
               </view>
-              <!--
-              <view class="stepper">
-                <text class="{{minusStatus}}" bindtap="bindMinus">-</text>
-                <input type="number" bindchange="bindManual" value="{{num}}" />
-                <text class="normal" bindtap="bindPlus">+</text>
-              </view>
-              -->
+            </slider-left>
+          </checkbox>
+        </checkbox-group>
 
-            </view>
-            <view class="total">
-              <view class="row">
-                <view class="totalTitle">合计：</view>
-                <view class="totalDetail">{{cartListItem.productRmbPriceTotal}} 元</view>
-              </view>
-            </view>
-          </view>
-        </slider-left>
-      </view>
 
+      </div>
 
 
 
@@ -93,7 +102,6 @@
 
 <script type="text/ecmascript-6">
   import fly from '../../utils/fly'
-  import {pageDTO} from "../../common/model/pageDTO"
   var settingKey = ''
   var sessionId = null
   export default {
@@ -103,15 +111,14 @@
         cart_list: [],
         btnType: 'disabled',
         settingKey: '',
+        testData: true,
+        displayData: 'none',
         priceData: {sitePromotionFee: {sitePromotionFee: 0}, final: {finalRMB: 0}, exciseTax: {exciseTax: 0}, internationalShippingFee: {estimatedWeight: 0,internationalShippingFee: 0}}
       }
     },
     components: {
     },
     computed: {
-      computedClass(){
-        return this.cartIdList.includes(this.selected_cartId)  ? 'orderItemSelected' : 'orderItemUnselected';
-      }
     },
     onLoad (options) {
       if (options !== undefined){
@@ -119,15 +126,20 @@
       }
     },
     onShow (options) {
-      if (options !== undefined){
-        this.getOrderList()
-      }
+      //this.getOrderList()
     },
     methods: {
+      isActive (cartId) {
+        if (this.cartIdList.includes(cartId)) {
+          return true
+        } else {
+          return false
+        }
+      },
       checkout () {
         if (this.cartIdList.length > 0){
           wx.navigateTo({
-            url: '/pages/checkout/main'
+            url: '../checkout/main?cartIdList=' + this.cartIdList
           })
         }
       },
@@ -346,10 +358,25 @@
 </script>
 
 <style scoped>
+  .sliderLeft{
+    margin-left:6rpx;
+  }
+  .noItem{
+    background-color: white;
+    height:100%;
+    width:100%;
+    position:fixed;
+    z-index:1000;
+    font-color:black;
+    padding-top:200rpx;
+    text-align: center;
+  }
   .order{
     background-color: lightgray;
     height:100%;
     width:100%;
+    position:fixed;
+    z-index:-1;
   }
   .row{
     display: flex;
@@ -377,6 +404,7 @@
     width:100%;
     padding-top: 40rpx;
     padding-bottom: 40rpx;
+    background-color: white;
   }
   .itemTitle{
     font-size: normal;
@@ -432,6 +460,5 @@
     background-color: lightgray;
   }
   .orderItemUnselected {
-    background-color: white;
   }
 </style>

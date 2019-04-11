@@ -1,19 +1,16 @@
 {
   "pages": [
-    "pages/order/main",
     "pages/home/main",
+    "pages/order/main",
     "pages/address/main",
+    "pages/editaddress/main",
+    "pages/checkout/main",
     "pages/my/main",
     "pages/myInfo/main",
     "pages/login/main",
     "pages/site/main",
     "pages/myOrder/main",
-    "pages/brand/main",
-    "pages/shop/main",
-    "pages/productDetail/main",
-    "pages/demo/main",
-    "pages/editaddress/main",
-    "pages/checkout/main"
+    "pages/productDetail/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -39,14 +36,7 @@
         "iconPath": "static/images/home.png",
         "selectedIconPath": "static/images/home-selected.png",
         "color": "white",
-        "text": "支付详情"
-      },
-      {
-        "pagePath": "pages/order/main",
-        "iconPath": "static/images/home.png",
-        "selectedIconPath": "static/images/home-selected.png",
-        "color": "white",
-        "text": "地址管理"
+        "text": "商家"
       },
       {
         "pagePath": "pages/order/main",
@@ -63,4 +53,5 @@
     ]
   }
 }
+
 
