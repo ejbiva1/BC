@@ -5,6 +5,5 @@ Vue.config.productionTip = false
 App.mpType = 'app'
 
 const app = new Vue(App)
-//Vue.prototype.globalData = getApp().globalData
 app.$mount()
 

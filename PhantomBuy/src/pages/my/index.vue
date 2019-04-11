@@ -77,28 +77,22 @@
     padding: 0rem;
     width: 20%;
   }
-
   .userName {
     margin-top: 0.60rem;
     margin-left: 0.20rem;
   }
-
   .my {
     background-color: #F7F7F7;
     position: fixed;
     height: 100%;
     width: 100%;
   }
-
   .dataBody {
-
   }
-
   .navLink {
     margin-left: 0.20rem;
     margin-right: 0.20rem;
   }
-
   .myOrderDataBlock {
     background-color: white;
     margin-top: 0.20rem;
@@ -107,9 +101,7 @@
     padding-left: 0.20rem;
     padding-right: 0.20rem;
   }
-
   .myDataBlock {
-
     background-color: white;
     margin-top: 0.20rem;
     margin-left: 0.20rem;
@@ -119,12 +111,10 @@
     padding-left: 0.20rem;
     padding-right: 0.20rem;
   }
-
   .row {
     display: flex;
     flex-direction: row;
   }
-
   .halfRow {
     display: flex;
     flex-direction: row;
@@ -132,25 +122,20 @@
     align-items: center;
     width: 60%;
   }
-
   .twoSideRow {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
   }
-
   .myDataLink {
     color: gray;
   }
-
   .discountCla {
     color: gray;
   }
-
   .adData {
     color: gray;
     font-size: smaller;
   }
 </style>
-

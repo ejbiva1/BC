@@ -67,7 +67,9 @@
 
       <!--商品描述， 详情 tab 页切换-->
       <wxc-panel :border="has_border">
-        <tab v-bind:product="product_detail"></tab>
+        <view class="product_tabs">
+          <tab v-bind:product="product_detail"></tab>
+        </view>
       </wxc-panel>
     </view>
 
@@ -190,7 +192,7 @@
           this.icon_type = "warning";
           this.showToast();
           return;
-        } else if (this.productSizeList.length !== 0 && this.quantity == 0) {
+        } else if (this.productSizeList.length !== 0 &&this.quantity == 0) {
           // 保证 包 and 衣服 同时报错
           this.msg = appMessages.CHOOSE_QUANTITY_ERROR;
           this.icon_type = "warning";
@@ -392,9 +394,9 @@
   }
 
   .product_tabs {
-    width: 100%;
+    width: 90%;
     position: relative;
-    /*left: 5%;*/
+    left: 5%;
   }
 
   .button-wrap {
@@ -513,4 +515,3 @@
   }
 
 </style>
-

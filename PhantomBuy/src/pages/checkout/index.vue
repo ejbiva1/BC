@@ -21,11 +21,14 @@
             </div>
           </div>
           <div class="title">身份证照片</div>
-          <view class="IDrow" v-if="imgs.length !== 0">
-            <view v-for="(item, index) in imgs" class="id_cards_img">
-              <img :src="item.url" style="height: 2.5rem; width: 2rem;"/>
-            </view>
-          </view>
+          <div class="IDrow">
+            <div class="leftIDPic">
+              <!--<img :src="address.fileList[0].fileUrl" />-->
+            </div>
+            <div class="rightIDPic">
+              <!--<img :src="address.fileList[1].fileUrl" />-->
+            </div>
+          </div>
         </view>
       </wxc-panel>
     </view>
@@ -122,8 +125,7 @@
           checked: false
         },
         idNumber: '654001199407203726',
-        toast: {},
-        imgs: []
+        toast: {}
       };
     },
     components: {},
@@ -132,10 +134,6 @@
       // 隐藏身份证号码
       this.idNumber = this.hideIdNumber();
       // 隐藏手机号
-      this.imgs = [
-        {url: '/static/images/1.png'},
-        {url: '/static/images/2.png'}
-      ];
     },
     created(){
       let data = {
@@ -158,7 +156,6 @@
           }]
         }
       };
-
       let caculateFee = {
         "code": "1",
         "message": "success",
@@ -355,7 +352,9 @@
           url: '/pages/address/main'
         });
       },
-
+      showMsg(){
+        this.toast = common.show
+      }
     }
   }
 </script>
@@ -366,7 +365,6 @@
     height: 100%;
     width: 100%;
   }
-
   .receive_info {
     padding-top: 0.5rem;
     width: 90%;
@@ -374,38 +372,32 @@
     padding-left: 5%;
     padding-bottom: 0.2rem;
   }
-
   .payment_info {
     width: 90%;
     vertical-align: middle;
     padding-left: 5%;
     padding-bottom: 0.2rem;
   }
-
   .contract_info {
     width: 90%;
     vertical-align: middle;
     padding-left: 5%;
     padding-bottom: 0.2rem;
   }
-
   .receive_address {
     display: flex;
     justify-content: space-between;
   }
-
   .left {
     padding-top: 0.3rem;
     padding-left: 0.3rem;
     padding-bottom: 0.4rem;
   }
-
   .title {
     font-weight: bold;
     font-size: 16px;
     margin-bottom: 0.1rem;
   }
-
   .edit_address {
     font-weight: bold;
     color: red;
@@ -413,7 +405,6 @@
     margin-bottom: 0.1rem;
     padding-right: 0.2rem;
   }
-
   .row {
     display: flex;
     flex-direction: row;
@@ -421,11 +412,9 @@
     padding-bottom: 0.1rem;
     padding-left: 0.1rem;
   }
-
   .rightData {
     padding-left: 0.2rem;
   }
-
   .IDrow {
     display: flex;
     flex-direction: row;
@@ -434,50 +423,40 @@
     width: 50%;
     font-size: 14px;
   }
-
   .blockData {
     font-size: 14px;
     margin-bottom: 0.1rem;
   }
-
   .receivedTime {
     font-size: 14px;
     margin-bottom: 0.1rem;
   }
-
   .agree {
     font-size: 14px;
     margin-bottom: 0.1rem;
   }
-
   .word {
     font-size: 14px;
     margin-bottom: 0.1rem;
   }
-
   .payButton {
     margin-top: 1.05rem;
     width: 90%;
     padding-left: 5%;
     margin-bottom: 0.2rem;
   }
-
   .contract_agree {
     width: 0.3rem;
     height: 0.3rem;
     margin-right: 0.2rem;
     transform: scale(.7)
   }
-
   .IDrow img {
     height: 3rem;
     width: 3rem;
   }
-
   /*checkbox .wx-checkbox-input {*/
   /*width: 0.5rem;*/
   /*height: 0.5rem;*/
   /*}*/
-
 </style>
-
