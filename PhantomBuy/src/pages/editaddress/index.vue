@@ -1,19 +1,12 @@
 <template>
   <div class="animated">
-    <!--收件人手机号-->
-    <!--姓名-->
-    <!--身份证-->
-    <!--身份证上传-->
-    <!--邮编-->
-    <!--邮寄地址--
-    <!--设为默认地址-->
 
     <view class="address_section">
 
       <view class="section">
         <wxc-panel :border="has_border">
           <!--收件人姓名、电话号码-->
-          <wxc-input type="text" title="收件人手机号" placeholder="请输入手机号" color="#ccc"
+          <wxc-input type="text" title="手机号" placeholder="请输入手机号" color="#ccc"
                      :value="address.receiverPhone" v-on:blur="validateUserPhoneNo"
           ></wxc-input>
         </wxc-panel>
@@ -54,6 +47,18 @@
       </view>
 
       <view class="section">
+        <wxc-panel :border="has_border">
+          <view class="is_default">
+            <view class="default_text"> 设为默认地址</view>
+            <checkbox-group @change="setDefault">
+              <checkbox class="default_checkbox" :value="default_address.value" :checked="default_address.checked"/>
+            </checkbox-group>
+          </view>
+        </wxc-panel>
+      </view>
+
+
+      <view class="section">
         <!--上传身份证照片(限制为2张)-->
         <view class="section_ID_button">
           <wxc-button plain="true" type="dark"
@@ -66,17 +71,19 @@
         </view>
       </view>
 
-      <view class="id_cards_img_section" v-if="address.fileList.length !== 0">
+      <view class="id_cards_img_section" v-show="id_card_img.length > 0">
         <!--上传图片后，立即加载下来-->
-        <view v-for="(item, index) in address.fileList" class="id_cards_img" :key="index">
-          <img :src="item.fileUrl" style="height: 2.5rem; width: 2rem;"/>
+        <view v-for="(item, index) in id_card_img" class="id_cards_img" :key="index">
+          <a target="_blank" :href="item.fileUrl">
+            <img :src="item.fileUrl" class="id_card_img"/>
+          </a>
         </view>
       </view>
 
       <!--#007bff-->
       <view class="section_button">
         <wxc-button size="large" :btnStyle="button_style" type="beauty" value="完成"
-                    @click="confirmNewAddress"></wxc-button>
+                    @click="confirmAddress"></wxc-button>
       </view>
 
       <view class="section_button" v-if="isEditAddress == true">
@@ -109,18 +116,18 @@
       return {
         has_border: true,
         address: new Address({}),
-        user_card_image_url: [],
         toast: {},
-        show_toast: false,
         sessionId: '',
-        addressId: '',
         isEditAddress: false,
         style: 'width: 100%;border-radius: 46rpx;vertical-align: middle;  box-shadow:0 0 1px #000 inset;',
         button_style: 'color: #fff;vertical-align: middle;text-align: center;border-radius: 20rpx;',
         delete_style: 'vertical-align: middle;text-align: center;border-radius: 20rpx;',
-        imgs: [],
         imageNum: 2,
-        toast: {}
+        id_card_img: [],
+        default_address: {
+          value: '同意',
+          checked: false
+        },
       }
     },
     components: {
@@ -130,18 +137,16 @@
       console.log(options);
       if (options.address_detail !== undefined) {
         this.address = JSON.parse(options.address_detail);
+        this.id_card_img = this.address.fileList;
+        this.default_address.checked = this.address.isDefault == 1 ? true : false;
       } else {
         this.address = new Address({});
+        this.id_card_img = [];
+        this.default_address.checked = false;
       }
       let flag = options.isEditAddress.trim() === "true" ? true : false;
       if (!flag) {
         this.isEditAddress = false
-//        this.imgs = [
-//          {url: '/static/images/1.png'},
-//          {
-//            url: '/static/images/2.png'
-//          }
-//        ];
       } else {
         this.isEditAddress = true
       }
@@ -160,7 +165,6 @@
         wx.getStorage({
           key: 'settingKey',
           success: function (data) {
-            //console.log(data)
             settingKey = data.data;
             if (settingKey === '1') {
               self.getSessionId();
@@ -186,7 +190,6 @@
         wx.getStorage({
           key: 'cookieKey',
           success: function (data) {
-            //console.log(data);
             const cookieSession = String(data.data);
             self.sessionId = cookieSession.split('=')[1].split(';')[0];
             console.log(self.sessionId);
@@ -199,28 +202,21 @@
           }
         })
       },
-      editUserAddress(){
-        console.log('editUserAddress');
+      confirmAddress(){
         fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
-        let entityDTO = {
-          entityDTO: {addressId: this.addressId !== undefined ? this.addressId : 1}
-        };
-        fly.post("phantombuy/userAddress/update", entityDTO).then(res => {
-          if (res.data.code === '1') {
+        this.address.fileList = this.id_card_img;
+        this.address.isDefault = this.default_address.checked === true ? 1: 0;
+        if (this.address.addressId !== undefined) {
+          // 更新 地址
+          this.editAddress();
+        } else {
+          // 添加地址
+          this.addAddress();
+        }
 
-          } else {
-            this.toast = common.showErrMsg("更新地址错误");
-          }
-        });
       },
-      confirmNewAddress(){
+      addAddress(){
         let self = this;
-        console.log("Confirm New Address");
-        fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
-        // 多传递一个 fileList 字段
-
-
-        //http://www.phantombuy.com/phantombuy/userAddress/add
         fly.post("phantombuy/userAddress/add", {entityDTO: self.address}).then(res => {
           if (res.data.code === '1') {
             self.toast = common.showSuccessMsg('添加地址成功');
@@ -228,7 +224,6 @@
               self.toast.show_toast = false;
             }, 1500);
 
-            // 地址添加成功后，返回上一层
             setTimeout(function () {
               wx.navigateBack({
                 delta: 1
@@ -236,6 +231,28 @@
             }, 1500);
           } else {
             self.toast = common.showErrorMsg('添加地址失败');
+            setTimeout(function () {
+              self.toast.show_toast = false;
+            }, 1500);
+          }
+        });
+      },
+      editAddress(){
+        let self = this;
+        fly.post("phantombuy/userAddress/update", {entityDTO: self.address}).then(res => {
+          if (res.data.code === '1') {
+            self.toast = common.showSuccessMsg('更新地址成功!');
+            setTimeout(function () {
+              self.toast.show_toast = false;
+            }, 1500);
+
+            setTimeout(function () {
+              wx.navigateBack({
+                delta: 1
+              })
+            }, 1500);
+          } else {
+            self.toast = common.showErrorMsg('更新地址失败');
             setTimeout(function () {
               self.toast.show_toast = false;
             }, 1500);
@@ -280,11 +297,11 @@
           },
           success: function (res) {
             let data = JSON.parse(res.data);
-            self.address.fileList.push(data.data[0]);
+            //self.address.fileList.push(data.data[0]);
+            self.id_card_img.push(data.data[0]);
 //            self.toast = common.showSuccessMsg('上传图片成功');
 //            setTimeout(function(){
 //              let data = JSON.parse(res.data);
-//              self.id_card_imgs.push(data.data[0]);
 //            }, 1000);
 
             // 判断最后一张图片上传
@@ -305,12 +322,40 @@
           }
         });
       },
+      deleteAddress(){
+        let self = this;
+        fly.config.headers["Cookie"] = "JSESSIONID=" + self.sessionId;
+        let entityDTO = {
+          entityDTO: {addressId: self.address.addressId !== undefined ? self.address.addressId : undefined}
+        };
+        fly.post("phantombuy/userAddress/delete", entityDTO).then(res => {
+          if (res.data.code === '1') {
+            self.toast = common.showSuccessMsg("删除地址成功!");
+
+            setTimeout(function () {
+              self.toast.show_toast = false;
+              wx.navigateBack({
+                delta: 1
+              })
+            }, 1500);
+          } else {
+            self.toast = common.showErrMsg("删除地址错误");
+            setTimeout(function () {
+              self.toast.show_toast = false;
+            }, 1500);
+          }
+        });
+      },
       validateUserIdNumber(e){
-        //  验证 身份证 照片是否合规  pc端仅仅验证 图片数量
-        this.address.idNumber = e.mp.detail.value;
+        //  验证 身份证号码是否合规
+        let self = this;
+        self.address.idNumber = e.mp.detail.value;
         if (regex.validateUserIDCard(this.address.idNumber)) {
         } else {
-          // this.toast = toast.showErrorMsg("身份证号码验证错误");
+          self.toast = common.showErrorMsg("身份证号码验证错误");
+          setTimeout(function () {
+            self.toast.show_toast = false;
+          }, 1000);
         }
 
       },
@@ -318,7 +363,7 @@
         this.address.receiverPhone = e.mp.detail.value;
         if (regex.validatePhone(this.address.receiverPhone)) {
         } else {
-          this.toast = toast.showErrorMsg("手机号码验证错误");
+          //this.toast = toast.showErrorMsg("手机号码验证错误");
         }
       },
       validateAddress(e){ // 验证地址是否合规
@@ -330,32 +375,13 @@
       validateUserName(e){
         this.address.receiver = e.mp.detail.value;
       },
-      deleteAddress(){
-        fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
-        let entityDTO = {
-          entityDTO: {addressId: this.address.addressId !== undefined ? this.address.addressId : 1}
-        };
-        fly.post("phantombuy/userAddress/delete", entityDTO).then(res => {
-          if (res.data.code === '1') {
-            this.toast = common.showSuccessMsg("删除地址成功!");
-            let self = this;
-            setTimeout(function () {
-              self.toast.show_toast = false;
-              wx.navigateBack({
-                delta: 1
-              })
-            }, 1500);
-          } else {
-            this.toast = common.showErrMsg("删除地址错误");
-            let self = this;
-            setTimeout(function () {
-              self.toast.show_toast = false;
-            }, 1500);
-          }
-        });
-      },
-      showMsg() {
-
+      // 设置为 默认地址
+      setDefault(e){
+        if (e.mp.detail.value.length !== 0) { // checkbox checked
+          this.default_address.checked = true;
+        } else { // checkbox not checked
+          this.default_address.checked = false;
+        }
       },
 
     }
@@ -456,26 +482,53 @@
     vertical-align: middle;
   }
 
-  .add_new_address {
-    background-color: #EE5757;
-  }
-
-  .phone_padding {
-    padding-left: 0.25rem;
-  }
-
   .id_cards_img_section {
-    width: 100%;
+    width: 70%;
     height: 3rem;
-    border: 2px solid red;
+    border: 2px solid cornflowerblue;
+    display: flex;
+    justify-content: center;
+    margin: auto;
+    vertical-align: middle;
+  }
+
+  .id_cards_img a {
+    vertical-align: middle;
+  }
+
+  .id_card_img {
+    height: 1.5rem;
+    width: 1.5rem;
+    cursor: pointer;
+    overflow: hidden;
+    vertical-align: middle;
+  }
+
+  .default_checkbox {
+    width: 0.5rem;
+    height: 0.5rem;
+    margin-right: 0.2rem;
+    transform: scale(.7);
+    padding: 0.24rem 0.30rem;
+  }
+
+  .is_default {
     display: flex;
     justify-content: space-between;
+    width: 100%;
   }
 
-  .id_cards_img {
-
+  .default_text {
+    position: relative;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    line-height: 1.4;
+    padding: 0.24rem 0.30rem;
+    box-sizing: border-box;
+    font-size: 0.28rem;
+    color: #333;
   }
-
 
 </style>
 

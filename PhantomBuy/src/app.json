@@ -1,7 +1,7 @@
 {
   "pages": [
-    "pages/home/main",
     "pages/address/main",
+    "pages/home/main",
     "pages/my/main",
     "pages/myInfo/main",
     "pages/order/main",
@@ -42,11 +42,11 @@
         "text": "支付详情"
       },
       {
-        "pagePath": "pages/home/main",
+        "pagePath": "pages/address/main",
         "iconPath": "static/images/home.png",
         "selectedIconPath": "static/images/home-selected.png",
         "color": "white",
-        "text": "商家"
+        "text": "地址管理"
       },
       {
         "pagePath": "pages/order/main",
