@@ -117,7 +117,8 @@
         },
         idNumber: '654001199407203726',
         toast: {},
-        cartIdList: []
+        cartIdList: [],
+        orderId: Number
       };
     },
     components: {},
@@ -128,6 +129,7 @@
     onLoad(options){
       if (options.cartIdList !== undefined) {
         this.cartIdList = JSON.parse(options.cartIdList);
+        console.log(this.cartIdList);
       } else {
         console.log("并没有选中任何商品,不应该跳转到该页面");
       }
@@ -233,6 +235,36 @@
           return
         }
         // 若用户同意条款协议，这里跳转到 微信支付页
+        ///orderMain/add
+
+        //let data =   {"entityDTO":{"addressId":20,"orderDetailList":[{"cartId":124}]}}
+
+        let orderIdList = [];
+        this.cartIdList.forEach((item, index) => {
+          orderIdList.push({cartId: item});
+        });
+        let entityDTO = {
+          "entityDTO": {
+            "addressId": this.user_default_address.addressId,
+            "orderDetailList": orderIdList
+          }
+        };
+
+        console.log(orderIdList);
+        fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
+        fly.post('phantombuy/orderMain/add', entityDTO).then(res => {
+          if (res.data.code === '1') {
+            // this.user_default_address = res.data.data;
+            this.orderId =  res.data.data.orderId;
+            console.log(res.data);
+          } else {
+            this.toast = common.showErrMsg("服务器内部错误");
+            let self = this;
+            setTimeout(function () {
+              self.toast.show_toast = false;
+            }, 1500);
+          }
+        });
       },
       agreeContract(e){
         // checkbox 选中
