@@ -1,101 +1,122 @@
 <template>
-  <div>
-    <div class="noItem" v-bind:style="{display: displayData}">
+  <div class="order">
+    <div class="noItem" :style="{display: displayData}">
       尚未选购任意商品,请返回首页选购商品
     </div>
     <div class="order"></div>
 
     <scroll-view v-for="(item, i) in cart_list" :key="i">
-      <view class="titleBlock"  >
-        {{item.brandNameCh}}
+      <view>
+        <wxc-panel>
+          <view class="site">
+            <view class="site_choose cart_block">
+              <radio-group class="radio-group " @change="radioChange">
+                <radio :checked="false"><span style="padding-left: 15px;">{{item.brandNameCh}}</span></radio>
+                <!--<radio value="{{item.name}}" checked="{{item.checked}}"/>-->
+                <!--{{item.value}}-->
+              </radio-group>
+            </view>
+          </view>
+
+          <view>
+            <view v-for="(cartListItem, j) in item.cartList" :key="j" class="cart_block cart-item">
+              <checkbox-group v-on:change="itemBlockChangeColor(cartListItem, cartListItem.cartId)">
+                <checkbox class="sliderLeft">
+                  <slider-left v-on:delete.stop="handleDelete" :id="cartListItem.cartId">
+                    <view class="itemBlock" :id="cartListItem.cartId">
+                      <view class="row">
+                        <view class="itemImage">
+                          <image :src="cartListItem.productImageUrl" class="titleImage" mode="widthFix"/>
+                        </view>
+                        <view class="itemDetail">
+                          <view class="itemTitle">{{cartListItem.productName}}</view>
+                          <view class="row product_font">
+                            <view class="itemRow">
+                              <view class="itemColor" style="width: 20%;">颜色：</view>
+                              <view class="itemColorDetail"
+                                    style="width: 84%;white-space:nowrap;text-overflow:ellipsis;overflow:hidden">
+                                {{cartListItem.color}}
+                              </view>
+                            </view>
+                          </view>
+                          <view class="row product_font">
+                            <view class="itemRow">
+                              <view class="itemSize">尺码：</view>
+                              <view class="itemSizeDetail">{{cartListItem.size}}</view>
+                            </view>
+                          </view>
+                          <view class="row product_font">
+                            <view class="priceRow">
+                              <wxc-price><span style="font-size: 13px;">{{cartListItem.productRmbPrice}} </span>
+                              </wxc-price>
+                              <view class="counterBlock" @tap.stop="catchtapControl">
+                                <wxc-counter :id="cartListItem.cartId" v-on:changenumber="onChangeNumber"
+                                             class="counter"
+                                             :number="cartListItem.quantity" max="100" min="1"
+                                             color="#000"></wxc-counter>
+                              </view>
+                            </view>
+
+                          </view>
+
+                        </view>
+                      </view>
+                      <view class="total">
+                        <view class="row">
+                          <view class="totalTitle" style="font-weight: bolder">合计：</view>
+                          <!--<view class="totalDetail">{{cartListItem.productRmbPriceTotal}} 元</view>-->
+                          <wxc-price><span style="font-size: 13px;">{{cartListItem.productRmbPriceTotal}} </span>
+                          </wxc-price>
+                        </view>
+                      </view>
+                    </view>
+                  </slider-left>
+                </checkbox>
+              </checkbox-group>
+            </view>
+          </view>
+
+        </wxc-panel>
       </view>
-      <div v-for="(cartListItem, j) in item.cartList" :key="j">
-
-        <checkbox-group v-on:change="itemBlockChangeColor(cartListItem, cartListItem.cartId)">
-          <checkbox class="sliderLeft" style="margin-top:40rpx;"  >
-            <slider-left v-on:delete.stop="handleDelete" :id="cartListItem.cartId">
-              <view class="itemBlock" :id="cartListItem.cartId">
-                <view class="row">
-                  <view class="itemImage">
-                    <image :src="cartListItem.productImageUrl" class="titleImage" mode="widthFix"/>
-                  </view>
-                  <view class="itemDetail">
-                    <view class="itemTitle">{{cartListItem.productName}}</view>
-                    <view class="row">
-                      <view class="itemRow">
-                        <view class="itemColor smallFont">颜色：</view>
-                        <view class="itemColorDetail smallFont">{{cartListItem.color}}</view>
-                      </view>
-                      <view class="itemRow">
-                        <view class="itemSize smallFont">尺码：</view>
-                        <view class="itemSizeDetail smallFont">{{cartListItem.size}}</view>
-                      </view>
-                      <view class="itemRow">
-                        <view class="itemPrice smallFont">价格：</view>
-                        <view class="itemPriceDetail smallFont">{{cartListItem.productRmbPrice}} 元</view>
-                      </view>
-                    </view>
-                    <view class="counterBlock" @tap.stop="catchtapControl">
-                      <wxc-counter :id="cartListItem.cartId" v-on:changenumber="onChangeNumber" class="counter" :number="cartListItem.quantity" max="100" min="1" color="#000"></wxc-counter>
-                    </view>
-                  </view>
-                  <!--
-                  <view class="stepper">
-                    <text class="{{minusStatus}}" bindtap="bindMinus">-</text>
-                    <input type="number" bindchange="bindManual" value="{{num}}" />
-                    <text class="normal" bindtap="bindPlus">+</text>
-                  </view>
-                  -->
-
-                </view>
-                <view class="total">
-                  <view class="row">
-                    <view class="totalTitle">合计：</view>
-                    <view class="totalDetail">{{cartListItem.productRmbPriceTotal}} 元</view>
-                  </view>
-                </view>
-              </view>
-            </slider-left>
-          </checkbox>
-        </checkbox-group>
-
-
-      </div>
-
-
-
 
     </scroll-view>
 
     <view class="priceBlock">
-      <view class="row paddingButtom20">
-        <view class="priceTitle">价格合计：</view>
-        <view class="priceTotalDetail">{{priceData.final.finalRMB}}</view>
-        <view class="priceUnit">元</view>
-      </view>
-      <view class="row paddingButtom20">
-        <view class="priceTitle">消费税合计：</view>
-        <view class="texTotalDetail">{{priceData.exciseTax.exciseTax}}</view>
-        <view class="priceUnit">元</view>
-      </view>
-      <view class="row paddingButtom20">
-        <view class="priceTitle">国际快递运费：</view>
-        <view class="delDetail">{{priceData.internationalShippingFee.internationalShippingFee}}</view>
-        <view class="priceUnit">元</view>
-        <view class="weightTitle">（预估</view>
-        <view class="weightDetail">{{priceData.internationalShippingFee.estimatedWeight}}</view>
-        <view class="weightUnit">磅）</view>
-      </view>
+      <wxc-panel>
+        <view class="price_panel">
+          <view class="row paddingButtom20">
+            <view class="priceTitle">价格合计：</view>
+            <view class="priceTotalDetail">{{priceData.final.finalRMB}}</view>
+            <view class="priceUnit">元</view>
+          </view>
+          <view class="row paddingButtom20">
+            <view class="priceTitle">消费税合计：</view>
+            <view class="texTotalDetail">{{priceData.exciseTax.exciseTax}}</view>
+            <view class="priceUnit">元</view>
+          </view>
+          <view class="row paddingButtom20">
+            <view class="priceTitle">国际快递运费：</view>
+            <view class="delDetail">{{priceData.internationalShippingFee.internationalShippingFee}}</view>
+            <view class="priceUnit">元</view>
+            <view class="weightTitle">（预估</view>
+            <view class="weightDetail">{{priceData.internationalShippingFee.estimatedWeight}}</view>
+            <view class="weightUnit">磅）</view>
+          </view>
 
-      <view class="row paddingButtom20">
-        <view class="priceTitle">平台手续费：</view>
-        <view class="middlePriceDetail">{{priceData.sitePromotionFee.sitePromotionFee}}</view>
-        <view class="priceUnit">元</view>
-      </view>
+          <view class="row paddingButtom20">
+            <view class="priceTitle">平台手续费：</view>
+            <view class="middlePriceDetail">{{priceData.sitePromotionFee.sitePromotionFee}}</view>
+            <view class="priceUnit">元</view>
+          </view>
+        </view>
+      </wxc-panel>
     </view>
 
-    <view class="checkoutButton">
-      <wxc-button  size="normal" :type="btnType"  value="去结算" v-on:submit="checkout"></wxc-button>
+
+    <view class="cart-footer">
+      <view  class="button add_buy_cart">
+      <wxc-button size="normal" :type="btnType" value="去结算" v-on:submit="checkout"></wxc-button>
+      </view>
     </view>
   </div>
 </template>
@@ -113,22 +134,25 @@
         settingKey: '',
         testData: true,
         displayData: 'none',
-        priceData: {sitePromotionFee: {sitePromotionFee: 0}, final: {finalRMB: 0}, exciseTax: {exciseTax: 0}, internationalShippingFee: {estimatedWeight: 0,internationalShippingFee: 0}}
+        priceData: {
+          sitePromotionFee: {sitePromotionFee: 0},
+          final: {finalRMB: 0},
+          exciseTax: {exciseTax: 0},
+          internationalShippingFee: {estimatedWeight: 0, internationalShippingFee: 0}
+        }
       }
     },
-    components: {
-    },
-    computed: {
-    },
+    components: {},
+    computed: {},
     onLoad (options) {
       /*
-      if (options !== undefined){
-        this.getSettingKey()
-      }
-      */
+       if (options !== undefined){
+       this.getSettingKey()
+       }
+       */
     },
     onShow (options) {
-      this.getOrderList()
+      this.getSettingKey();
     },
     methods: {
       isActive (cartId) {
@@ -139,7 +163,7 @@
         }
       },
       checkout () {
-        if (this.cartIdList.length > 0){
+        if (this.cartIdList.length > 0) {
           wx.navigateTo({
             url: '../checkout/main?cartIdList=' + JSON.stringify(this.cartIdList)
           })
@@ -154,7 +178,7 @@
         // e.mp.currentTarget.id在cartIdList里面的话，要先从list里面删掉
         var cartID = parseInt(e.mp.currentTarget.id)
         var position = this.cartIdList.indexOf(cartID)
-        if(position !== -1) {
+        if (position !== -1) {
           this.cartIdList.splice(position, 1)
         }
         // 先调用delete
@@ -190,7 +214,12 @@
         console.log(e.mp.detail.number)
         console.log(e.mp.currentTarget.id)
         // 先调用update
-        fly.post('phantombuy/cart/update', {entityDTO: {cartId: e.mp.currentTarget.id, quantity: e.mp.detail.number}}).then((res) => {
+        fly.post('phantombuy/cart/update', {
+          entityDTO: {
+            cartId: e.mp.currentTarget.id,
+            quantity: e.mp.detail.number
+          }
+        }).then((res) => {
           if (res.data.code === `888`) {
             // 跳转授权页
             wx.hideLoading()
@@ -262,12 +291,12 @@
             console.log(data);
             const cookieSession = String(data.data);
             sessionId = cookieSession.split('=')[1].split(';')[0];
-            fly.config.headers["Cookie"] = "JSESSIONID="+sessionId;
+            fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
             /*
              * 此处修改需要调用的接口
              * */
-            fly.post("phantombuy/cart/list",{entityDTO: {}}).then((res) => {
-              console.log(`后台拿回购物车数据:`,res);
+            fly.post("phantombuy/cart/list", {entityDTO: {}}).then((res) => {
+              console.log(`后台拿回购物车数据:`, res);
               if (res.data.code === `888`) {
                 // 跳转授权页
                 console.log(`请先登录:`, res);
@@ -279,15 +308,16 @@
                 // 成功
                 if (res.data.data.length > 0) {
                   self.cart_list = res.data.data
+                  // self.cart_list = self.cart_list[0];
                 }
               }
               else {
                 // 失败
                 this.displayData = 'block'
-                console.log(`cartList为空:`,res);
+                console.log(`cartList为空:`, res);
               }
             }).catch(err => {
-              console.log(`api请求出错:`,err);
+              console.log(`api请求出错:`, err);
             })
           },
           fail: function (err) {
@@ -304,21 +334,21 @@
         })
         //先判断，list里面本来就有的话，就删掉，本来没有就加进去
         var position = this.cartIdList.indexOf(index)
-        if(position === -1) {
+        if (position === -1) {
           this.cartIdList.push(index)
-        }else{
+        } else {
           this.cartIdList.splice(position, 1)
         }
         // 为了checkout的btn添加一段
         // 如果cartIdList有东西就btnType = secondary
         if (this.cartIdList.length > 0) {
           this.btnType = 'secondary'
-        }else{
+        } else {
           this.btnType = 'disabled'
         }
         var testRes = this.cartIdList.includes(index)
-        console.log( testRes);
-        console.log(`我就看看点击之后拿了啥:`,res);
+        console.log(testRes);
+        console.log(`我就看看点击之后拿了啥:`, res);
         // 调用calculateFee
         this.calculateFee(this.cartIdList)
       },
@@ -328,13 +358,13 @@
          * 需要先获取所有勾选的cartId，做成List传回去
          * */
         const self = this
-        fly.config.headers["Cookie"] = "JSESSIONID="+sessionId;
+        fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
         /*
          * 此处修改需要调用的接口
          * */
         // var requestList = list_name + ':' + list
-        fly.post("phantombuy/cart/calculateFee",{entityDTO: {cartIdList: list}}).then((res) => {
-          console.log(`后台拿回购物车数据:`,res);
+        fly.post("phantombuy/cart/calculateFee", {entityDTO: {cartIdList: list}}).then((res) => {
+          console.log(`后台拿回购物车数据:`, res);
           if (res.data.code === `888`) {
             // 跳转授权页
             console.log(`请先登录:`, res);
@@ -349,119 +379,194 @@
           }
           else {
             // 失败
-            console.log(`calculateFee数据:`,res);
+            console.log(`calculateFee数据:`, res);
           }
         }).catch(err => {
-          console.log(`calculateFee请求出错:`,err);
+          console.log(`calculateFee请求出错:`, err);
         })
       },
-      catchtapControl: function () {}
+      catchtapControl: function () {
+      },
+      radioChange(){
+
+      }
     }
   }
 </script>
 
 <style scoped>
-  .sliderLeft{
-    margin-left:6rpx;
+
+  .order {
+    background-color: #F7F7F7;
+    height: 100%;
+    width: 100%;
   }
-  .noItem{
+
+  .sliderLeft {
+    margin-left: 0.06rem;
+  }
+
+  .noItem {
     background-color: white;
-    height:100%;
-    width:100%;
-    position:fixed;
-    z-index:1000;
-    font-color:black;
-    padding-top:200rpx;
+    height: 100%;
+    width: 100%;
+    z-index: 1000;
+    font-color: black;
+    padding-top: 2.00rem;
     text-align: center;
   }
-  .order{
-    background-color: lightgray;
-    height:100%;
-    width:100%;
-    position:fixed;
-    z-index:-1;
+
+  .cart-item {
+    with: 100%;
+    display: flex;
+    justify-content: flex-start;
   }
-  .row{
+
+  .cart_block {
+    display: flex;
+    justify-content: flex-start;
+    padding: 0.3rem 0.2rem 0.1rem 0.2rem;
+  }
+
+  .order {
+    /*background-color: lightgray;*/
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    z-index: -1;
+  }
+
+  .row {
     display: flex;
     flex-direction: row;
   }
-  .titleBlock{
-    margin-top: 20rpx;
-    margin-left: 46rpx;
-    margin-right: 46rpx;
-    background-color: white;
+
+  .site_choose {
     display: flex;
-    justify-content: center;
-    padding-top: 40rpx;
-    padding-bottom: 40rpx;
-    padding-right:20rpx;
+    justify-content: flex-start;
   }
+
+  .radio-group {
+    height: 0.4rem;
+  }
+
   .itemImage {
-    width:20%;
-    margin-left: 40rpx;
+    padding-left: 0.10rem;
+    padding-top: 0.2rem;
   }
-  .titleImage{
-    width:100%;
+
+  .titleImage {
+    width: 1.75rem;
+    height: 3.4rem;
   }
-  .itemBlock{
-    width:100%;
-    padding-top: 40rpx;
-    padding-bottom: 40rpx;
+
+  .itemBlock {
+    width: 100%;
+    padding-top: 0.10rem;
+    padding-bottom: 0.10rem;
     background-color: white;
   }
-  .itemTitle{
-    font-size: normal;
+
+  .itemTitle {
+    font: 16px solid black;
+    font-weight: bold;
   }
-  .smallFont {
-    font-size: small;
+
+  .itemTitle {
+    margin-left: 0.30rem;
+    margin-top: 0.15rem;
   }
-  .itemTitle{
-    margin-left: 30rpx;
-    margin-top: 15rpx;
-  }
-  .itemRow{
+
+  .itemRow {
     display: flex;
     flex-direction: row;
-    margin-left: 30rpx;
-    margin-top:20rpx;
+    padding-top: 0.10rem;
+    line-height: 16px;
+    height: 16px;
+    padding-left: 0.3rem;
   }
+
+  .priceRow {
+    display: flex;
+    flex-direction: row;
+    padding-top: 0.20rem;
+    line-height: 20px;
+    height: 20px;
+    padding-left: 0.3rem;
+  }
+
   .counterBlock {
-    background-color: #fff;
-    margin-left: 30rpx;
-    width:175rpx;
-    margin-top: 20rpx;
+    padding-left: 0.6rem;
+    margin-top: -3px;
   }
-  .counter{
-    margin:0;
-    padding:0;
+
+  .counter {
+    margin: 0;
+    padding: 0;
   }
-  .total{
-    display: block;
-    float: right;
-    margin-right:20rpx;
-    font-size: small;
-    margin-bottom: 10rpx;
+
+  .total {
+    display: flex;
+    justify-content: flex-end;
+    font-size: 16px;
+    margin-bottom: 0.10rem;
+    padding-top: 0.30rem;
+    padding-right: 0.15rem;
   }
-  .priceBlock{
-    background-color: white;
-    font-size: small;
-    margin-left: 46rpx;
-    margin-right: 46rpx;
-    margin-top:40rpx;
-    padding-top: 20rpx;
-    padding-left:20rpx;
-    padding-right:20rpx;
+
+  .priceBlock {
+    width: 100%;
+    font-size: 16px;
   }
-  .paddingButtom20{
-    padding-bottom: 20rpx;
+
+  .paddingButtom20 {
+    padding-bottom: 0.20rem;
   }
-  .checkoutButton{
-    margin-top: 180rpx;
-    margin-left: 446rpx;
+
+  .checkoutButton {
+    margin-top: 1.80rem;
+    margin-left: 4.46rem;
   }
+
   .orderItemSelected {
     background-color: lightgray;
   }
+
   .orderItemUnselected {
+  }
+
+  .product_font {
+    font-size: 14px;
+
+  }
+
+  .price_panel {
+    padding-top: 0.2rem;
+    padding-left: 0.2rem;
+    padding-top: 0.3rem;
+  }
+
+  .cart-footer{
+    width: 100%;
+    height: 0.8rem;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    position: fixed;
+    bottom: 0;
+    border-top: 2px solid #eee;
+  }
+
+  .cart-footer .button {
+    line-height: 0.8rem;
+    height: 0.8rem;
+    text-align: center;
+    width: 3.0rem;
+    height: 1rem;
+    color: white;
+    font-size: 0.3rem;
+    border-radius: 0;
+    border: 0;
+    vertical-align: middle;
   }
 </style>

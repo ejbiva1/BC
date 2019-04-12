@@ -1,7 +1,7 @@
 {
   "pages": [
-    "pages/home/main",
     "pages/order/main",
+    "pages/home/main",
     "pages/address/main",
     "pages/editaddress/main",
     "pages/checkout/main",
@@ -40,7 +40,7 @@
       },
       {
         "pagePath": "pages/order/main",
-        "iconPath": "static/images/order.png",
+        "iconPath": "static/images/trolley.png",
         "selectedIconPath": "static/images/order-selected.png",
         "text": "购物袋"
       },
