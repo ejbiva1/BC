@@ -121,12 +121,14 @@
     computed: {
     },
     onLoad (options) {
+      /*
       if (options !== undefined){
         this.getSettingKey()
       }
+      */
     },
     onShow (options) {
-      //this.getOrderList()
+      this.getOrderList()
     },
     methods: {
       isActive (cartId) {
@@ -281,7 +283,8 @@
               }
               else {
                 // 失败
-                console.log(`购物车数据:`,res);
+                this.displayData = 'block'
+                console.log(`cartList为空:`,res);
               }
             }).catch(err => {
               console.log(`api请求出错:`,err);

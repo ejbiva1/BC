@@ -9,9 +9,9 @@
   display: flex;
   align-items: center;
   height: 100%;
-  width: 658rpx;
+  width: 638rpx;
   margin-right:46rpx;
-  margin-left:46rpx;
+  margin-left:0rpx;
   background: inherit;
   color: inherit;
   /* movable-view重置默认绝对定位 */
@@ -29,6 +29,7 @@
   left:0;
   right:0;
   z-index: 0;
+  margin-right:57rpx;
 }
 
 .handle-delete {
@@ -38,7 +39,7 @@
   align-items: center;
   justify-content: center;
   color: #fff;
-  margin-right:47rpx;
+  margin-right:57rpx;
 }
 
 
