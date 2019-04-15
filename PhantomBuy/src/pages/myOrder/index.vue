@@ -31,6 +31,7 @@
       </div>
       <div class="date">2019年3月4日</div>
       <div class="dataBlock">
+        <div class="itemBlock">
         <div class="brand">Coach</div>
         <div class="itemBlock">
           <div class="row">
@@ -54,6 +55,7 @@
           <div class="totalPrice">980</div>
           <div class="totalUnit">元</div>
         </div>
+      </div>
       </div>
     </div>
     <!--
@@ -93,7 +95,7 @@
       return {
         tab: 1,
         order_list: [],
-        displayData: 'block'
+        displayData: 'none'
       }
       /*
        tabs: [

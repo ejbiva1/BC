@@ -118,7 +118,12 @@
         idNumber: '654001199407203726',
         toast: {},
         cartIdList: [],
-        orderId: Number
+        orderId: Number,
+        appid: '',
+        sign: '',
+        prepay_id: '',
+        nonce_str: '',
+        timeStamp: ''
       };
     },
     components: {},
@@ -199,13 +204,13 @@
             this.total = this.total_fee.total;
             this.internationalShippingFee = this.total_fee.internationalShippingFee;
           } else {
-            this.toast = common.showErrMsg("服务器内部错误");
-            let self = this;
+            this.toast = common.showErrMsg('服务器内部错误')
+            let self = this
             setTimeout(function () {
-              self.toast.show_toast = false;
-            }, 1500);
+              self.toast.show_toast = false
+            }, 1500)
           }
-        });
+        })
       },
       getDefaultAddress(){
         let entityDTO = {
@@ -257,6 +262,8 @@
             // this.user_default_address = res.data.data;
             this.orderId =  res.data.data.orderId;
             console.log(res.data);
+            this.payorder()
+            //
           } else {
             this.toast = common.showErrMsg("服务器内部错误");
             let self = this;
@@ -265,6 +272,63 @@
             }, 1500);
           }
         });
+      },
+      payorder() {
+        // 调用后台统一支付下单的接口 POST /orderMain/wechatUnifiedorder
+        let entityDTO = {
+          'entityDTO': {
+            'orderId': this.orderId
+          }
+        }
+        fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
+        fly.post('phantombuy/orderMain/wechatUnifiedorder', entityDTO).then(res => {
+          if (res.data.return_code === "SUCCESS") {
+            // this.user_default_address = res.data.data;
+            console.log(`看看后台返回了什么给我:`, res.data)
+            this.appid = res.data.appid
+            this.sign = res.data.sign
+            this.prepay_id = 'prepay_id=' + res.data.prepay_id
+            this.nonce_str = res.data.nonce_str
+            this.timeStamp = res.data.timeStamp
+            // this.timeStamp = Date.parse(new Date())
+            // this.timeStamp = String(this.timeStamp / 1000)
+            console.log(`timeStamp:`, this.timeStamp)
+            console.log(`nonceStr:`, this.nonce_str)
+            console.log(`package:`, this.prepay_id)
+            console.log(`paySign:`, this.sign)
+            wx.requestPayment(
+              {
+                'appId': '',
+                'timeStamp': this.timeStamp,
+                'nonceStr': this.nonce_str,
+                'package': this.prepay_id,
+                'signType': 'MD5',
+                'paySign': this.sign,
+                'success': (res) => {
+                  console.log(`支付成功:`, res)
+                  wx.switchTab({
+                    url: '/pages/home/main'
+                  })
+                },
+                'fail': function (res) {
+                  console.log(`支付失败:`, res)
+                },
+                'complete': function (res) {
+                  // console.log(`支付完成:`, res)
+                  // 这段需要注释掉的，沙盒测试的时候代替跳转而已
+                  wx.switchTab({
+                    url: '/pages/home/main'
+                  })
+                }
+              })
+          } else {
+            this.toast = common.showErrMsg("服务器内部错误")
+            let self = this
+            setTimeout(function () {
+              self.toast.show_toast = false
+            }, 1500)
+          }
+        })
       },
       agreeContract(e){
         // checkbox 选中
