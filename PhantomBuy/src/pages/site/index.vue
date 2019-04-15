@@ -1,8 +1,6 @@
 <template>
   <div class="animated fadeIn">
     <!--search是个组件-->
-
-    <input v-model="a"/>
     <view class="section">
       <search v-bind:site="site_detail" @search="SearchProducts" ref="find"></search>
     </view>
@@ -74,10 +72,12 @@
               <ul class="list-group list-group-flush">
                 <li class="salesTitle" title="双面毛衣外套"><span>{{item.productNameCn}}</span></li>
                 <li class="list-group-item">
-                  <span style="text-decoration: line-through;text-align: left;padding-left:-20px;">{{item.originalPriceRmb}}元</span>
-                  <span style="color:red;padding-left: 10px;">{{item.salePriceRmb}}元</span>
+                  <span style="text-decoration: line-through;text-align: left;padding-left:-20px;">{{item.originalPriceRmb}}<span
+                    v-show="item.originalPriceRmb !== undefined">元</span></span>
+                  <span style="color:red;padding-left: 10px;">{{item.salePriceRmb}}<span
+                    v-show="item.salePriceRmb !== undefined">元</span></span>
                 </li>
-                <li class="updateTime" title="更新时间:2019年2月1日">更新时间:<span>{{item.updateDate}}</span>
+                <li class="updateTime" v-show="item.updateDate !== undefined">更新时间:<span>{{item.updateDate}}</span>
                 </li>
               </ul>
             </view>
@@ -128,17 +128,19 @@
     },
     onLoad(options){
       // load site_detail
-      if (options !== undefined)
+      if (options !== undefined) {
         this.site_detail = JSON.parse(options.site);
+      }
       //  site product category
       this.pageDtoSetting = this.pageDto;
       this.getListSiteProductCategory();
       // site product list
       this.getAllProductList();
-      console.log(this.product_category_id);
       this.sub_category_index = 0;
       this.product_category_id = this.index_initial;
-      //this.$refs.find.search_key = "";
+      if (this.site_detail.sitePromotionList.length > 0) {
+        //this.$refs.find.site_promotion_list = this.site_detail.sitePromotionList;
+      }
     },
     async onPullDownRefresh() {
       // to doing..
@@ -151,6 +153,7 @@
       this.toNextPage();
       this.loadReachBottomList();
     },
+
     computed: {},
     methods: {
       getListSiteProductCategory() {
@@ -266,6 +269,7 @@
             for (let i = 0; i < res.data.data.records.length; i++) {
               this.product_detail_list.push(res.data.data.records[i]);
             }
+
           } else {
             console.log('服务器内部错误');
           }
@@ -287,6 +291,7 @@
             });
             this.sex = 1;
             this.getAllProductList();
+
             break;
           case 2:  // 女款
             this.site_woman_category_list = this.site_product_category_list.filter((item, index) => {
@@ -297,6 +302,7 @@
             break;
         }
       }
+
     },
   }
 </script>
@@ -306,6 +312,7 @@
     background-color: #F7F7F7;
     font-family: "Microsoft Yahei";
   }
+
   .swiper-home {
     width: 100%;
     height: 15%;
@@ -313,6 +320,7 @@
     display: flex;
     white-space: nowrap;
   }
+
   .site_product {
     padding-right: 5px;
     padding-left: 5px;
@@ -323,17 +331,25 @@
     line-height: 25px;
     font: 14px black;
   }
-  ul li:last-child {
-    margin-right: 25px;
+
+  .search {
+    /*padding-left: 0.1rem;*/
   }
-  ul li:first-child {
-    padding-left: -5px;
-  }
+
+  /*ul li:last-child {*/
+  /*margin-right: 25px;*/
+  /*}*/
+
+  /*ul li:first-child {*/
+  /*padding-left: -5px;*/
+  /*}*/
+
   ::-webkit-scrollbar {
     width: 20px;
     height: 30px;
     color: transparent;
   }
+
   .site_product_total {
     height: 80%;
     width: 100%;
@@ -341,8 +357,9 @@
     align-item: center;
     display: flex;
     justify-content: space-between;
-    background:#fff;
+    background: #fff;
   }
+
   .site_products {
     display: flex;
     align-item: center;
@@ -350,6 +367,7 @@
     flex-wrap: wrap;
     align-content: center;
     justify-content: space-between;
+
     /*flex-direction///
       flex-wrap
       flex-flow: flex-direction 和 flex-wrap 的简写形式
@@ -360,12 +378,16 @@
     font-family: 'Open Sans', sans-serif;
     background: linear-gradient(top, #222, #333);
     /*width: 100%;*/
+
   }
+
   .product_profile {
     width: 50%;
     text-align: center;
     vertical-align: middle;
+
   }
+
   .face {
     object-fit: contain;
     vertical-align: middle;
@@ -375,10 +397,13 @@
     margin-bottom: 6%;
     align-items: center;
   }
+
   .site_product_detail .product_detail {
     width: 100%;
     height: 80px;
+
   }
+
   .product_detail .list-group {
     display: flex;
     -ms-flex-direction: column;
@@ -387,16 +412,19 @@
     padding: 4px 10px 4px 10px;
     margin-left: 5%;
   }
+
   .product_detail .list-group-item {
     font: 13px black;
-    text-align:left;
+    text-align: left;
   }
+
   .product_detail .salesTitle {
     font-weight: bold;
     font-size: 14px;
     color: black;
     text-align: left;
   }
+
   .product_detail .updateTime {
     font-weight: bold;
     font-size: 12px;
@@ -404,13 +432,16 @@
     white-space: nowrap;
     overflow: hidden;
   }
+
   .product_category_activity {
     color: #1890ff;
   }
+
   .select {
     /*padding-left: 2%;*/
     width: 100%;
   }
+
   .select .ass_wrap {
     position: relative;
     _zoom: 1;
@@ -419,27 +450,33 @@
     display: flex;
     justify-content: flex-start;
   }
+
   .select .ass_key {
     display: flex;
     width: 50px;
     white-space: nowrap;
+
     font-weight: bold;
   }
+
   .select .ass_value {
     /*padding-left: 20px;*/
     overflow: hidden;
     zoom: 1;
   }
+
   .ass_valueList {
     display: flex;
     justify-content: space-between;
     /*padding-left: 0.2rem;*/
     padding-right: 0.3rem;
   }
+
   .info_padding {
     padding-left: 0.2rem;
     padding-right: 0.3rem;
   }
+
   .subCategoryActivity {
     color: #1890ff;
   }

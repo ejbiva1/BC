@@ -1,4 +1,5 @@
 {
+  "navigationBarTitleText":"支付详情",
   "usingComponents": {
     "wxc-panel": "/static/minui/@minui/wxc-panel/dist/index",
     "wxc-icon": "/static/minui/@minui/wxc-icon/dist/index",

@@ -1,4 +1,5 @@
 {
+  "navigationBarTitleText":"Site",
   "usingComponents": {
     "wxc-label":"/static/minui/@minui/wxc-label/dist/index",
     "wxc-icon": "/static/minui/@minui/wxc-icon/dist/index",

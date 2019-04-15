@@ -57,10 +57,6 @@
         fly.post("phantombuy/site/list", query_dto).then((res) => {
           if (res.data.code === '1') {
             if (res.data.data.records.length > 0) this.display_site_list = res.data.data.records;
-//            for (let i = 0; i < this.site_list.length; i++) {
-//            }
-//            this.display_site_list = this.sitePromotionList(this.site_list, true);
-
             this.hide_loading();
           } else {
             this.hide_loading();

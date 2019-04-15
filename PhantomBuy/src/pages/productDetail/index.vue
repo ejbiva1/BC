@@ -1,8 +1,8 @@
 <template>
   <div class="animated fadeIn">
-    <view class="product_detail">
+    <view class="product_detail" v-show="product_detail !== undefined">
       <wxc-panel :border="has_border">
-        <view class="product_img">
+        <view class="product_img" v-show="product_detail.productImageUrl !== undefined">
           <img :src="product_detail.productImageUrl">
         </view>
       </wxc-panel>
@@ -15,8 +15,11 @@
               <h6 class="product_name_cn">{{product_detail.productNameCn}}</h6>
             </view>
             <view class="product_price ">
-              <text class="original_price_rmb">{{product_detail.originalPriceRmb}}元</text>
-              <text class="sale_price_rmb" style="color:red; font-size: 14px;">{{product_detail.salePriceRmb}}元</text>
+              <text class="original_price_rmb">{{product_detail.originalPriceRmb}}<span
+                v-show="product_detail.originalPriceRmb !== undefined">元</span></text>
+              <text class="sale_price_rmb" style="color:red; font-size: 14px;"
+                    v-show="product_detail.salePriceRmb !== undefined">{{product_detail.salePriceRmb}}元
+              </text>
             </view>
           </view>
           <view class="product_color info_padding" v-if="productColorSizeResponse.colorSeqLength > 0">
@@ -58,7 +61,7 @@
               <p style=" font-size: 14px; ">数量</p>
             </view>
             <view class="counter">
-              <wxc-counter number="0" max="100" :min="1" color="#000"
+              <wxc-counter number="1" max="100" :min="1" color="#000"
                            v-on:changenumber="onChangeNumber"></wxc-counter>
             </view>
           </view>
@@ -192,7 +195,7 @@
           this.icon_type = "warning";
           this.showToast();
           return;
-        } else if (this.productSizeList.length !== 0 &&this.quantity == 0) {
+        } else if (this.productSizeList.length !== 0 && this.quantity == 0) {
           // 保证 包 and 衣服 同时报错
           this.msg = appMessages.CHOOSE_QUANTITY_ERROR;
           this.icon_type = "warning";
