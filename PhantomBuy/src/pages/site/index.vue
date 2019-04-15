@@ -316,7 +316,7 @@
   .swiper-home {
     width: 100%;
     height: 15%;
-    padding: 20px 10px 0px 0px;
+    padding: 10px 10px 0px 0px;
     display: flex;
     white-space: nowrap;
   }
@@ -437,6 +437,10 @@
     color: #1890ff;
   }
 
+  .ass_category{
+    padding-left: 10px;
+  }
+
   .select {
     /*padding-left: 2%;*/
     width: 100%;
@@ -473,8 +477,8 @@
   }
 
   .info_padding {
-    padding-left: 0.2rem;
-    padding-right: 0.3rem;
+    padding-left: 0.1rem;
+    padding-right: 0.4rem;
   }
 
   .subCategoryActivity {
