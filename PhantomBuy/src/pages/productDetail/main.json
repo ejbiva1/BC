@@ -6,6 +6,7 @@
     "wxc-button": "/static/minui/@minui/wxc-button/dist/index",
     "wxc-panel":"/static/minui/@minui/wxc-panel/dist/index",
     "wxc-counter": "/static/minui/@minui/wxc-counter/dist/index",
-    "wxc-toast": "/static/minui/@minui/wxc-toast/dist/index"
+    "wxc-toast": "/static/minui/@minui/wxc-toast/dist/index",
+    "wxc-icon": "/static/minui/@minui/wxc-icon/dist/index"
   }
 }

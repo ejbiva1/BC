@@ -2,8 +2,33 @@
   <div class="animated fadeIn">
     <view class="product_detail">
       <wxc-panel :border="has_border">
-        <view class="product_img">
-          <img :src="product_detail.productImageUrl">
+        <!--美妆类商品 图片显示-->
+        <view v-if="product_detail.productImageList !== undefined">
+          <swiper :circular="true" :indicator-dots="true" class="swiper" @change="switchImage($event)"
+                  indicator-color="rgba(228,228,228,1)" indicator-active-color="#FECA49" :current="currentIndex">
+            <view v-for="(item, index) in product_detail.productImageList" :key="index">
+              <swiper-item class="product_img">
+                <a class="thumb_img_a" :value="item.imageUrl">
+                  <img :src="item.imageUrl"></a>
+              </swiper-item>
+            </view>
+          </swiper>
+          <view>
+
+          </view>
+        </view>
+
+        <!--非美妆类商品 图片显示-->
+        <view v-else>
+          <swiper :circular="true" :indicator-dots="true" class="swiper" @change="switchImage($event)"
+                  indicator-color="rgba(228,228,228,1)" indicator-active-color="#FECA49" :current="currentIndex">
+            <view v-for="(item, index) in productColorImageList" :key="index">
+              <swiper-item class="product_img">
+                <a class="thumb_img_a" :value="item.imageUrl">
+                  <img :src="item.imageUrl"></a>
+              </swiper-item>
+            </view>
+          </swiper>
         </view>
       </wxc-panel>
 
@@ -36,7 +61,7 @@
                 <div v-for="(item, index) in productColorResponseList" :key="index" class="product_color_img"
                      style="cursor:pointer;" :class="{productColorActivity: productColorIndex == index}">
                   <img :src="item.imageUrl"
-                       @click="chooseProductColor(item, index)"
+                       @click="chooseProductColor(item, index,$event)"
                   />
                 </div>
               </ul>
@@ -63,7 +88,7 @@
               <p style=" font-size: 14px; ">数量</p>
             </view>
             <view class="counter">
-              <wxc-counter number="0" max="100" :min="1" color="#000"
+              <wxc-counter number="1" max="100" :min="1" color="#000"
                            v-on:changenumber="onChangeNumber"></wxc-counter>
             </view>
           </view>
@@ -123,24 +148,41 @@
         icon_type: '',
         productSizeIndex: 1000, // 商品尺码索引,
         productColorIndex: 0, // 商品颜色索引
-        defaultProductSizeList: []
+        defaultProductSizeList: [],
+        product_id: '',
+        productColorImageList: [],
+        currentIndex: 0,
 
-      };
+
+      }
+        ;
     },
     components: {
       'tab': tabs
     },
     onLoad(options) {
+      if (options !== undefined) {
+        this.product_id = options.productId;
+      }
+    },
+    onShow(){
       this.show_loading();
-      this.getProductDetail(options);
+      // 数据初始化
+      this.currentIndex = 0;
+      this.productColorIndex = 0;
+      this.productSizeIndex = 1000;
+
+      this.getProductDetail();
     },
     methods: {
-      getProductDetail(option){
-        let entityDTO = {entityDTO: option};
-//        let entityDTO = {entityDTO: {productId: "25229"}};
+      getProductDetail(){
+        let entityDTO = {entityDTO: {productId: this.product_id}};
+        // productId : "20463"
+        //let entityDTO = {entityDTO: {productId: "20463"}};
         fly.post("phantombuy/product/get", entityDTO).then((res)=> {
           if (res.data.code === '1') {
             if (res.data.data !== undefined) this.product_detail = res.data.data;
+            console.log(this.product_detail);
             if (this.product_detail.defaultColorName !== undefined) this.product_detail.defaultColorName = this.product_detail.defaultColorName.toUpperCase();
             if (this.product_detail.productColorSizeResponse !== undefined) {
               this.productColorSizeResponse = this.product_detail.productColorSizeResponse;
@@ -150,9 +192,14 @@
               this.productSizeList = this.product_detail.productColorSizeResponse.productSizeList;
               // 默认显示商品image 对应的 skuId列表
               if (this.productColorResponseList.length >= 0) {
+                // 衣服 等商品, 包含: size、 color 等数据
                 this.defaultProductSizeList = this.product_detail.productColorSizeResponse.productColorResponseList[0].skuSizeList;
-
+                this.productColorImageList = this.product_detail.productColorSizeResponse.productColorResponseList[0].productImageList;
               }
+
+            } else {
+              // 美妆 不包含: size、 color 等数据， 只显示商品图片
+              //this.productColorImageList = this.product_detail.productImageList;
 
             }
           } else {
@@ -161,26 +208,29 @@
         });
       },
       // 选择商品颜色
-      chooseProductColor(productColor, index){
+      chooseProductColor(productColor, index, e){
         this.productColorIndex = index;
         if (this.productColorResponseList.length > 0) {
           this.defaultProductSizeList = this.productColorResponseList[index].skuSizeList;
-          console.log(this.defaultProductSizeList);
+          this.productColorImageList = this.productColorResponseList[index].productImageList;
+          this.currentIndex = 0;
         }
-
-        console.log("选择商品颜色");
+      },
+      // swiper 图片切换
+      switchImage(res){
+        let oIndex = res.mp.detail.current;
+        this.currentIndex = oIndex;
       },
       //选择商品尺码
       chooseProductSize(item, index){
         this.productSizeIndex = index;
         this.skuId = item.skuId;
-        console.log("选择商品尺码");
+//        console.log("选择商品尺码");
       },
 
       onChangeNumber(e){
         // 获取选择商品数量
-        //console.log(e.mp.detail.number);
-        console.log("选择商品数量");
+//        console.log("选择商品数量");
         this.quantity = e.mp.detail.number;
       },
       addBuyCart(){
@@ -229,7 +279,6 @@
         wx.getStorage({
           key: 'settingKey',
           success: function (data) {
-            //console.log(data)
             settingKey = data.data;
             if (settingKey === '1') {
               self.getSessionId();
@@ -254,14 +303,13 @@
         wx.getStorage({
           key: 'cookieKey',
           success: function (data) {
-            //console.log(data);
+            ;
             const cookieSession = String(data.data);
             let sessionId = cookieSession.split('=')[1].split(';')[0];
             self.addBuyCartSuccessfully(sessionId);
 
           },
           fail: function (err) {
-            console.log(err)
             wx.navigateTo({
               url: '/pages/login/main'
             })
@@ -270,7 +318,6 @@
       },
       addBuyCartSuccessfully(sessionId){
         fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
-        //console.log(sessionId);
 
         let entityDTO = {
           "entityDTO": {
@@ -290,7 +337,8 @@
         this.msg = msg;
         this.icon_type = "yes";
         this.showToast();
-      }
+      },
+
     },
   }
 </script>
@@ -310,6 +358,12 @@
     margin-bottom: 1.5rem;
   }
 
+  .swiper {
+    height: 6.8rem;
+    width: 100%;
+    display: block;
+  }
+
   .product_img {
     width: 100%;
     height: 30%;
@@ -320,10 +374,10 @@
   }
 
   .product_img img {
-    width: 60%;
-    margin-top: 5%;
+    width: 70%;
+    margin-top: 10%;
     vertical-align: middle;
-    margin-left: 20%;
+    margin-left: 10%;
     margin-bottom: 5%;
   }
 
@@ -522,5 +576,53 @@
     cursor: not-allowed;
     color: rgba(0, 0, 0, 0.25);
   }
+
+  .detailsSmallImage {
+    overflow: hidden;
+    height: 100px;
+    width: 80%;
+    padding-left: 10%;
+    display: flex;
+    padding-bottom: 7%;
+  }
+
+  .detailsSmallImageitem {
+    padding: 6px;
+  }
+
+  .detailsSmallImageitemBanner {
+    overflow: hidden;
+    width: 100%;
+    display: flex;
+
+  }
+
+  .scrollControl {
+    display: flex;
+  }
+
+  .fa-2x {
+    font-size: 2em;
+  }
+
+  .fa {
+    display: inline-block;
+    font: normal normal normal 14px/1 FontAwesome;
+    font-size: inherit;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .iconColor {
+    color: gray;
+    padding-top: 20px;
+  }
+
+  *, *::before, *::after {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
 
 </style>
