@@ -87,12 +87,11 @@
 
   .search_component {
     padding-left: 0.15rem;
+    width: 100%;
   }
 
   .site {
     display: flex;
-    /*width: 100%;*/
-    /*justify-content: space-between;*/
     justify-content: flex-start;
   }
 

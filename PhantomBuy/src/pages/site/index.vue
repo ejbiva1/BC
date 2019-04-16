@@ -70,12 +70,15 @@
             </view>
             <view class="product_detail">
               <ul class="list-group list-group-flush">
-                <li class="salesTitle" title="双面毛衣外套"><span>{{item.productNameCn}}</span></li>
+                <li class="salesTitle"><span>{{item.productNameCn}}</span></li>
                 <li class="list-group-item">
-                  <span style="text-decoration: line-through;text-align: left;padding-left:-20px;">{{item.originalPriceRmb}}<span
-                    v-show="item.originalPriceRmb !== undefined">元</span></span>
-                  <span style="color:red;padding-left: 10px;">{{item.salePriceRmb}}<span
-                    v-show="item.salePriceRmb !== undefined">元</span></span>
+                  <span style="text-align:left;padding-left:-20px;"
+                        :class="{text_decoration: item.salePriceRmb !== undefined } ">
+                    {{item.originalPriceRmb}}
+                    <span v-show="item.originalPriceRmb !== undefined">元</span>
+                  </span>
+                  <span style="color:red;padding-left: 10px;">{{item.salePriceRmb}}
+                    <span v-show="item.salePriceRmb !== undefined">元</span></span>
                 </li>
                 <li class="updateTime" v-show="item.updateDate !== undefined">更新时间:<span>{{item.updateDate}}</span>
                 </li>
@@ -437,7 +440,7 @@
     color: #1890ff;
   }
 
-  .ass_category{
+  .ass_category {
     padding-left: 10px;
   }
 
@@ -483,5 +486,9 @@
 
   .subCategoryActivity {
     color: #1890ff;
+  }
+
+  .text_decoration {
+    text-decoration: line-through;
   }
 </style>

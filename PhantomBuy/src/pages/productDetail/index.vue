@@ -1,8 +1,8 @@
 <template>
   <div class="animated fadeIn">
-    <view class="product_detail" v-show="product_detail !== undefined">
+    <view class="product_detail">
       <wxc-panel :border="has_border">
-        <view class="product_img" v-show="product_detail.productImageUrl !== undefined">
+        <view class="product_img">
           <img :src="product_detail.productImageUrl">
         </view>
       </wxc-panel>
@@ -15,11 +15,13 @@
               <h6 class="product_name_cn">{{product_detail.productNameCn}}</h6>
             </view>
             <view class="product_price ">
-              <text class="original_price_rmb">{{product_detail.originalPriceRmb}}<span
-                v-show="product_detail.originalPriceRmb !== undefined">元</span></text>
-              <text class="sale_price_rmb" style="color:red; font-size: 14px;"
-                    v-show="product_detail.salePriceRmb !== undefined">{{product_detail.salePriceRmb}}元
-              </text>
+              <span class="original_price_rmb" :class="{text_decoration: product_detail.salePriceRmb !== undefined }">
+                {{product_detail.originalPriceRmb}}元
+              </span>
+              <span class="sale_price_rmb" style="color:red; font-size: 14px;"
+                    v-if="product_detail.salePriceRmb !== undefined">
+                {{product_detail.salePriceRmb}}元
+              </span>
             </view>
           </view>
           <view class="product_color info_padding" v-if="productColorSizeResponse.colorSeqLength > 0">
@@ -61,7 +63,7 @@
               <p style=" font-size: 14px; ">数量</p>
             </view>
             <view class="counter">
-              <wxc-counter number="1" max="100" :min="1" color="#000"
+              <wxc-counter number="0" max="100" :min="1" color="#000"
                            v-on:changenumber="onChangeNumber"></wxc-counter>
             </view>
           </view>
@@ -90,6 +92,7 @@
     ></wxc-toast>
   </div>
 </template>
+
 
 <script type="text/ecmascript-6">
   import fly from '../../utils/fly';
@@ -190,7 +193,7 @@
         }
       },
       showErrMsg(){
-        if (this.skuId == 0) {
+        if (this.skuId == 0 && this.productSizeList.length !== 0) {
           this.msg = appMessages.CHOOSE_SIZE_ERROR;
           this.icon_type = "warning";
           this.showToast();
@@ -350,9 +353,12 @@
   }
 
   .product_price .original_price_rmb {
-    text-decoration: line-through;
     font-size: 16px;
     color: black;
+  }
+
+  .text_decoration {
+    text-decoration: line-through;
   }
 
   .product_price .sale_price_rmb {

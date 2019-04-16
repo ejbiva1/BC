@@ -3,7 +3,7 @@
     <div class="noItem" :style="{display: displayData}">
       尚未选购任意商品,请返回首页选购商品
     </div>
-    <div class="order"></div>
+    <!--<div class="order"></div>-->
 
     <scroll-view v-for="(item, i) in cart_list" :key="i">
       <view>
@@ -84,17 +84,17 @@
     <view class="priceBlock">
       <wxc-panel>
         <view class="price_panel">
-          <view class="row paddingButtom20">
+          <view class="price_row">
             <view class="priceTitle">价格合计：</view>
             <view class="priceTotalDetail">{{priceData.final.finalRMB}}</view>
             <view class="priceUnit">元</view>
           </view>
-          <view class="row paddingButtom20">
+          <view class="price_row">
             <view class="priceTitle">消费税合计：</view>
             <view class="texTotalDetail">{{priceData.exciseTax.exciseTax}}</view>
             <view class="priceUnit">元</view>
           </view>
-          <view class="row paddingButtom20">
+          <view class="price_row">
             <view class="priceTitle">国际快递运费：</view>
             <view class="delDetail">{{priceData.internationalShippingFee.internationalShippingFee}}</view>
             <view class="priceUnit">元</view>
@@ -103,7 +103,7 @@
             <view class="weightUnit">磅）</view>
           </view>
 
-          <view class="row paddingButtom20">
+          <view class="price_row">
             <view class="priceTitle">平台手续费：</view>
             <view class="middlePriceDetail">{{priceData.sitePromotionFee.sitePromotionFee}}</view>
             <view class="priceUnit">元</view>
@@ -397,9 +397,15 @@
 <style scoped>
 
   .order {
+    /*background-color: #F7F7F7;*/
+    /*height: 100%;*/
+    /*width: 100%;*/
     background-color: #F7F7F7;
     height: 100%;
-    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
   }
 
   .sliderLeft {
@@ -408,7 +414,7 @@
 
   .noItem {
     background-color: white;
-    height: 100%;
+    /*height: 100%;*/
     width: 100%;
     z-index: 1000;
     font-color: black;
@@ -432,13 +438,19 @@
     /*background-color: lightgray;*/
     height: 100%;
     width: 100%;
-    position: fixed;
+    /*position: fixed;*/
     z-index: -1;
   }
 
   .row {
     display: flex;
+    /*flex-direction: row;*/
+  }
+
+  .price_row{
+    display: flex;
     flex-direction: row;
+    padding-bottom: 0.20rem;
   }
 
   .site_choose {
