@@ -98,7 +98,7 @@
       }
     },
     onShow () {
-      this.showList(1)
+      this.showList(this.tab)
     },
     data () {
       return {
