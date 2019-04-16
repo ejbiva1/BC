@@ -61,8 +61,6 @@
     onLoad() {
       this.search_key = "";
     },
-    onShow(){
-    },
     methods: {
       search_products() {
         if (this.search_key == "" || this.search_key === undefined) {

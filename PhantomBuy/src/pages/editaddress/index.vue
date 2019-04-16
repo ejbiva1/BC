@@ -205,7 +205,7 @@
       confirmAddress(){
         fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
         this.address.fileList = this.id_card_img;
-        this.address.isDefault = this.default_address.checked === true ? 1: 0;
+        this.address.isDefault = this.default_address.checked === true ? 1 : 0;
         if (this.address.addressId !== undefined) {
           // 更新 地址
           this.editAddress();
@@ -217,6 +217,7 @@
       },
       addAddress(){
         let self = this;
+
         fly.post("phantombuy/userAddress/add", {entityDTO: self.address}).then(res => {
           if (res.data.code === '1') {
             self.toast = common.showSuccessMsg('添加地址成功');
@@ -297,8 +298,16 @@
           },
           success: function (res) {
             let data = JSON.parse(res.data);
-            //self.address.fileList.push(data.data[0]);
+            if (self.id_card_img.length >= 2) {
+              self.toast = common.showErrorMsg('请上传2张图片');
+              setTimeout(function () {
+                self.toast.show_toast = false;
+              }, 1500);
+              return
+            }
             self.id_card_img.push(data.data[0]);
+
+
 //            self.toast = common.showSuccessMsg('上传图片成功');
 //            setTimeout(function(){
 //              let data = JSON.parse(res.data);

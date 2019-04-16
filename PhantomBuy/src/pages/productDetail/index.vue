@@ -126,7 +126,7 @@
   import {authorize} from "../../utils/authorized";
 
   export default {
-    // 商品详情页面目前缺少: 1. size inactive 区分  2. 选择image后，  重新加载 size列表  3. 想要弄清楚  加载默认的 img 是什么   4. 页面调整好看些
+    // 商品详情页面目前缺少:
     data() {
       return {
         product_detail: {},

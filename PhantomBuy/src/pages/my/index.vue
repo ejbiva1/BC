@@ -10,23 +10,23 @@
       </div>
     </div>
     <div class="dataBody">
-      <navigator url="../myOrder/main" class="navLink">
-        <div class="myOrderDataBlock">
-            <span class="myDataTitle">我的订单</span>
-          <wxc-icon color="#red" size="30" type="arrow-right"></wxc-icon>
-          </view>
-        </div>
-
-      </navigator>
-
-      <div class="myDataBlock" @click="toMyAddressPage">
-        <div class="address_sort">
+      <view class="myDataBlock" @click="toMyOrderPage">
+        <view class="address_sort">
+          <view>我的订单</view>
           <view>
-            <span>收货地址管理</span>
             <wxc-icon color="#red" size="30" type="arrow-right"></wxc-icon>
           </view>
-        </div>
-      </div>
+        </view>
+      </view>
+
+      <view class="myDataBlock" @click="toMyAddressPage">
+        <view class="address_sort">
+          <view>收货地址管理</view>
+          <view>
+            <wxc-icon color="#red" size="30" type="arrow-right"></wxc-icon>
+          </view>
+        </view>
+      </view>
 
     </div>
     <!--<div class="signOut">退出账号</div>-->
@@ -43,6 +43,11 @@
         wx.navigateTo({
           url: '/pages/address/main'
         });
+      },
+      toMyOrderPage(){
+        wx.navigateTo({
+          url: '/pages/myOrder/main'
+        })
       }
     }
   }

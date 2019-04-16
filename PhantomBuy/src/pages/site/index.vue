@@ -1,6 +1,5 @@
 <template>
   <div class="animated fadeIn">
-    <!--search是个组件-->
     <view class="section">
       <search v-bind:site="site_detail" @search="SearchProducts" ref="find"></search>
     </view>
@@ -134,16 +133,18 @@
       if (options !== undefined) {
         this.site_detail = JSON.parse(options.site);
       }
+    },
+    onShow(){
       //  site product category
       this.pageDtoSetting = this.pageDto;
-      this.getListSiteProductCategory();
-      // site product list
-      this.getAllProductList();
+      // 数据初始化
       this.sub_category_index = 0;
       this.product_category_id = this.index_initial;
-      if (this.site_detail.sitePromotionList.length > 0) {
-        //this.$refs.find.site_promotion_list = this.site_detail.sitePromotionList;
-      }
+      this.current_prod_categoryid = 0;
+
+
+      this.getListSiteProductCategory();
+      this.getAllProductList();
     },
     async onPullDownRefresh() {
       // to doing..
@@ -152,7 +153,9 @@
     },
     onReachBottom() {
       // 搜索 and 下拉刷新 这里逻辑 有问题
-      if (this.$refs.find.search_key !== undefined || this.$refs.find.search_key !== '') {
+      if (this.$refs.find.search_key !== '') {
+        this.toNextPage();
+        this.SearchProducts();
         return
       }
       this.previous_pro_cate_id = this.current_prod_categoryid;
@@ -171,7 +174,6 @@
               this.site_product_category_list = res.data.data.records;
               switch (this.sub_category_index) {
                 case 0:    // 全部商品
-//                  this.site_product_category_list = [];
                   break;
                 case 1:  // 男款
                   this.site_man_category_list = this.site_product_category_list.filter((item, index) => {
@@ -209,7 +211,6 @@
         }
         fly.post("phantombuy/product/list", entityDTO).then((res) => {
           if (res.data.code === '1') {
-            //if (res.data.data.records.length > 0)
             for (let i = 0; i < res.data.data.records.length; i++) {
               this.product_detail_list.push(res.data.data.records[i]);
             }
@@ -266,7 +267,7 @@
             siteId: this.site_detail.siteId,
             searchKey: this.$refs.find.search_key !== undefined ? this.$refs.find.search_key : undefined
           },
-          pageDTO: this.pageDto
+          pageDTO: this.pageDtoSetting
         };
         fly.post("phantombuy/product/search", entityDTO).then(res => {
           if (res.data.code === '1') {
@@ -309,7 +310,6 @@
             break;
         }
       }
-
     },
   }
 </script>
