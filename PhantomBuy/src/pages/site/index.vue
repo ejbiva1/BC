@@ -151,6 +151,10 @@
       wx.stopPullDownRefresh();
     },
     onReachBottom() {
+      // 搜索 and 下拉刷新 这里逻辑 有问题
+      if (this.$refs.find.search_key !== undefined || this.$refs.find.search_key !== '') {
+        return
+      }
       this.previous_pro_cate_id = this.current_prod_categoryid;
       // this.current_prod_categoryid =  this.current_prod_categoryid;
       this.toNextPage();
@@ -441,7 +445,7 @@
   }
 
   .ass_category {
-    padding-left: 10px;
+    padding-left: 13px;
   }
 
   .select {
