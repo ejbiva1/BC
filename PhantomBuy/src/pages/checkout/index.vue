@@ -340,7 +340,7 @@
       },
       editAddress(){
         wx.navigateTo({
-          url: '/pages/address/main'
+          url: '/pages/editaddress/main?isEditAddress= ' + true + '&address_detail=' + JSON.stringify(this.user_default_address)
         });
       },
       show_loading() {

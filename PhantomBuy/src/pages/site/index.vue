@@ -445,7 +445,7 @@
   }
 
   .ass_category {
-    padding-left: 13px;
+    padding-left: 5px;
   }
 
   .select {

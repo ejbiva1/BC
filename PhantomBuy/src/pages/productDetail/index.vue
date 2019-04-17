@@ -1,9 +1,9 @@
 <template>
   <div class="animated fadeIn">
-    <view class="product_detail">
+    <view class="product_detail" v-if="is_show">
       <wxc-panel :border="has_border">
         <!--美妆类商品 图片显示-->
-        <view v-if="product_detail.productImageList !== undefined">
+        <view v-if="product_detail.productImageList !== undefined ">
           <swiper :circular="true" :indicator-dots="true" class="swiper" @change="switchImage($event)"
                   indicator-color="rgba(228,228,228,1)" indicator-active-color="#FECA49" :current="currentIndex">
             <view v-for="(item, index) in product_detail.productImageList" :key="index">
@@ -32,20 +32,20 @@
         </view>
       </wxc-panel>
 
-      <wxc-panel :border="has_border">
+      <wxc-panel :border="has_border" v-if="is_show">
         <view class="product_basic_info">
           <view class="product_cn_name info_padding">
-            <h6 class="site_name">{{product_detail.brandNameCh}}</h6>
+            <h6 class="site_name">{{brandNameCh}}</h6>
             <view class="product_name ">
-              <h6 class="product_name_cn">{{product_detail.productNameCn}}</h6>
+              <h6 class="product_name_cn">{{productNameCn}}</h6>
             </view>
             <view class="product_price ">
-              <span class="original_price_rmb" :class="{text_decoration: product_detail.salePriceRmb !== undefined }">
-                {{product_detail.originalPriceRmb}}元
+              <span class="original_price_rmb" :class="{text_decoration: salePriceRmb !== undefined }">
+                {{originalPriceRmb}}元
               </span>
               <span class="sale_price_rmb" style="color:red; font-size: 14px;"
-                    v-if="product_detail.salePriceRmb !== undefined">
-                {{product_detail.salePriceRmb}}元
+                    v-if="salePriceRmb !== undefined">
+                {{salePriceRmb}}元
               </span>
             </view>
           </view>
@@ -115,6 +115,12 @@
       :icon="icon_type"
       icon-color="#ff5777"
     ></wxc-toast>
+
+
+    <view v-show="suspension_show">
+      <suspension ></suspension>
+    </view>
+
   </div>
 </template>
 
@@ -124,12 +130,13 @@
   import tabs from "../../components/tabs/tabs";
   import {appMessages} from "../../common/constants/message";
   import {authorize} from "../../utils/authorized";
+  import suspension from "../../components/suspension/suspension";
 
   export default {
     // 商品详情页面目前缺少:
     data() {
       return {
-        product_detail: {},
+        product_detail: undefined,
         sizes: [],
         plain: true,
         btn_style: 'min-width: 66rpx;padding: 5rpx;border-radius: 6rpx',
@@ -139,7 +146,7 @@
         productSizeList: [],
         productImageList: [],
         productColorSizeResponse: {},
-        quantity: 0,
+        quantity: 1,
         skuId: 0,
         show_toast: false,
         error_msg: '',
@@ -152,27 +159,36 @@
         product_id: '',
         productColorImageList: [],
         currentIndex: 0,
+        is_show: false,
+        //brandNameCh  productNameCn   originalPriceRmb salePriceRmb
+        brandNameCh: '',
+        productNameCn: '',
+        originalPriceRmb: '',
+        salePriceRmb: '',
+        suspension_show: true
 
 
-      }
-        ;
+      };
     },
     components: {
-      'tab': tabs
+      'tab': tabs,
+      'suspension': suspension
     },
     onLoad(options) {
       if (options !== undefined) {
+        this.show_loading();
         this.product_id = options.productId;
+        // 数据初始化
+        this.skuId = 0;
+        this.currentIndex = 0;
+        this.productColorIndex = 0;
+        this.productSizeIndex = 1000;
+        this.is_show = false;
+
+        this.getProductDetail();
       }
     },
     onShow(){
-      this.show_loading();
-      // 数据初始化
-      this.currentIndex = 0;
-      this.productColorIndex = 0;
-      this.productSizeIndex = 1000;
-
-      this.getProductDetail();
     },
     methods: {
       getProductDetail(){
@@ -181,8 +197,13 @@
         //let entityDTO = {entityDTO: {productId: "20463"}};
         fly.post("phantombuy/product/get", entityDTO).then((res)=> {
           if (res.data.code === '1') {
-            if (res.data.data !== undefined) this.product_detail = res.data.data;
-            console.log(this.product_detail);
+            this.product_detail = res.data.data;
+            this.brandNameCh = this.product_detail.brandNameCh;
+            this.productNameCn = this.product_detail.productNameCn;
+            this.originalPriceRmb = this.product_detail.originalPriceRmb;
+            this.salePriceRmb = this.product_detail.salePriceRmb;
+
+
             if (this.product_detail.defaultColorName !== undefined) this.product_detail.defaultColorName = this.product_detail.defaultColorName.toUpperCase();
             if (this.product_detail.productColorSizeResponse !== undefined) {
               this.productColorSizeResponse = this.product_detail.productColorSizeResponse;
@@ -202,6 +223,8 @@
               //this.productColorImageList = this.product_detail.productImageList;
 
             }
+
+            if (!this.is_show) this.is_show = true;
           } else {
           }
           this.hide_loading();
@@ -375,9 +398,9 @@
 
   .product_img img {
     width: 70%;
-    margin-top: 10%;
+    margin-top: 7%;
     vertical-align: middle;
-    margin-left: 10%;
+    margin-left: 15%;
     margin-bottom: 5%;
   }
 
