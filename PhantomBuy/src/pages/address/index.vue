@@ -47,6 +47,7 @@
       }
     },
     onShow(){
+      this.show_loading();
       this.getSettingKey();
     },
     created() {
@@ -91,6 +92,7 @@
             const cookieSession = String(data.data);
             let sessionId = cookieSession.split('=')[1].split(';')[0];
             self.getUserAddressList(sessionId);
+            self.hide_loading();
 
           },
           fail: function (err) {
@@ -125,6 +127,17 @@
         wx.navigateTo({
           url: '/pages/editaddress/main?isEditAddress=' + false
         })
+      },
+      show_loading() {
+        wx.showLoading({
+          title: '加载中',
+        })
+      },
+      hide_loading() {
+        setTimeout(function () {
+          wx.hideLoading()
+        }, 1500);
+
       },
       showMsg() {
       }

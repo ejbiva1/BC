@@ -5,11 +5,11 @@ class Service {
   static BaseUrl = "https://www.phantombuy.com/";
 
   constructor() {
-    this.BaseUrl = "https://www.phantombuy.com/";
+    this.BaseUrl = "https://www.phantombuy.com:8443/";
   }
-  
+
   uploadImage() {
-    
+
   }
 }
 ;

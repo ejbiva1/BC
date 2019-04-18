@@ -3,10 +3,10 @@
 
     <div class="row">
       <div class="userImg">
-        <open-data class="thumb" type="userAvatarUrl"></open-data>
+      <open-data class="thumb" type="userAvatarUrl"></open-data>
       </div>
       <div class="userName">
-        <open-data class="nackname" lang="zh_CN" type="userNickName"></open-data>
+      <open-data class="nackname" lang="zh_CN" type="userNickName"></open-data>
       </div>
     </div>
     <div class="dataBody">
@@ -27,6 +27,7 @@
           </view>
         </view>
       </view>
+
 
     </div>
     <!--<div class="signOut">退出账号</div>-->

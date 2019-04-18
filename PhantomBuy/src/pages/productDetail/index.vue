@@ -117,10 +117,6 @@
     ></wxc-toast>
 
 
-    <view v-show="suspension_show">
-      <suspension ></suspension>
-    </view>
-
   </div>
 </template>
 
@@ -130,7 +126,6 @@
   import tabs from "../../components/tabs/tabs";
   import {appMessages} from "../../common/constants/message";
   import {authorize} from "../../utils/authorized";
-  import suspension from "../../components/suspension/suspension";
 
   export default {
     // 商品详情页面目前缺少:
@@ -172,7 +167,6 @@
     },
     components: {
       'tab': tabs,
-      'suspension': suspension
     },
     onLoad(options) {
       if (options !== undefined) {

@@ -32,17 +32,10 @@
         "text": "主页"
       },
       {
-        "pagePath": "pages/checkout/main",
-        "iconPath": "static/images/home.png",
-        "selectedIconPath": "static/images/home-selected.png",
-        "color": "white",
-        "text": "商家"
-      },
-      {
         "pagePath": "pages/order/main",
         "iconPath": "static/images/trolley.png",
         "selectedIconPath": "static/images/order-selected.png",
-        "text": "购物袋"
+        "text": "购物车"
       },
       {
         "pagePath": "pages/my/main",

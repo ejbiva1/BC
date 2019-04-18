@@ -285,7 +285,7 @@
         // 上传后的身份证照片不需要保存到本地
         let self = this;
         wx.uploadFile({
-          url: service.BaseUrl + 'phantombuy/userAddress/uploadAttachmentByWechatApplet',
+          url: fly.config.baseURL + 'phantombuy/userAddress/uploadAttachmentByWechatApplet',
           filePath: imageUrl,
           name: 'file',
           header: {
@@ -298,13 +298,14 @@
           },
           success: function (res) {
             let data = JSON.parse(res.data);
-            if (self.id_card_img.length >= 2) {
-              self.toast = common.showErrorMsg('请上传2张图片');
-              setTimeout(function () {
-                self.toast.show_toast = false;
-              }, 1500);
-              return
-            }
+            //这里应该是一共有2张图片
+//            if (self.id_card_img.length >= 2) {
+//              self.toast = common.showErrorMsg('请上传2张图片');
+//              setTimeout(function () {
+//                self.toast.show_toast = false;
+//              }, 1500);
+//              return
+//            }
             self.id_card_img.push(data.data[0]);
 
 
@@ -359,13 +360,13 @@
         //  验证 身份证号码是否合规
         let self = this;
         self.address.idNumber = e.mp.detail.value;
-        if (regex.validateUserIDCard(this.address.idNumber)) {
-        } else {
-          self.toast = common.showErrorMsg("身份证号码验证错误");
-          setTimeout(function () {
-            self.toast.show_toast = false;
-          }, 1000);
-        }
+//        if (regex.validateUserIDCard(this.address.idNumber)) {
+//        } else {
+//          self.toast = common.showErrorMsg("身份证号码验证错误");
+//          setTimeout(function () {
+//            self.toast.show_toast = false;
+//          }, 1000);
+//        }
 
       },
       validateUserPhoneNo(e){   // 验证手机号号码

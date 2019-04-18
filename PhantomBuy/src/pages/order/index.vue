@@ -10,11 +10,12 @@
         <wxc-panel>
           <view class="site">
             <view class="site_choose cart_block">
-              <radio-group class="radio-group " @change="radioChange">
-                <radio :checked="false"><span style="padding-left: 15px;">{{item.brandNameCh}}</span></radio>
-                <!--<radio value="{{item.name}}" checked="{{item.checked}}"/>-->
-                <!--{{item.value}}-->
-              </radio-group>
+              <span style="padding-left: 35px;" class="radio-group">{{item.brandNameCh}}</span>
+              <!--<radio-group class="radio-group " @change="radioChange">-->
+              <!--<radio :checked="false"><span style="padding-left: 15px;">{{item.brandNameCh}}</span></radio>-->
+              <!--&lt;!&ndash;<radio value="{{item.name}}" checked="{{item.checked}}"/>&ndash;&gt;-->
+              <!--&lt;!&ndash;{{item.value}}&ndash;&gt;-->
+              <!--</radio-group>-->
             </view>
           </view>
 
@@ -114,8 +115,8 @@
 
 
     <view class="cart-footer">
-      <view  class="button add_buy_cart">
-      <wxc-button size="normal" :type="btnType" value="去结算" v-on:submit="checkout"></wxc-button>
+      <view class="button add_buy_cart">
+        <wxc-button size="normal" :type="btnType" value="去结算" v-on:submit="checkout"></wxc-button>
       </view>
     </view>
   </div>
@@ -447,7 +448,7 @@
     /*flex-direction: row;*/
   }
 
-  .price_row{
+  .price_row {
     display: flex;
     flex-direction: row;
     padding-bottom: 0.20rem;
@@ -558,7 +559,7 @@
     padding-top: 0.3rem;
   }
 
-  .cart-footer{
+  .cart-footer {
     width: 100%;
     height: 0.8rem;
     display: flex;
