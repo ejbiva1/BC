@@ -17,6 +17,9 @@
   /* movable-view重置默认绝对定位 */
   position: relative;
   z-index: 1;
+  white-space:nowrap;
+  text-overflow:ellipsis;
+  overflow:hidden
 }
 
 

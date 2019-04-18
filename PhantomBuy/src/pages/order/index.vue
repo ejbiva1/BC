@@ -1,6 +1,6 @@
 <template>
   <div class="order">
-    <div class="noItem" :style="{display: displayData}">
+    <div class="noItem" :style="{display: displayData}" @touchmove.stop="move">
       尚未选购任意商品,请返回首页选购商品
     </div>
     <!--<div class="order"></div>-->
@@ -21,53 +21,45 @@
 
           <view>
             <view v-for="(cartListItem, j) in item.cartList" :key="j" class="cart_block cart-item">
-              <checkbox-group v-on:change="itemBlockChangeColor(cartListItem, cartListItem.cartId)">
+              <checkbox-group @change="itemBlockChangeColor(cartListItem, cartListItem.cartId)">
                 <checkbox class="sliderLeft">
-                  <slider-left v-on:delete.stop="handleDelete" :id="cartListItem.cartId">
+                  <slider-left @delete="handleDelete" :id="cartListItem.cartId">
                     <view class="itemBlock" :id="cartListItem.cartId">
                       <view class="row">
                         <view class="itemImage">
                           <image :src="cartListItem.productImageUrl" class="titleImage" mode="widthFix"/>
                         </view>
                         <view class="itemDetail">
-                          <view class="itemTitle">{{cartListItem.productName}}</view>
-                          <view class="row product_font">
-                            <view class="itemRow">
-                              <view class="itemColor" style="width: 20%;">颜色：</view>
-                              <view class="itemColorDetail"
-                                    style="width: 84%;white-space:nowrap;text-overflow:ellipsis;overflow:hidden">
-                                {{cartListItem.color}}
-                              </view>
+                          <view class="itemTitle" style="text-overflow:ellipsis;overflow:hidden">{{cartListItem.productName}}</view>
+                          <view class="itemRow row product_font">
+                            <view class="itemColor">颜色：</view>
+                            <view class="itemColorDetail"
+                                  style="white-space:nowrap;text-overflow:ellipsis;overflow:hidden">
+                              {{cartListItem.color}}
                             </view>
                           </view>
-                          <view class="row product_font">
-                            <view class="itemRow">
-                              <view class="itemSize">尺码：</view>
-                              <view class="itemSizeDetail">{{cartListItem.size}}</view>
+                          <view class="itemRow row product_font">
+                            <view class="itemSize">尺码：</view>
+                            <view class="itemSizeDetail">{{cartListItem.size}}</view>
+                          </view>
+                          <view class="priceRow row product_font">
+                            <!--<wxc-price><span style="font-size: 13px;">{{cartListItem.productRmbPrice}} </span>
+                            </wxc-price>-->
+                            <view class="counterBlock" @tap.stop="catchtapControl">
+                              <wxc-counter :id="cartListItem.cartId" v-on:changenumber="onChangeNumber"
+                                           class="counter"
+                                           :number="cartListItem.quantity" max="100" min="1"
+                                           color="#000"></wxc-counter>
                             </view>
                           </view>
-                          <view class="row product_font">
-                            <view class="priceRow">
-                              <wxc-price><span style="font-size: 13px;">{{cartListItem.productRmbPrice}} </span>
-                              </wxc-price>
-                              <view class="counterBlock" @tap.stop="catchtapControl">
-                                <wxc-counter :id="cartListItem.cartId" v-on:changenumber="onChangeNumber"
-                                             class="counter"
-                                             :number="cartListItem.quantity" max="100" min="1"
-                                             color="#000"></wxc-counter>
-                              </view>
-                            </view>
-
-                          </view>
-
                         </view>
                       </view>
                       <view class="total">
                         <view class="row">
                           <view class="totalTitle" style="font-weight: bolder">合计：</view>
-                          <!--<view class="totalDetail">{{cartListItem.productRmbPriceTotal}} 元</view>-->
-                          <wxc-price><span style="font-size: 13px;">{{cartListItem.productRmbPriceTotal}} </span>
-                          </wxc-price>
+                          <view class="totalDetail" style="font-size: 13px;">￥ {{cartListItem.productRmbPriceTotal}}</view>
+                          <!--<wxc-price><span style="font-size: 13px;">{{cartListItem.productRmbPriceTotal}} </span>
+                          </wxc-price>-->
                         </view>
                       </view>
                     </view>
@@ -103,7 +95,6 @@
             <view class="weightDetail">{{priceData.internationalShippingFee.estimatedWeight}}</view>
             <view class="weightUnit">磅）</view>
           </view>
-
           <view class="price_row">
             <view class="priceTitle">平台手续费：</view>
             <view class="middlePriceDetail">{{priceData.sitePromotionFee.sitePromotionFee}}</view>
@@ -130,6 +121,7 @@
     data () {
       return {
         cartIdList: [],
+        deleteflag: 0,
         cart_list: [],
         btnType: 'disabled',
         settingKey: '',
@@ -156,6 +148,8 @@
       this.getSettingKey();
     },
     methods: {
+      move () {
+      },
       isActive (cartId) {
         if (this.cartIdList.includes(cartId)) {
           return true
@@ -175,6 +169,7 @@
           title: 'Loading'
         })
         const self = this
+        self.deleteflag = 1
         fly.config.headers['Cookie'] = 'JSESSIONID=' + sessionId
         // e.mp.currentTarget.id在cartIdList里面的话，要先从list里面删掉
         var cartID = parseInt(e.mp.currentTarget.id)
@@ -309,12 +304,13 @@
                 // 成功
                 if (res.data.data.length > 0) {
                   self.cart_list = res.data.data
+                  self.displayData = 'none'
                   // self.cart_list = self.cart_list[0];
                 }
               }
               else {
                 // 失败
-                this.displayData = 'block'
+                self.displayData = 'block'
                 console.log(`cartList为空:`, res);
               }
             }).catch(err => {
@@ -330,28 +326,32 @@
         })
       },
       itemBlockChangeColor: function (res, index) {
-        wx.showLoading({
-          title: 'Loading'
-        })
-        //先判断，list里面本来就有的话，就删掉，本来没有就加进去
-        var position = this.cartIdList.indexOf(index)
-        if (position === -1) {
-          this.cartIdList.push(index)
-        } else {
-          this.cartIdList.splice(position, 1)
+        const self = this
+        if (self.deleteflag === 0){
+          wx.showLoading({
+            title: 'Loading'
+          })
+          //先判断，list里面本来就有的话，就删掉，本来没有就加进去
+          var position = this.cartIdList.indexOf(index)
+          if (position === -1) {
+            this.cartIdList.push(index)
+          } else {
+            this.cartIdList.splice(position, 1)
+          }
+          // 为了checkout的btn添加一段
+          // 如果cartIdList有东西就btnType = secondary
+          if (this.cartIdList.length > 0) {
+            this.btnType = 'secondary'
+          } else {
+            this.btnType = 'disabled'
+          }
+          var testRes = this.cartIdList.includes(index)
+          console.log(testRes);
+          console.log(`我就看看点击之后拿了啥:`, res);
+          // 调用calculateFee
+          this.calculateFee(this.cartIdList)
         }
-        // 为了checkout的btn添加一段
-        // 如果cartIdList有东西就btnType = secondary
-        if (this.cartIdList.length > 0) {
-          this.btnType = 'secondary'
-        } else {
-          this.btnType = 'disabled'
-        }
-        var testRes = this.cartIdList.includes(index)
-        console.log(testRes);
-        console.log(`我就看看点击之后拿了啥:`, res);
-        // 调用calculateFee
-        this.calculateFee(this.cartIdList)
+        self.deleteflag = 0
       },
       calculateFee: function (list) {
         /*
@@ -389,7 +389,6 @@
       catchtapControl: function () {
       },
       radioChange(){
-
       }
     }
   }
@@ -403,10 +402,12 @@
     /*width: 100%;*/
     background-color: #F7F7F7;
     height: 100%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
+    z-index: -1;
   }
 
   .sliderLeft {
@@ -415,12 +416,13 @@
 
   .noItem {
     background-color: white;
-    /*height: 100%;*/
-    width: 100%;
-    z-index: 1000;
-    font-color: black;
-    padding-top: 2.00rem;
+    height:100%;
+    width:100%;
+    z-index:1000;
+    font-color:black;
+    padding-top: 200rpx;
     text-align: center;
+    position:absolute;
   }
 
   .cart-item {
@@ -435,17 +437,10 @@
     padding: 0.3rem 0.2rem 0.1rem 0.2rem;
   }
 
-  .order {
-    /*background-color: lightgray;*/
-    height: 100%;
-    width: 100%;
-    /*position: fixed;*/
-    z-index: -1;
-  }
 
   .row {
     display: flex;
-    /*flex-direction: row;*/
+    flex-direction: row;
   }
 
   .price_row {
@@ -491,8 +486,6 @@
   }
 
   .itemRow {
-    display: flex;
-    flex-direction: row;
     padding-top: 0.10rem;
     line-height: 16px;
     height: 16px;
@@ -500,8 +493,6 @@
   }
 
   .priceRow {
-    display: flex;
-    flex-direction: row;
     padding-top: 0.20rem;
     line-height: 20px;
     height: 20px;
@@ -509,7 +500,6 @@
   }
 
   .counterBlock {
-    padding-left: 0.6rem;
     margin-top: -3px;
   }
 
@@ -530,6 +520,7 @@
   .priceBlock {
     width: 100%;
     font-size: 16px;
+    z-index: 998;
   }
 
   .paddingButtom20 {
@@ -550,7 +541,6 @@
 
   .product_font {
     font-size: 14px;
-
   }
 
   .price_panel {
@@ -567,7 +557,9 @@
     justify-content: flex-end;
     position: fixed;
     bottom: 0;
-    border-top: 2px solid #eee;
+    border-top: 0px solid #eee;
+    margin-bottom: 20rpx;
+    z-index: 999;
   }
 
   .cart-footer .button {
