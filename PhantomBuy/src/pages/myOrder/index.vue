@@ -285,10 +285,9 @@
     background-color: white;
     height:100%;
     width:100%;
-    position:fixed;
     z-index:1000;
     font-color:black;
-    padding-top:200rpx;
+    padding-top: 200rpx;
     text-align: center;
   }
   .my{
