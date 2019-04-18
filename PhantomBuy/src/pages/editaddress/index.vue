@@ -58,27 +58,66 @@
       </view>
 
 
-      <view class="section">
+      <view class="section" v-if="id_front_img === undefined">
         <!--上传身份证照片(限制为2张)-->
         <view class="section_ID_button">
-          <wxc-button plain="true" type="dark"
-                      :btnStyle="style"
-                      @click="uploadImgBtn">
-            <wxc-icon color="#007bff" size="50" type="camera"></wxc-icon>
-            <span style="font-size: 16px;">上传证件</span>
-            <wxc-icon color="#red" size="50" type="arrow-right"></wxc-icon>
+          <wxc-button plain="true" type="disabled"
+                      :btnStyle="style">
+      <span style=" padding-left: 1.2rem;">
+      <wxc-icon color="#007bff" size="50" type="camera"></wxc-icon>
+      <span style="font-size: 18px; padding-left: 1.5rem;">上传证件</span>
+      </span>
+            <!--<span style="padding-right: 0.4rem;">-->
+            <!--<wxc-icon color="#red" size="40" type="arrow-right"></wxc-icon>-->
+            <!--</span>-->
           </wxc-button>
         </view>
       </view>
 
-      <view class="id_cards_img_section" v-show="id_card_img.length > 0">
-        <!--上传图片后，立即加载下来-->
-        <view v-for="(item, index) in id_card_img" class="id_cards_img" :key="index">
-          <a target="_blank" :href="item.fileUrl">
-            <img :src="item.fileUrl" class="id_card_img"/>
-          </a>
+
+      <view class="id_section">
+        <!--上传身份证照片(限制为2张)-->
+        <view class="id_card_section">
+          <img src="/static/images/id-card/frontend.jpg" v-if="id_front_img === undefined"/>
+          <img :src="id_front_img.fileUrl" v-if="id_front_img !== undefined"/>
+
+          <!--<view class="id_card_img_txt">上传人像页照片</view>-->
+
+
+          <view class="upload_img_btn1" v-if="id_front_img === undefined">
+            <wxc-button @click="uploadImgBtn(1)"
+                        btnStyle="background-color:#46A5F5;min-width: 100rpx;height: 100rpx; line-height: 100rpx; padding-left: 4px; padding-right: 4px; padding-bottom: 4px; padding-height: 4px;border-radius: 70%">
+              <wxc-icon size="70" type="add"></wxc-icon>
+            </wxc-button>
+          </view>
         </view>
+
+        <view class="id_card_section">
+          <img src="/static/images/id-card/backend.jpg" v-if="id_backend_img === undefined"/>
+
+          <img :src="id_backend_img.fileUrl" v-if="id_backend_img !== undefined"/>
+
+          <!--<view class="id_card_img_txt">上传国徽页照片</view>-->
+
+          <view class="upload_img_btn2" v-if="id_backend_img === undefined">
+            <wxc-button @click="uploadImgBtn(2)"
+                        btnStyle="background-color:#46A5F5;min-width: 100rpx;height: 100rpx; line-height: 100rpx;  padding-left: 4px; padding-right: 4px; padding-bottom: 4px; padding-height: 4px;border-radius: 70%">
+              <wxc-icon size="70" type="add"></wxc-icon>
+            </wxc-button>
+          </view>
+        </view>
+
+
       </view>
+
+      <!--<view class="id_cards_img_section" v-show="id_card_img.length > 0">-->
+      <!--&lt;!&ndash;上传图片后，立即加载下来&ndash;&gt;-->
+      <!--<view v-for="(item, index) in id_card_img" class="id_cards_img" :key="index">-->
+      <!--<a target="_blank" :href="item.fileUrl">-->
+      <!--<img :src="item.fileUrl" class="id_card_img"/>-->
+      <!--</a>-->
+      <!--</view>-->
+      <!--</view>-->
 
       <!--#007bff-->
       <view class="section_button">
@@ -119,7 +158,7 @@
         toast: {},
         sessionId: '',
         isEditAddress: false,
-        style: 'width: 100%;border-radius: 46rpx;vertical-align: middle;  box-shadow:0 0 1px #000 inset;',
+        style: 'display: flex;justify-content: space-between; width: 100%;border-radius: 46rpx;vertical-align: middle; height: 108rpx; line-height: 108rpx;  box-shadow:2px 2px 4px 1px #000 inset; -webkit-box-shadow: #666 0px 0px 10px; -moz-box-shadow: #666 0px 0px 10px; ',
         button_style: 'color: #fff;vertical-align: middle;text-align: center;border-radius: 20rpx;',
         delete_style: 'vertical-align: middle;text-align: center;border-radius: 20rpx;',
         imageNum: 2,
@@ -128,6 +167,8 @@
           value: '同意',
           checked: false
         },
+        id_front_img: undefined,
+        id_backend_img: undefined
       }
     },
     components: {
@@ -139,11 +180,17 @@
         this.address = JSON.parse(options.address_detail);
         this.id_card_img = this.address.fileList;
         this.default_address.checked = this.address.isDefault == 1 ? true : false;
+        this.id_front_img = this.id_card_img[0];
+        this.id_backend_img = this.id_card_img[1];
+
       } else {
         this.address = new Address({});
         this.id_card_img = [];
         this.default_address.checked = false;
+        this.id_front_img = undefined;
+        this.id_backend_img = undefined;
       }
+
       let flag = options.isEditAddress.trim() === "true" ? true : false;
       if (!flag) {
         this.isEditAddress = false
@@ -217,7 +264,6 @@
       },
       addAddress(){
         let self = this;
-
         fly.post("phantombuy/userAddress/add", {entityDTO: self.address}).then(res => {
           if (res.data.code === '1') {
             self.toast = common.showSuccessMsg('添加地址成功');
@@ -260,19 +306,102 @@
           }
         });
       },
-      // 上传身份证照片
-      uploadImgBtn(){
-        //上传图片的流程是：本地将图片上传到——》微信临时服务器，能够返回临时图片文件地址——》再将临时图片文件地址传输给服务端——》服务端从微信服务器上下载临时图片文件保存在服务端上
+//      // 上传身份证照片
+//      uploadImgBtn(){
+//        if (!this.isEditAddress) {
+//          // 新建地址
+//          wx.navigateTo({
+//            url: '/pages/identification/main?isEditAddress=' + false
+//          })
+//        } else {
+//          //编辑地址
+//          wx.navigateTo({
+//            url: '/pages/identification/main?isEditAddress= ' + true + '&address_detail=' + JSON.stringify(this.address)
+//          })
+//
+//        }
+//
+//        //上传图片的流程是：本地将图片上传到——》微信临时服务器，能够返回临时图片文件地址——》再将临时图片文件地址传输给服务端——》服务端从微信服务器上下载临时图片文件保存在服务端上
+////        var self = this;
+////        wx.chooseImage({
+////          count: 2,
+////          izeType: ['original', 'compressed'],
+////          sourceType: ['album', 'camera'],
+////          success(res){
+////            let tempFilePaths = res.tempFilePaths;    // tempFilePaths可以作为img标签的src属性显示图片
+////            for (let i = 0; i < tempFilePaths.length; i++) {
+////              let imageUrl = tempFilePaths[i];
+////              self.uploadImage(imageUrl, i + 1);
+////            }
+////          },
+////          error(res){
+////            console.log(res);
+////          }
+////        })
+//      },
+//      // 这里基本好了，有待确认
+//      uploadImage: function (imageUrl, imageNo) {
+//        // 上传后的身份证照片不需要保存到本地
+//        let self = this;
+//        wx.uploadFile({
+//          url: fly.config.baseURL + 'phantombuy/userAddress/uploadAttachmentByWechatApplet',
+//          filePath: imageUrl,
+//          name: 'file',
+//          header: {
+//            "Content-Type": "multipart/form-data",
+//            "Cookie": "JSESSIONID=" + self.sessionId
+//          },
+//          // 上传图片时可以携带的数据
+//          formData: {
+//            'fileId': 0
+//          },
+//          success: function (res) {
+//            let data = JSON.parse(res.data);
+//            //这里应该是一共有2张图片
+////            if (self.id_card_img.length >= 2) {
+////              self.toast = common.showErrorMsg('请上传2张图片');
+////              setTimeout(function () {
+////                self.toast.show_toast = false;
+////              }, 1500);
+////              return
+////            }
+//            self.id_card_img.push(data.data[0]);
+//
+//
+////            self.toast = common.showSuccessMsg('上传图片成功');
+////            setTimeout(function(){
+////              let data = JSON.parse(res.data);
+////            }, 1000);
+//
+//            // 判断最后一张图片上传
+////            if (imageNo == this.imageNum) {
+////              //wx.hideLoading();
+////              if (that.data.imageUploadFlag) { // 全部提交成功
+////                app.showOk('提交成功');
+////                wx.reLaunch({
+////                  url: '../map/map',
+////                })
+////              } else { // 其中有失败
+////                // app.showErr('出错', that.data.imageErr);
+////              }
+////            }
+//          },
+//          fail(res){
+//
+//          }
+//        });
+//      },
+      uploadImgBtn(index){
         var self = this;
         wx.chooseImage({
-          count: 2,
+          count: 1,
           izeType: ['original', 'compressed'],
           sourceType: ['album', 'camera'],
           success(res){
             let tempFilePaths = res.tempFilePaths;    // tempFilePaths可以作为img标签的src属性显示图片
             for (let i = 0; i < tempFilePaths.length; i++) {
               let imageUrl = tempFilePaths[i];
-              self.uploadImage(imageUrl, i + 1);
+              self.uploadImage(imageUrl, i + 1, index);
             }
           },
           error(res){
@@ -280,8 +409,7 @@
           }
         })
       },
-      // 这里基本好了，有待确认
-      uploadImage: function (imageUrl, imageNo) {
+      uploadImage: function (imageUrl, imageNo, index) {
         // 上传后的身份证照片不需要保存到本地
         let self = this;
         wx.uploadFile({
@@ -298,14 +426,16 @@
           },
           success: function (res) {
             let data = JSON.parse(res.data);
-            //这里应该是一共有2张图片
-//            if (self.id_card_img.length >= 2) {
-//              self.toast = common.showErrorMsg('请上传2张图片');
-//              setTimeout(function () {
-//                self.toast.show_toast = false;
-//              }, 1500);
-//              return
-//            }
+            switch (index) {
+              case 1:
+                self.id_front_img = data.data[0];
+                break;
+              case 2:
+                self.id_backend_img = data.data[0];
+                break;
+            }
+
+
             self.id_card_img.push(data.data[0]);
 
 
@@ -425,12 +555,12 @@
   }
 
   .section_ID_button {
-    margin-top: 0.2rem;
-    width: 80%;
+    margin-top: 0.8rem;
+    width: 90%;
     vertical-align: middle;
     text-align: center;
-    padding-left: 10%;
-    margin-bottom: 0.8rem;
+    padding-left: 5%;
+    margin-bottom: 0.2rem;
   }
 
   .user_phone {
@@ -538,6 +668,51 @@
     box-sizing: border-box;
     font-size: 0.28rem;
     color: #333;
+  }
+
+  .id_section {
+    width: 100%;
+    padding: 0.4rem 0.2rem 0.4rem 0.0rem;
+  }
+
+  .id_card_section {
+    width: 80%;
+    height: 4rem;
+    line-height: 4rem;
+    border: 3px solid #46A5F5;
+    padding-bottom: 0.4rem;
+    margin-bottom: 0.3rem;
+    position: relative;
+    left: 10%;
+  }
+
+  .id_card_section img {
+    height: 3.0rem;
+    width: 70%;
+    vertical-align: middle;
+    margin-top: 7%;
+    vertical-align: middle;
+    margin-left: 15%;
+    margin-bottom: 5%;
+  }
+
+  .upload_img_btn1 {
+    position: absolute;
+    left: 48%;
+    top: 0%;
+    z-index: 2;
+  }
+
+  .upload_img_btn2 {
+    position: absolute;
+    left: 48%;
+    top: 0%;
+    z-index: 2;
+  }
+
+  .id_card_img_txt {
+    font-size: 16px;
+    color: #46A5F5;
   }
 
 </style>

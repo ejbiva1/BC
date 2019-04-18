@@ -116,6 +116,11 @@
       icon-color="#ff5777"
     ></wxc-toast>
 
+    <!--跳转至购物车界面-->
+    <view v-show="suspension_show">
+      <suspension v-on:toCart="gotoCart"></suspension>
+    </view>
+
 
   </div>
 </template>
@@ -126,6 +131,7 @@
   import tabs from "../../components/tabs/tabs";
   import {appMessages} from "../../common/constants/message";
   import {authorize} from "../../utils/authorized";
+  import suspension from "../../components/suspension/suspension";
 
   export default {
     // 商品详情页面目前缺少:
@@ -159,7 +165,7 @@
         brandNameCh: '',
         productNameCn: '',
         originalPriceRmb: '',
-        salePriceRmb: '',
+        salePriceRmb: undefined,
         suspension_show: true
 
 
@@ -167,6 +173,7 @@
     },
     components: {
       'tab': tabs,
+      'suspension': suspension
     },
     onLoad(options) {
       if (options !== undefined) {
@@ -355,6 +362,11 @@
         this.icon_type = "yes";
         this.showToast();
       },
+      gotoCart(){
+        wx.switchTab({
+          url: '/pages/order/main'
+        });
+      }
 
     },
   }
