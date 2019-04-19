@@ -58,19 +58,22 @@
     </div>
 
     <!--商品列表-->
-    <div class="site_product_total">
-      <wxc-panel :border="has_border">
-        <view class="site_products">
-          <view v-for="(item ,i) in product_detail_list" :key="i" @click="toProductDetail(item.productId)"
-                class="product_profile">
+    <scroll-view scroll-y='true' scroll-top="scrollTop">
+      <div class="site_product_total">
+        <wxc-panel :border="has_border">
+          <view class="site_products">
+            <view v-for="(item ,i) in product_detail_list" :key="i" @click="toProductDetail(item.productId,$event)"
+                  class="product_profile">
 
-            <view class="product_img">
-              <img :src="item.productImageUrl" class="face first-face">
-            </view>
-            <view class="product_detail">
-              <ul class="list-group list-group-flush">
-                <li class="salesTitle"><span>{{item.productNameCn}}</span></li>
-                <li class="list-group-item">
+              <view class="product_img">
+                <img :src="item.productImageUrl" class="face first-face">
+              </view>
+              <view class="product_detail">
+                <ul class="list-group list-group-flush">
+                  <li class="salesTitle" v-if="item.productNameCn !== undefined"><span>{{item.productNameCn}}</span>
+                  </li>
+                  <li class="salesTitle" v-if="item.productNameCn === undefined"><span>{{item.productName}}</span></li>
+                  <li class="list-group-item">
                   <span style="text-align:left;padding-left:-20px;"
                         :class="{text_decoration: item.salePriceRmb !== undefined } ">
                     {{item.originalPriceRmb}}
@@ -78,20 +81,25 @@
                   </span>
                   <span style="color:red;padding-left: 10px;">{{item.salePriceRmb}}
                     <span v-show="item.salePriceRmb !== undefined">元</span></span>
-                </li>
-                <li class="updateTime" v-show="item.updateDate !== undefined">更新时间:<span>{{item.updateDate}}</span>
-                </li>
-              </ul>
+                  </li>
+                  <li class="updateTime" v-show="item.updateDate !== undefined">更新时间:<span>{{item.updateDate}}</span>
+                  </li>
+                </ul>
+              </view>
+
+
             </view>
 
-
           </view>
+        </wxc-panel>
+      </div>
+    </scroll-view>
 
-        </view>
-      </wxc-panel>
-    </div>
-
+    <view v-if="is_empty">
+      <empty></empty>
+    </view>
   </div>
+
 </template>
 
 <!--商家-->
@@ -100,6 +108,7 @@
   import  fly from "../../utils/fly";
   import tabs from "../../components/tabs/tabs";
   import {pageDTO} from "../../common/model/pageDTO";
+  import empty from "../../components/empty/empty";
   export default {
     data() {
       return {
@@ -119,17 +128,17 @@
         site_man_category_list: [],
         site_woman_category_list: [],
         sex: undefined,
-        index_initial: 1000
+        index_initial: 1000,
+        scrollTop: '',
+        is_empty: false
       };
     },
     components: {
       "search": search,
-      "tabs": tabs
-    },
-    created() {
+      "tabs": tabs,
+      "empty": empty
     },
     onLoad(options){
-      // load site_detail
       if (options !== undefined) {
         this.site_detail = JSON.parse(options.site);
       }
@@ -138,13 +147,18 @@
       //  site product category
       this.pageDtoSetting = this.pageDto;
       // 数据初始化
+
       this.sub_category_index = 0;
       this.product_category_id = this.index_initial;
       this.current_prod_categoryid = 0;
 
-
       this.getListSiteProductCategory();
       this.getAllProductList();
+      console.log(this.scrollTop);
+    },
+    onUnload(){
+      this.is_empty = false;
+
     },
     async onPullDownRefresh() {
       // to doing..
@@ -211,10 +225,22 @@
         }
         fly.post("phantombuy/product/list", entityDTO).then((res) => {
           if (res.data.code === '1') {
-            for (let i = 0; i < res.data.data.records.length; i++) {
-              this.product_detail_list.push(res.data.data.records[i]);
+            // 某类商品数据是否为空
+            if (res.data.data.records.length > 0 || this.product_detail_list.length > 0) {
+              if (this.is_empty)    this.is_empty = !this.is_empty;
+              for (let i = 0; i < res.data.data.records.length; i++) {
+                this.product_detail_list.push(res.data.data.records[i]);
+              }
+            } else {
+              if (!this.is_empty)    this.is_empty = !this.is_empty;
             }
+
             this.hide_loading();
+//            wx.pageScrollTo({
+//              scrollTop: this.scrollTop,
+//              duration: 300
+//            });
+
           } else {
           }
         });
@@ -244,7 +270,11 @@
         }
         this.getProducts();
       },
-      toProductDetail(productId) {
+      toProductDetail(productId, e) {
+        // console.log(e);
+        //const clientX = e.clientX;
+        this.scrollTop = e.clientY;
+        // 记录下当前 (x,y)坐标
         wx.navigateTo({
           url: '/pages/productDetail/main?productId=' + productId,
         });
@@ -274,9 +304,15 @@
             this.sub_category_index = this.index_initial;
             this.product_category_id = this.index_initial;
             this.product_detail_list = [];
-            for (let i = 0; i < res.data.data.records.length; i++) {
-              this.product_detail_list.push(res.data.data.records[i]);
+            if (res.data.data.records.length > 0 || this.product_detail_list.length > 0) {
+              if (this.is_empty)    this.is_empty = !this.is_empty;
+              for (let i = 0; i < res.data.data.records.length; i++) {
+                this.product_detail_list.push(res.data.data.records[i]);
+              }
+            } else {
+              if (!this.is_empty)    this.is_empty = !this.is_empty;
             }
+
 
           } else {
             console.log('服务器内部错误');
@@ -496,4 +532,5 @@
   .section {
     width: 100%;
   }
+
 </style>

@@ -35,21 +35,25 @@
       <wxc-panel :border="has_border" v-if="is_show">
         <view class="product_basic_info">
           <view class="product_cn_name info_padding">
-            <h6 class="site_name">{{brandNameCh}}</h6>
-            <view class="product_name ">
-              <h6 class="product_name_cn">{{productNameCn}}</h6>
+            <h6 class="site_name">{{product_basic_info.brandNameCh}}</h6>
+            <view class="product_name">
+              <h6 class="product_name_cn" v-if="product_basic_info.productNameCn !== undefined">
+                {{product_basic_info.productNameCn}}</h6>
+              <h6 class="product_name_cn" v-if="product_basic_info.productNameCn === undefined">
+                {{product_basic_info.productName}}</h6>
             </view>
             <view class="product_price ">
-              <span class="original_price_rmb" :class="{text_decoration: salePriceRmb !== undefined }">
-                {{originalPriceRmb}}元
+              <span class="original_price_rmb"
+                    :class="{text_decoration: product_basic_info.salePriceRmb !== undefined }">
+                {{product_basic_info.originalPriceRmb}}元
               </span>
               <span class="sale_price_rmb" style="color:red; font-size: 14px;"
-                    v-if="salePriceRmb !== undefined">
-                {{salePriceRmb}}元
+                    v-if="product_basic_info.salePriceRmb !== undefined">
+                {{product_basic_info.salePriceRmb}}元
               </span>
             </view>
           </view>
-          <view class="product_color info_padding" v-if="productColorSizeResponse.colorSeqLength > 0">
+          <view class="product_color info_padding" v-if="productColorSizeResponse.colorSeqLength !== undefined">
             <view class="product_color_text">
               <text style="font-weight: bold;">选择颜色</text>
               <text style="font-weight: bold; padding-left: 0.2rem;"><span
@@ -59,10 +63,10 @@
             <view>
               <ul class="col">
                 <div v-for="(item, index) in productColorResponseList" :key="index" class="product_color_img"
-                     style="cursor:pointer;" :class="{productColorActivity: productColorIndex == index}">
-                  <img :src="item.imageUrl"
-                       @click="chooseProductColor(item, index,$event)"
-                  />
+                     :class="{productColorActivity: productColorIndex == index}"
+                     :style="{backgroundColor: item.rgb !== undefined ? item.rgb : undefined   }">
+                  <img :src="item.imageUrl !== undefined ? item.imageUrl : undefined"
+                       @click="chooseProductColor(item, index,$event)"/>
                 </div>
               </ul>
             </view>
@@ -137,7 +141,7 @@
     // 商品详情页面目前缺少:
     data() {
       return {
-        product_detail: undefined,
+        product_detail: {},
         sizes: [],
         plain: true,
         btn_style: 'min-width: 66rpx;padding: 5rpx;border-radius: 6rpx',
@@ -166,7 +170,14 @@
         productNameCn: '',
         originalPriceRmb: '',
         salePriceRmb: undefined,
-        suspension_show: true
+        suspension_show: true,
+        product_basic_info: {
+          brandNameCh: '',
+          productNameCn: '',
+          originalPriceRmb: '',
+          salePriceRmb: '',
+          productName: ''
+        }
       };
     },
     components: {
@@ -178,13 +189,6 @@
         this.show_loading();
         this.product_id = options.productId;
         // 数据初始化
-        this.skuId = 0;
-        this.currentIndex = 0;
-        this.productColorIndex = 0;
-        this.productSizeIndex = 1000;
-        this.is_show = false;
-        // productColorResponseList 、productSizeList 、  productImageList、  productColorSizeResponse、
-        //  brandNameCh 、 productNameCn、originalPriceRmb、salePriceRmb
         console.log("productColorResponseList:", this.productColorResponseList);
         console.log("productSizeList:", this.productSizeList);
         console.log("productImageList:", this.productImageList);
@@ -199,15 +203,24 @@
     onShow(){
     },
     onUnload(){
-      console.log('index---------onUnload');
-      console.log("productColorResponseList:", this.productColorResponseList);
-      console.log("productSizeList:", this.productSizeList);
-      console.log("productImageList:", this.productImageList);
-      console.log("productColorSizeResponse:", this.productColorSizeResponse);
-      console.log("brandNameCh:", this.brandNameCh);
-      console.log("productNameCn:", this.productNameCn);
-      console.log("originalPriceRmb:", this.originalPriceRmb);
-      console.log("salePriceRmb:", this.salePriceRmb);
+      // 初始化数据
+      this.productColorResponseList = [];
+      this.productSizeList = [];
+      this.productImageList = [];
+      this.productColorSizeResponse = {};
+      this.skuId = 0;
+      this.currentIndex = 0;
+      this.productColorIndex = 0;
+      this.productSizeIndex = 1000;
+      this.is_show = false;
+      this.product_detail = {};
+      this.product_basic_info = {
+        brandNameCh: '',
+        productNameCn: '',
+        originalPriceRmb: '',
+        salePriceRmb: '',
+        productName: ''
+      }
     },
     methods: {
       getProductDetail(){
@@ -217,11 +230,16 @@
         fly.post("phantombuy/product/get", entityDTO).then((res)=> {
           if (res.data.code === '1') {
             this.product_detail = res.data.data;
-            this.brandNameCh = this.product_detail.brandNameCh;
-            this.productNameCn = this.product_detail.productNameCn;
-            this.originalPriceRmb = this.product_detail.originalPriceRmb;
-            this.salePriceRmb = this.product_detail.salePriceRmb;
+            // 商品名、 价格 数据
+            this.product_basic_info = {
+              brandNameCh: this.product_detail.brandNameCh,
+              productNameCn: this.product_detail.productNameCn,
+              originalPriceRmb: this.product_detail.originalPriceRmb,
+              salePriceRmb: this.product_detail.salePriceRmb,
+              productName: this.product_detail.productName
+            }
 
+            console.log(this.product_basic_info);
 
             if (this.product_detail.defaultColorName !== undefined) this.product_detail.defaultColorName = this.product_detail.defaultColorName.toUpperCase();
             if (this.product_detail.productColorSizeResponse !== undefined) {
@@ -240,9 +258,7 @@
             } else {
               // 美妆 不包含: size、 color 等数据， 只显示商品图片
               //this.productColorImageList = this.product_detail.productImageList;
-
             }
-
             if (!this.is_show) this.is_show = true;
           } else {
           }
@@ -267,12 +283,11 @@
       chooseProductSize(item, index){
         this.productSizeIndex = index;
         this.skuId = item.skuId;
-//        console.log("选择商品尺码");
+
       },
 
       onChangeNumber(e){
         // 获取选择商品数量
-//        console.log("选择商品数量");
         this.quantity = e.mp.detail.number;
       },
       addBuyCart(){
@@ -345,11 +360,9 @@
         wx.getStorage({
           key: 'cookieKey',
           success: function (data) {
-            ;
             const cookieSession = String(data.data);
             let sessionId = cookieSession.split('=')[1].split(';')[0];
             self.addBuyCartSuccessfully(sessionId);
-
           },
           fail: function (err) {
             wx.navigateTo({
@@ -360,7 +373,6 @@
       },
       addBuyCartSuccessfully(sessionId){
         fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
-
         let entityDTO = {
           "entityDTO": {
             "quantity": this.quantity,
@@ -385,7 +397,6 @@
           url: '/pages/order/main'
         });
       }
-
     },
   }
 </script>

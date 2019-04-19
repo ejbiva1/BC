@@ -25,8 +25,8 @@
 <style>
 
   .suspension {
-    left: 81%;
-    top: 75%;
+    left: 83%;
+    top: 65%;
   }
 
   .firstView {
