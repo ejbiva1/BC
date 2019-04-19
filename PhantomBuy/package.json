@@ -22,6 +22,7 @@
     "@minui/wxc-counter": "^1.0.6",
     "@minui/wxc-label": "^1.0.5",
     "@minui/wxc-loading": "^1.0.8",
+    "@minui/wxc-loadmore": "^1.0.5",
     "@minui/wxc-mask": "^1.0.8",
     "@minui/wxc-panel": "^1.0.1",
     "@minui/wxc-price": "^1.0.8",
