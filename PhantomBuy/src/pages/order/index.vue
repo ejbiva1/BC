@@ -21,7 +21,7 @@
 
           <view>
             <view v-for="(cartListItem, j) in item.cartList" :key="j" class="cart_block cart-item">
-              <checkbox-group @change="itemBlockChangeColor(cartListItem, cartListItem.cartId)">
+              <checkbox-group @change="itemBlockChangeColor(cartListItem, cartListItem.cartId)" >
                 <checkbox class="sliderLeft">
                   <slider-left @delete="handleDelete" :id="cartListItem.cartId">
                     <view class="itemBlock" :id="cartListItem.cartId">
@@ -57,7 +57,7 @@
                       <view class="total">
                         <view class="row">
                           <view class="totalTitle" style="font-weight: bolder">合计：</view>
-                          <view class="totalDetail" style="font-size: 13px;">￥ {{cartListItem.productRmbPriceTotal}}</view>
+                          <view class="totalDetail" style="font-size: 15px;padding-top:3rpx;">￥ {{cartListItem.productRmbPriceTotal}}</view>
                           <!--<wxc-price><span style="font-size: 13px;">{{cartListItem.productRmbPriceTotal}} </span>
                           </wxc-price>-->
                         </view>
@@ -126,7 +126,7 @@
         btnType: 'disabled',
         settingKey: '',
         testData: true,
-        displayData: 'none',
+        displayData: 'block',
         priceData: {
           sitePromotionFee: {sitePromotionFee: 0},
           final: {finalRMB: 0},
@@ -145,7 +145,8 @@
        */
     },
     onShow (options) {
-      this.getSettingKey();
+      this.getSettingKey
+      ();
     },
     methods: {
       move () {
@@ -434,7 +435,7 @@
   .cart_block {
     display: flex;
     justify-content: flex-start;
-    padding: 0.3rem 0.2rem 0.1rem 0.2rem;
+    padding: 0.3rem 0rem 0.1rem 0.2rem;
   }
 
 
