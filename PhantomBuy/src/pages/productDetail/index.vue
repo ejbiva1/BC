@@ -142,10 +142,6 @@
     data() {
       return {
         product_detail: {},
-        sizes: [],
-        plain: true,
-        btn_style: 'min-width: 66rpx;padding: 5rpx;border-radius: 6rpx',
-        type: "secondary",
         has_border: true,
         productColorResponseList: [],
         productSizeList: [],
@@ -154,8 +150,6 @@
         quantity: 1,
         skuId: 0,
         show_toast: false,
-        error_msg: '',
-        success_mag: '',
         msg: '',
         icon_type: '',
         productSizeIndex: 1000, // 商品尺码索引,
@@ -165,11 +159,6 @@
         productColorImageList: [],
         currentIndex: 0,
         is_show: false,
-        //brandNameCh  productNameCn   originalPriceRmb salePriceRmb
-        brandNameCh: '',
-        productNameCn: '',
-        originalPriceRmb: '',
-        salePriceRmb: undefined,
         suspension_show: true,
         product_basic_info: {
           brandNameCh: '',
@@ -177,7 +166,8 @@
           originalPriceRmb: '',
           salePriceRmb: '',
           productName: ''
-        }
+        },
+        oldProductSizeIndex: 1000
       };
     },
     components: {
@@ -189,14 +179,6 @@
         this.show_loading();
         this.product_id = options.productId;
         // 数据初始化
-        console.log("productColorResponseList:", this.productColorResponseList);
-        console.log("productSizeList:", this.productSizeList);
-        console.log("productImageList:", this.productImageList);
-        console.log("productColorSizeResponse:", this.productColorSizeResponse);
-        console.log("brandNameCh:", this.brandNameCh);
-        console.log("productNameCn:", this.productNameCn);
-        console.log("originalPriceRmb:", this.originalPriceRmb);
-        console.log("salePriceRmb:", this.salePriceRmb);
         this.getProductDetail();
       }
     },
@@ -279,11 +261,18 @@
         let oIndex = res.mp.detail.current;
         this.currentIndex = oIndex;
       },
-      //选择商品尺码
+      //选择商品尺码 选中 or 取消选中
       chooseProductSize(item, index){
+        // 2个 指针 指向
+        this.oldProductSizeIndex = this.productSizeIndex;
         this.productSizeIndex = index;
+        // 选择相同尺码
+        if (this.oldProductSizeIndex == this.productSizeIndex) {
+          this.productSizeIndex = 1000;
+          this.skuId = 0;
+          return;
+        }
         this.skuId = item.skuId;
-
       },
 
       onChangeNumber(e){
