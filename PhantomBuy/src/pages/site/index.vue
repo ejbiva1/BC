@@ -385,14 +385,12 @@
     font-family: 'Open Sans', sans-serif;
     background: linear-gradient(top, #222, #333);
     /*width: 100%;*/
-
   }
 
   .product_profile {
     width: 50%;
     text-align: center;
     vertical-align: middle;
-
   }
 
   .face {
@@ -466,7 +464,6 @@
     display: flex;
     width: 50px;
     white-space: nowrap;
-
     font-weight: bold;
   }
 
@@ -494,5 +491,9 @@
 
   .text_decoration {
     text-decoration: line-through;
+  }
+
+  .section {
+    width: 100%;
   }
 </style>

@@ -5,20 +5,16 @@
         <span>{{site.brandNameCh}}</span>
       </view>
       <view class="search-wrap" v-if="site !== undefined">
-        <view class="search">
-          <view class="search">
-            <view class="search_form search_content_left" style="border-radius:2px; background: #fff;">
-              <input class="search_input" placeholder="搜索" style="color: #333;" v-model="search_key"/>
-              <button class="search__button" style="color: #2CB42F" @click="search_products">搜索本站</button>
-            </view>
-
-          </view>
+        <view class="search_form" style="border-radius:2px; background: #fff;">
+          <input class="search_input" placeholder="搜索" style="color: #333; width:30px;" v-model="search_key"/>
         </view>
-
+      </view>
+      <view style="border-radius:2px; " class="search-button-wrap">
+        <button class="search__button" @click="search_products">搜索本站</button>
       </view>
     </view>
 
-    <view class="site_bonus"  v-show="site.sitePromotionList.length >0">
+    <view class="site_bonus" v-show="site.sitePromotionList.length >0">
       <div class="fee" v-for="(item, i)  in site.sitePromotionList" :key="i">
         <div class="promotion_name">
           {{item.promotionCategoryName}}
@@ -90,7 +86,7 @@
 
   .site {
     display: flex;
-    justify-content: flex-start;
+    /*justify-content: flex-start;*/
   }
 
   .site .site_name {
@@ -107,22 +103,7 @@
   .search-wrap {
     display: flex;
     align-items: center;
-    width: 70%;
-    height: 0.9rem;
-    background: #f6f6f6;
-  }
-
-  .search {
-    flex: 1;
-    margin-left: 0.14rem;
-    align-items: center;
-    min-width: 5.1rem;
-    height: 0.6rem;
-    overflow: hidden;
-  }
-
-  .search_content_left {
-    justify-content: flex-start;
+    width: 46%;
   }
 
   .search_form {
@@ -137,28 +118,31 @@
   }
 
   .search_input {
-    flex: 1;
-    min-width: 2.76rem;
+    /*flex: 1;*/
     height: 0.60rem;
     padding: 0 0.16rem;
     font-size: 0.28rem;
-    color: #333;
-    overflow: hidden;
-    vertical-align: top;
     background: #fff;
-    width: 65%;
+  }
+
+  .search-button-wrap {
+    display: flex;
+    align-items: center;
+    /*width: 30%;*/
   }
 
   .search__button {
-    width: 1.75rem;
+    /*width: 1.75rem;*/
     height: 0.60rem;
     line-height: 0.60rem;
     font-size: 0.28rem;
     overflow: hidden;
-    background: #f6f6f6;
-    padding-right: 0;
-    display: flex;
-    vertical-align: top;
+    color: #fff;
+    background-color: #40a9ff;
+    border-color: #40a9ff;
+    border-radius: 0px;
+    padding-left: 0.08rem;
+    padding-right: 0.08rem;
   }
 
   .search__button::after {

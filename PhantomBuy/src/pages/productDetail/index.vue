@@ -167,8 +167,6 @@
         originalPriceRmb: '',
         salePriceRmb: undefined,
         suspension_show: true
-
-
       };
     },
     components: {
@@ -185,11 +183,31 @@
         this.productColorIndex = 0;
         this.productSizeIndex = 1000;
         this.is_show = false;
-
+        // productColorResponseList 、productSizeList 、  productImageList、  productColorSizeResponse、
+        //  brandNameCh 、 productNameCn、originalPriceRmb、salePriceRmb
+        console.log("productColorResponseList:", this.productColorResponseList);
+        console.log("productSizeList:", this.productSizeList);
+        console.log("productImageList:", this.productImageList);
+        console.log("productColorSizeResponse:", this.productColorSizeResponse);
+        console.log("brandNameCh:", this.brandNameCh);
+        console.log("productNameCn:", this.productNameCn);
+        console.log("originalPriceRmb:", this.originalPriceRmb);
+        console.log("salePriceRmb:", this.salePriceRmb);
         this.getProductDetail();
       }
     },
     onShow(){
+    },
+    onUnload(){
+      console.log('index---------onUnload');
+      console.log("productColorResponseList:", this.productColorResponseList);
+      console.log("productSizeList:", this.productSizeList);
+      console.log("productImageList:", this.productImageList);
+      console.log("productColorSizeResponse:", this.productColorSizeResponse);
+      console.log("brandNameCh:", this.brandNameCh);
+      console.log("productNameCn:", this.productNameCn);
+      console.log("originalPriceRmb:", this.originalPriceRmb);
+      console.log("salePriceRmb:", this.salePriceRmb);
     },
     methods: {
       getProductDetail(){
@@ -403,10 +421,10 @@
   }
 
   .product_img img {
-    width: 70%;
+    width: 65%;
     margin-top: 7%;
     vertical-align: middle;
-    margin-left: 15%;
+    margin-left: 17%;
     margin-bottom: 5%;
   }
 
