@@ -306,91 +306,7 @@
           }
         });
       },
-//      // 上传身份证照片
-//      uploadImgBtn(){
-//        if (!this.isEditAddress) {
-//          // 新建地址
-//          wx.navigateTo({
-//            url: '/pages/identification/main?isEditAddress=' + false
-//          })
-//        } else {
-//          //编辑地址
-//          wx.navigateTo({
-//            url: '/pages/identification/main?isEditAddress= ' + true + '&address_detail=' + JSON.stringify(this.address)
-//          })
-//
-//        }
-//
-//        //上传图片的流程是：本地将图片上传到——》微信临时服务器，能够返回临时图片文件地址——》再将临时图片文件地址传输给服务端——》服务端从微信服务器上下载临时图片文件保存在服务端上
-////        var self = this;
-////        wx.chooseImage({
-////          count: 2,
-////          izeType: ['original', 'compressed'],
-////          sourceType: ['album', 'camera'],
-////          success(res){
-////            let tempFilePaths = res.tempFilePaths;    // tempFilePaths可以作为img标签的src属性显示图片
-////            for (let i = 0; i < tempFilePaths.length; i++) {
-////              let imageUrl = tempFilePaths[i];
-////              self.uploadImage(imageUrl, i + 1);
-////            }
-////          },
-////          error(res){
-////            console.log(res);
-////          }
-////        })
-//      },
-//      // 这里基本好了，有待确认
-//      uploadImage: function (imageUrl, imageNo) {
-//        // 上传后的身份证照片不需要保存到本地
-//        let self = this;
-//        wx.uploadFile({
-//          url: fly.config.baseURL + 'phantombuy/userAddress/uploadAttachmentByWechatApplet',
-//          filePath: imageUrl,
-//          name: 'file',
-//          header: {
-//            "Content-Type": "multipart/form-data",
-//            "Cookie": "JSESSIONID=" + self.sessionId
-//          },
-//          // 上传图片时可以携带的数据
-//          formData: {
-//            'fileId': 0
-//          },
-//          success: function (res) {
-//            let data = JSON.parse(res.data);
-//            //这里应该是一共有2张图片
-////            if (self.id_card_img.length >= 2) {
-////              self.toast = common.showErrorMsg('请上传2张图片');
-////              setTimeout(function () {
-////                self.toast.show_toast = false;
-////              }, 1500);
-////              return
-////            }
-//            self.id_card_img.push(data.data[0]);
-//
-//
-////            self.toast = common.showSuccessMsg('上传图片成功');
-////            setTimeout(function(){
-////              let data = JSON.parse(res.data);
-////            }, 1000);
-//
-//            // 判断最后一张图片上传
-////            if (imageNo == this.imageNum) {
-////              //wx.hideLoading();
-////              if (that.data.imageUploadFlag) { // 全部提交成功
-////                app.showOk('提交成功');
-////                wx.reLaunch({
-////                  url: '../map/map',
-////                })
-////              } else { // 其中有失败
-////                // app.showErr('出错', that.data.imageErr);
-////              }
-////            }
-//          },
-//          fail(res){
-//
-//          }
-//        });
-//      },
+
       uploadImgBtn(index){
         var self = this;
         wx.chooseImage({
@@ -470,7 +386,7 @@
         };
         fly.post("phantombuy/userAddress/delete", entityDTO).then(res => {
           if (res.data.code === '1') {
-            self.toast = common.showSuccessMsg("删除地址成功!");
+            self.toast = common.showErrorMsg("删除地址成功!");
 
             setTimeout(function () {
               self.toast.show_toast = false;
@@ -479,7 +395,7 @@
               })
             }, 1500);
           } else {
-            self.toast = common.showErrMsg("删除地址错误");
+            self.toast = common.showErrorMsg("删除地址错误");
             setTimeout(function () {
               self.toast.show_toast = false;
             }, 1500);

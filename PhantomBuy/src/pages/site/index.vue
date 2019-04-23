@@ -1,8 +1,6 @@
 <template>
   <div class="animated fadeIn">
-    <view class="section">
-      <search v-bind:site="site_detail" @search="SearchProducts" ref="find"></search>
-    </view>
+    <search v-bind:site="site_detail" @search="SearchProducts" ref="find"></search>
 
     <div class="select">
       <div class="ass_category">
@@ -21,39 +19,40 @@
       </div>
     </div>
     <!--商品种类-->
-    <div class="swiper-home">
+    <div class="swiper-home" v-if="site_product_category_list.length > 0">
       <scroll-view class="scroll-view_x" v-if="sub_category_index ===0"
                    :scroll-x="true"
-                   :style="'{width: auto;overflow:hidden;height:20px;}'">
-        <ul>
-          <li class="site_product" v-for="(item, index) in site_product_category_list" :key="index"
-              @click="getSingleKindProductList(item, index)">
+                   :style="'{width: auto;}'">
+
+        <view class="product_kind_list">
+          <view class="site_product" v-for="(item, index) in site_no_product_category_list" :key="index"
+                @click="getSingleKindProductList(item, index)">
             <a
-              :class="{ product_category_activity : product_category_id == (index+1)  }">{{item.productCategoryName}}</a>
-          </li>
-        </ul>
+              :class="{ product_category_activity : product_category_id == (index)  }">{{item.productCategoryName}}</a>
+          </view>
+        </view>
       </scroll-view>
       <scroll-view class="scroll-view_x" v-if="sub_category_index ===1"
                    :scroll-x="true"
-                   :style="'{width: auto;overflow:hidden;height:20px;}'">
-        <ul>
-          <li class="site_product" v-for="(item, index) in site_man_category_list" :key="index"
-              @click="getSingleKindProductList(item, index)">
+                   :style="'{width: auto;}'">
+        <view class="product_kind_list">
+          <view class="site_product" v-for="(item, index) in site_man_category_list" :key="index"
+                @click="getSingleKindProductList(item, index)">
             <a
-              :class="{ product_category_activity : product_category_id == (index+1)  }">{{item.productCategoryName}}</a>
-          </li>
-        </ul>
+              :class="{ product_category_activity : product_category_id == (index)  }">{{item.productCategoryName}}</a>
+          </view>
+        </view>
       </scroll-view>
       <scroll-view class="scroll-view_x" v-if="sub_category_index ===2"
                    :scroll-x="true"
-                   :style="'{width: auto;overflow:hidden;height:20px;}'">
-        <ul>
-          <li class="site_product" v-for="(item, index) in site_woman_category_list" :key="index"
-              @click="getSingleKindProductList(item, index)">
+                   :style="'{width: auto;}'">
+        <view class="product_kind_list">
+          <view class="site_product" v-for="(item, index) in site_woman_category_list" :key="index"
+                @click="getSingleKindProductList(item, index)">
             <a
-              :class="{ product_category_activity : product_category_id == (index+1)  }">{{item.productCategoryName}}</a>
-          </li>
-        </ul>
+              :class="{ product_category_activity : product_category_id == (index)  }">{{item.productCategoryName}}</a>
+          </view>
+        </view>
       </scroll-view>
     </div>
 
@@ -94,6 +93,10 @@
         </wxc-panel>
       </div>
     </scroll-view>
+    <!--<wxc-loadmore-->
+    <!--text="正在努力加载中..."-->
+    <!--icon="https://s10.mogucdn.com/mlcdn/c45406/171018_8gj08gbl9fj6igb380dec9k1ifhe2_32x32.png"-->
+    <!--&gt;</wxc-loadmore>-->
 
     <view v-if="is_empty">
       <empty></empty>
@@ -108,12 +111,14 @@
   import  fly from "../../utils/fly";
   import tabs from "../../components/tabs/tabs";
   import {pageDTO} from "../../common/model/pageDTO";
+  import {default_product_list} from "../../common/model/defaultProduct";
   import empty from "../../components/empty/empty";
   export default {
     data() {
       return {
         ListSiteProductCategory: [],
         site_product_category_list: [],
+        site_no_product_category_list: [],
         product_detail_list: [],
         has_border: false,
         site_detail: {},
@@ -122,7 +127,7 @@
         search: "搜索",
         current_prod_categoryid: 0,
         previous_pro_cate_id: 0,
-        product_category_id: '',
+        product_category_id: 0,
         sub_category: ['全部', '男款', '女款'],
         sub_category_index: 0,
         site_man_category_list: [],
@@ -141,15 +146,15 @@
     onLoad(options){
       if (options !== undefined) {
         this.site_detail = JSON.parse(options.site);
+        this.setNavigationBarTitle();
       }
     },
     onShow(){
       //  site product category
       this.pageDtoSetting = this.pageDto;
       // 数据初始化
-
       this.sub_category_index = 0;
-      this.product_category_id = this.index_initial;
+      this.product_category_id = 0;
       this.current_prod_categoryid = 0;
 
       this.getListSiteProductCategory();
@@ -177,9 +182,13 @@
       this.toNextPage();
       this.loadReachBottomList();
     },
-
     computed: {},
     methods: {
+      setNavigationBarTitle(){
+        wx.setNavigationBarTitle({
+          title: this.site_detail.brandNameCh   // 页面标题
+        })
+      },
       getListSiteProductCategory() {
         let entityDTO = {entityDTO: {siteId: this.site_detail.siteId}};
         fly.post('phantombuy/site/listSiteProductCategory', entityDTO).then((res) => {
@@ -188,16 +197,19 @@
               this.site_product_category_list = res.data.data.records;
               switch (this.sub_category_index) {
                 case 0:    // 全部商品
+//                  this.site_no_product_category_list = [];
                   break;
                 case 1:  // 男款
-                  this.site_man_category_list = this.site_product_category_list.filter((item, index) => {
+                  this.site_product_category_list.filter((item, index) => {
                     return item.sex == 1;
                   });
-                  this.break;
+                  this.site_man_category_list.splice(0, 0, default_product_list[1]);
+                  break;
                 case 2:  // 女款
                   this.site_woman_category_list = this.site_product_category_list.filter((item, index) => {
                     return item.sex == 0;
                   });
+                  this.site_woman_category_list.splice(0, 0, default_product_list[0]);
                   break;
               }
             }
@@ -254,7 +266,7 @@
       },
       getSingleKindProductList(productCategory, index) {
         this.show_loading();
-        this.product_category_id = index + 1;
+        this.product_category_id = index;
         console.log(this.product_category_id);
         this.previous_pro_cate_id = this.current_prod_categoryid;
         this.current_prod_categoryid = productCategory.productCategoryId;
@@ -333,14 +345,17 @@
             this.site_man_category_list = this.site_product_category_list.filter((item, index) => {
               return item.sex == 1;
             });
+
+            //array.splice(4,0,5);
+            this.site_man_category_list.splice(0, 0, default_product_list[1]);
             this.sex = 1;
             this.getAllProductList();
-
             break;
           case 2:  // 女款
             this.site_woman_category_list = this.site_product_category_list.filter((item, index) => {
               return item.sex == 0;
             });
+            this.site_woman_category_list.splice(0, 0, default_product_list[0]);
             this.sex = 0;
             this.getAllProductList();
             break;
@@ -359,33 +374,31 @@
   .swiper-home {
     width: 100%;
     height: 15%;
-    padding: 10px 10px 0px 0px;
+    padding: 10px 10px 3px 0.78rem;
+    text-align: justify;
+    word-break: break-all;
+  }
+
+  .product_kind_list {
     display: flex;
-    white-space: nowrap;
+    /*flex-wrap: nowrap;*/
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: justify;
+    word-break: break-all;
   }
 
   .site_product {
-    padding-right: 5px;
-    padding-left: 5px;
-    text-align: center;
-    display: inline-block;
-    min-width: 45px;
-    height: 25px;
-    line-height: 25px;
+    min-width: 65px;
+    text-align: left;
+    height: 40px;
+    line-height: 40px;
     font: 14px black;
+    /*text-align: justify;*/
+    /*word-break: break-all;*/
+    vertical-align: middle;
   }
-
-  .search {
-    /*padding-left: 0.1rem;*/
-  }
-
-  /*ul li:last-child {*/
-  /*margin-right: 25px;*/
-  /*}*/
-
-  /*ul li:first-child {*/
-  /*padding-left: -5px;*/
-  /*}*/
 
   ::-webkit-scrollbar {
     width: 20px;
@@ -479,12 +492,12 @@
   }
 
   .ass_category {
-    padding-left: 5px;
+    /*padding-left: 5px;*/
   }
 
   .select {
-    /*padding-left: 2%;*/
     width: 100%;
+    padding: 0.5rem 0rem 0.15rem 0.75rem;
   }
 
   .select .ass_wrap {
@@ -517,8 +530,8 @@
   }
 
   .info_padding {
-    padding-left: 0.1rem;
-    padding-right: 0.4rem;
+    /*padding-left: 0.1rem;*/
+    padding-right: 0.5rem;
   }
 
   .subCategoryActivity {
@@ -531,6 +544,7 @@
 
   .section {
     width: 100%;
+    padding-left: 0.25rem;
   }
 
 </style>

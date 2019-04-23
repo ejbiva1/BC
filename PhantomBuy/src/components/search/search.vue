@@ -1,9 +1,6 @@
 <template xmlns="http://www.w3.org/1999/xhtml">
   <view class="search_component">
     <view class="site">
-      <view class="site_name" v-if="site !== undefined">
-        <span>{{site.brandNameCh}}</span>
-      </view>
       <view class="search-wrap" v-if="site !== undefined">
         <view class="search_form" style="border-radius:2px; background: #fff;">
           <input class="search_input" placeholder="搜索" style="color: #333; width:30px;" v-model="search_key"/>
@@ -80,12 +77,14 @@
 <style>
 
   .search_component {
-    padding-left: 0.15rem;
+    padding-left: 0.75rem;
     width: 100%;
   }
 
   .site {
     display: flex;
+    padding-bottom: 0.2rem;
+    padding-top:0.3rem;
     /*justify-content: flex-start;*/
   }
 
@@ -95,15 +94,13 @@
     font: 13px black;
     line-height: 40px;
     padding: 0.10rem 0.1rem 0.1rem 0rem;
-    /*left: 0%;*/
-    /*position: relative;*/
     text-align: left;
   }
 
   .search-wrap {
     display: flex;
     align-items: center;
-    width: 46%;
+    width: 66%;
   }
 
   .search_form {
@@ -128,11 +125,9 @@
   .search-button-wrap {
     display: flex;
     align-items: center;
-    /*width: 30%;*/
   }
 
   .search__button {
-    /*width: 1.75rem;*/
     height: 0.60rem;
     line-height: 0.60rem;
     font-size: 0.28rem;
@@ -152,7 +147,6 @@
   .site_bonus {
     width: 100%;
     padding: 0.1rem 0.1rem 0.2rem 0rem;
-    /*height: 3%;*/
   }
 
   .site_bonus .fee {

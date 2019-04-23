@@ -1,0 +1,99 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "@minui/wxc-loadmore",
+        "scope": "@minui",
+        "escapedName": "@minui%2fwxc-loadmore",
+        "name": "@minui/wxc-loadmore",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "C:\\BC\\BC\\PhantomBuy"
+    ]
+  ],
+  "_cnpm_publish_time": 1518166820921,
+  "_from": "@minui/wxc-loadmore@latest",
+  "_hasShrinkwrap": false,
+  "_id": "@minui/wxc-loadmore@1.0.5",
+  "_inCache": true,
+  "_location": "/@minui/wxc-loadmore",
+  "_nodeVersion": "8.9.4",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/wxc-loadmore_1.0.5_1518166820849_0.1389520763163421"
+  },
+  "_npmUser": {
+    "name": "cds803",
+    "email": "cds803@126.com"
+  },
+  "_npmVersion": "5.6.0",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "@minui/wxc-loadmore",
+    "scope": "@minui",
+    "escapedName": "@minui%2fwxc-loadmore",
+    "name": "@minui/wxc-loadmore",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npm.taobao.org/@minui/wxc-loadmore/download/@minui/wxc-loadmore-1.0.5.tgz",
+  "_shasum": "592f266c38bf04061e3b174e2546aaae92e207a5",
+  "_shrinkwrap": null,
+  "_spec": "@minui/wxc-loadmore",
+  "_where": "C:\\BC\\BC\\PhantomBuy",
+  "author": {
+    "name": "Min Team"
+  },
+  "dependencies": {},
+  "description": "MinUI 小程序组件 - 页底提示",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "592f266c38bf04061e3b174e2546aaae92e207a5",
+    "size": 3082,
+    "noattachment": false,
+    "tarball": "http://registry.npm.taobao.org/@minui/wxc-loadmore/download/@minui/wxc-loadmore-1.0.5.tgz"
+  },
+  "license": "MIT",
+  "main": "dist/index.js",
+  "maintainers": [
+    {
+      "name": "badeng",
+      "email": "389936695@qq.com"
+    },
+    {
+      "name": "cds803",
+      "email": "cds803@126.com"
+    },
+    {
+      "name": "nilennoct",
+      "email": "hfdjf007@163.com"
+    },
+    {
+      "name": "osmn00",
+      "email": "csser@vip.qq.com"
+    }
+  ],
+  "minConfig": {
+    "component": true
+  },
+  "name": "@minui/wxc-loadmore",
+  "optionalDependencies": {},
+  "publishConfig": {
+    "access": "public"
+  },
+  "publish_time": 1518166820921,
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/meili/minui/tree/master/packages/wxc-end"
+  },
+  "version": "1.0.5"
+}

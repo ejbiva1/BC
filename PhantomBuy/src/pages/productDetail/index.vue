@@ -114,9 +114,9 @@
 
 
     <wxc-toast
-      :is-show="show_toast"
-      :text="msg"
-      :icon="icon_type"
+      :is-show="toast.show_toast"
+      :text="toast.msg"
+      :icon="toast.icon_type"
       icon-color="#ff5777"
     ></wxc-toast>
 
@@ -136,6 +136,7 @@
   import {appMessages} from "../../common/constants/message";
   import {authorize} from "../../utils/authorized";
   import suspension from "../../components/suspension/suspension";
+  import {common} from "../../utils/common";
 
   export default {
     // 商品详情页面目前缺少:
@@ -144,14 +145,9 @@
         product_detail: {},
         has_border: true,
         productColorResponseList: [],
-        productSizeList: [],
-        productImageList: [],
         productColorSizeResponse: {},
         quantity: 1,
         skuId: 0,
-        show_toast: false,
-        msg: '',
-        icon_type: '',
         productSizeIndex: 1000, // 商品尺码索引,
         productColorIndex: 0, // 商品颜色索引
         defaultProductSizeList: [],
@@ -167,7 +163,9 @@
           salePriceRmb: '',
           productName: ''
         },
-        oldProductSizeIndex: 1000
+        oldProductSizeIndex: 1000,
+        toast: {},
+        sessionId: ''
       };
     },
     components: {
@@ -180,15 +178,18 @@
         this.product_id = options.productId;
         // 数据初始化
         this.getProductDetail();
+        this.getSettingKey();
+
       }
     },
     onShow(){
     },
     onUnload(){
       // 初始化数据
+      this.is_authorized = false;
       this.productColorResponseList = [];
-      this.productSizeList = [];
-      this.productImageList = [];
+      this.defaultProductSizeList = [];
+      this.productColorImageList = [];
       this.productColorSizeResponse = {};
       this.skuId = 0;
       this.currentIndex = 0;
@@ -201,124 +202,12 @@
         productNameCn: '',
         originalPriceRmb: '',
         salePriceRmb: '',
-        productName: ''
+        productName: '',
+        is_authorized: false
+
       }
     },
     methods: {
-      getProductDetail(){
-        let entityDTO = {entityDTO: {productId: this.product_id}};
-        // productId : "20463"
-        //let entityDTO = {entityDTO: {productId: "20463"}};
-        fly.post("phantombuy/product/get", entityDTO).then((res)=> {
-          if (res.data.code === '1') {
-            this.product_detail = res.data.data;
-            // 商品名、 价格 数据
-            this.product_basic_info = {
-              brandNameCh: this.product_detail.brandNameCh,
-              productNameCn: this.product_detail.productNameCn,
-              originalPriceRmb: this.product_detail.originalPriceRmb,
-              salePriceRmb: this.product_detail.salePriceRmb,
-              productName: this.product_detail.productName
-            }
-
-            console.log(this.product_basic_info);
-
-            if (this.product_detail.defaultColorName !== undefined) this.product_detail.defaultColorName = this.product_detail.defaultColorName.toUpperCase();
-            if (this.product_detail.productColorSizeResponse !== undefined) {
-              this.productColorSizeResponse = this.product_detail.productColorSizeResponse;
-              // 商品 颜色
-              this.productColorResponseList = this.product_detail.productColorSizeResponse.productColorResponseList;
-              // 商品 size
-              this.productSizeList = this.product_detail.productColorSizeResponse.productSizeList;
-              // 默认显示商品image 对应的 skuId列表
-              if (this.productColorResponseList.length >= 0) {
-                // 衣服 等商品, 包含: size、 color 等数据
-                this.defaultProductSizeList = this.product_detail.productColorSizeResponse.productColorResponseList[0].skuSizeList;
-                this.productColorImageList = this.product_detail.productColorSizeResponse.productColorResponseList[0].productImageList;
-              }
-
-            } else {
-              // 美妆 不包含: size、 color 等数据， 只显示商品图片
-              //this.productColorImageList = this.product_detail.productImageList;
-            }
-            if (!this.is_show) this.is_show = true;
-          } else {
-          }
-          this.hide_loading();
-        });
-      },
-      // 选择商品颜色
-      chooseProductColor(productColor, index, e){
-        this.productColorIndex = index;
-        if (this.productColorResponseList.length > 0) {
-          this.defaultProductSizeList = this.productColorResponseList[index].skuSizeList;
-          this.productColorImageList = this.productColorResponseList[index].productImageList;
-          this.currentIndex = 0;
-        }
-      },
-      // swiper 图片切换
-      switchImage(res){
-        let oIndex = res.mp.detail.current;
-        this.currentIndex = oIndex;
-      },
-      //选择商品尺码 选中 or 取消选中
-      chooseProductSize(item, index){
-        // 2个 指针 指向
-        this.oldProductSizeIndex = this.productSizeIndex;
-        this.productSizeIndex = index;
-        // 选择相同尺码
-        if (this.oldProductSizeIndex == this.productSizeIndex) {
-          this.productSizeIndex = 1000;
-          this.skuId = 0;
-          return;
-        }
-        this.skuId = item.skuId;
-      },
-
-      onChangeNumber(e){
-        // 获取选择商品数量
-        this.quantity = e.mp.detail.number;
-      },
-      addBuyCart(){
-        // 已授权
-        if (this.skuId == 0 || this.quantity == 0) {
-          this.showErrMsg();
-        } else {
-          // 看当前用户是否已授权
-          this.getSettingKey();
-        }
-      },
-      showErrMsg(){
-        if (this.skuId == 0 && this.productSizeList.length !== 0) {
-          this.msg = appMessages.CHOOSE_SIZE_ERROR;
-          this.icon_type = "warning";
-          this.showToast();
-          return;
-        } else if (this.productSizeList.length !== 0 && this.quantity == 0) {
-          // 保证 包 and 衣服 同时报错
-          this.msg = appMessages.CHOOSE_QUANTITY_ERROR;
-          this.icon_type = "warning";
-          this.showToast();
-          return;
-        }
-      },
-      showToast(){
-        this.show_toast = true;
-        setTimeout(()=> {
-          if (this.show_toast)   this.show_toast = !this.show_toast;
-        }, 2000);
-      },
-      show_loading() {
-        wx.showLoading({
-          title: '加载中',
-        })
-      },
-      hide_loading() {
-        setTimeout(function () {
-          wx.hideLoading()
-        }, 1500);
-
-      },
       getSettingKey () {
         let self = this;
         let settingKey
@@ -330,9 +219,9 @@
               self.getSessionId();
             } else if (settingKey === '0') {
               // 未授权，跳转授权页面
-              wx.navigateTo({
-                url: '/pages/login/main'
-              })
+//              wx.navigateTo({
+//                url: '/pages/login/main'
+//              })
             } else {
               this.getSettingKey()
             }
@@ -350,36 +239,165 @@
           key: 'cookieKey',
           success: function (data) {
             const cookieSession = String(data.data);
-            let sessionId = cookieSession.split('=')[1].split(';')[0];
-            self.addBuyCartSuccessfully(sessionId);
+            self.sessionId = cookieSession.split('=')[1].split(';')[0];
+            if (!self.is_authorized) {
+              self.is_authorized = true;
+            }
+            else {
+              self.addBuyCartSuccessfully();
+            }
+
           },
           fail: function (err) {
-            wx.navigateTo({
-              url: '/pages/login/main'
-            })
+
           }
         })
       },
-      addBuyCartSuccessfully(sessionId){
-        fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
+      getProductDetail(){
+        let entityDTO = {entityDTO: {productId: this.product_id}};
+        // productId : "20463"
+        //let entityDTO = {entityDTO: {productId: "20463"}};
+        fly.post("phantombuy/product/get", entityDTO).then((res)=> {
+          if (res.data.code === '1') {
+            this.product_detail = res.data.data;
+            // 商品名、 价格 数据
+            this.product_basic_info = {
+              brandNameCh: this.product_detail.brandNameCh,
+              productNameCn: this.product_detail.productNameCn,
+              originalPriceRmb: this.product_detail.originalPriceRmb,
+              salePriceRmb: this.product_detail.salePriceRmb,
+              productName: this.product_detail.productName
+            }
+
+            if (this.product_detail.defaultColorName !== undefined) this.product_detail.defaultColorName = this.product_detail.defaultColorName.toUpperCase();
+            // 非美妆类产品
+            if (this.product_detail.productColorSizeResponse !== undefined) {
+              this.productColorSizeResponse = this.product_detail.productColorSizeResponse;
+              // 商品 颜色
+              this.productColorResponseList = this.product_detail.productColorSizeResponse.productColorResponseList;
+              // 默认显示商品image 对应的 skuId列表
+              if (this.productColorResponseList.length >= 0) {
+                // 衣服 等商品, 包含: size、 color 等数据
+                this.defaultProductSizeList = this.product_detail.productColorSizeResponse.productColorResponseList[0].skuSizeList;
+                // for rgb(div background color)
+                this.productColorImageList = this.product_detail.productColorSizeResponse.productColorResponseList[0].productImageList;
+              }
+
+            } else {
+              // 美妆 不包含: size、 color 等数据， 只显示商品图片，默认赋值 skuId
+              this.skuId = this.product_detail.skuId;
+            }
+            if (!this.is_show) this.is_show = true;
+          } else {
+          }
+          this.hide_loading();
+        });
+      },
+      // 选择商品颜色  非美妆类产品
+      chooseProductColor(productColor, index, e){
+        this.productColorIndex = index;
+        if (this.productColorResponseList.length > 0) {
+          this.defaultProductSizeList = this.productColorResponseList[index].skuSizeList;
+          this.productColorImageList = this.productColorResponseList[index].productImageList;
+          this.currentIndex = 0;
+        }
+      },
+      // swiper 图片切换
+      switchImage(res){
+        let oIndex = res.mp.detail.current;
+        this.currentIndex = oIndex;
+      },
+      //选择商品尺码 选中 or 取消选中  非美妆类产品
+      chooseProductSize(item, index){
+        // 2个 指针 指向
+        this.oldProductSizeIndex = this.productSizeIndex;
+        this.productSizeIndex = index;
+        // 选择相同尺码
+        if (this.oldProductSizeIndex == this.productSizeIndex) {
+          this.productSizeIndex = 1000;
+          this.skuId = 0;
+          return;
+        }
+        this.skuId = item.skuId;
+      },
+      onChangeNumber(e){
+        // 获取选择商品数量
+        this.quantity = e.mp.detail.number;
+      },
+      addBuyCart(){
+        // 报错
+        if (!this.showErrMsg()) {
+          return;
+        }
+
+        // 这样是在第一次函数调用中
+
+        if (this.is_authorized) {
+          this.addBuyCartSuccessfully();
+        } else {
+          this.getSettingKey();
+          if (!this.is_authorized)
+          // 要求用户授权
+            wx.navigateTo({
+              url: '/pages/login/main'
+            })
+
+        }
+
+      },
+      showErrMsg(){
+        let self = this;
+        if (self.skuId == 0 && self.defaultProductSizeList.length !== 0) {
+          self.toast = common.showErrorMsg(appMessages.CHOOSE_SIZE_ERROR);
+          setTimeout(function () {
+            self.toast.show_toast = false;
+          }, 1500);
+          return false;
+        } else if (self.defaultProductSizeList.length !== 0 && self.quantity == 0) {
+          // 保证 包 and 衣服 同时报错
+          self.toast = common.showErrorMsg(appMessages.CHOOSE_QUANTITY_ERROR);
+          setTimeout(function () {
+            self.toast.show_toast = false;
+          }, 1500);
+          return false;
+        }
+
+        return true;
+      },
+      show_loading() {
+        wx.showLoading({
+          title: '加载中',
+        })
+      },
+      hide_loading() {
+        setTimeout(function () {
+          wx.hideLoading()
+        }, 1500);
+
+      },
+      addBuyCartSuccessfully(){
+        fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
         let entityDTO = {
           "entityDTO": {
             "quantity": this.quantity,
             "skuId": this.skuId
           }
         };
+        let self = this;
         fly.post("phantombuy/cart/add", entityDTO).then(res => {
           if (res.data.code === '1') {
-            this.showAddCartMsg(appMessages.ADD_CART_SUCCESS);
+            self.toast = common.showSuccessMsg(appMessages.ADD_CART_SUCCESS);
+            setTimeout(function () {
+              self.toast.show_toast = false;
+            }, 1500);
+
           } else {
-            this.showAddCartMsg(appMessages.ADD_CART_FAILED);
+            self.toast = common.showErrorMsg(appMessages.ADD_CART_FAILED);
+            setTimeout(function () {
+              self.toast.show_toast = false;
+            }, 1500);
           }
         });
-      },
-      showAddCartMsg(msg) {
-        this.msg = msg;
-        this.icon_type = "yes";
-        this.showToast();
       },
       gotoCart(){
         wx.switchTab({
@@ -609,7 +627,7 @@
   }
 
   .productSizeActivity {
-    border-color: #1890ff;
+    border: 1.5px solid #1890ff;
     box-shadow: none !important;
   }
 
