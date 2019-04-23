@@ -7,6 +7,5 @@
     "wxc-button": "/static/minui/@minui/wxc-button/dist/index",
     "slider-left": "/static/slider-left/index",
     "wxc-panel": "/static/minui/@minui/wxc-panel/dist/index"
-
   }
 }

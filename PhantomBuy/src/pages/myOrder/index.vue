@@ -244,6 +244,7 @@
                       }
                     } else {
                       // Todo: 列表为空 应该要展示一个空的蒙版
+                      self.order_list = []
                       self.displayData = 'block'
                       console.log(`我的订单数据:`, res)
                     }

@@ -22,8 +22,8 @@
           <view>
             <view v-for="(cartListItem, j) in item.cartList" :key="j" class="cart_block cart-item">
               <checkbox-group @change="itemBlockChangeColor(cartListItem, cartListItem.cartId)" >
-                <checkbox class="sliderLeft" >
-                  <slider-left @delete.stop="handleDelete" :id="cartListItem.cartId">
+                <checkbox class="sliderLeft" :id="cartListItem.cartId">
+                  <slider-left @delete="handleDelete" :id="cartListItem.cartId">
                     <view class="itemBlock" :id="cartListItem.cartId">
                       <view class="row">
                         <view class="itemImage">
@@ -121,7 +121,6 @@
     data () {
       return {
         cartIdList: [],
-        deleteflag: 0,
         cart_list: [],
         btnType: 'disabled',
         settingKey: '',
@@ -145,8 +144,7 @@
        */
     },
     onShow (options) {
-      this.getSettingKey
-      ();
+      this.getSettingKey();
     },
     methods: {
       move () {
@@ -170,7 +168,6 @@
           title: 'Loading'
         })
         const self = this
-        self.deleteflag = 1
         fly.config.headers['Cookie'] = 'JSESSIONID=' + sessionId
         // e.mp.currentTarget.id在cartIdList里面的话，要先从list里面删掉
         var cartID = parseInt(e.mp.currentTarget.id)
@@ -329,31 +326,28 @@
       },
       itemBlockChangeColor: function (res, index) {
         const self = this
-        if (self.deleteflag === 0){
-          wx.showLoading({
-            title: 'Loading'
-          })
-          //先判断，list里面本来就有的话，就删掉，本来没有就加进去
-          var position = this.cartIdList.indexOf(index)
-          if (position === -1) {
-            this.cartIdList.push(index)
-          } else {
-            this.cartIdList.splice(position, 1)
-          }
-          // 为了checkout的btn添加一段
-          // 如果cartIdList有东西就btnType = secondary
-          if (this.cartIdList.length > 0) {
-            this.btnType = 'secondary'
-          } else {
-            this.btnType = 'disabled'
-          }
-          var testRes = this.cartIdList.includes(index)
-          console.log(testRes);
-          console.log(`我就看看点击之后拿了啥:`, res);
-          // 调用calculateFee
-          this.calculateFee(this.cartIdList)
+        wx.showLoading({
+          title: 'Loading'
+        })
+        //先判断，list里面本来就有的话，就删掉，本来没有就加进去
+        var position = this.cartIdList.indexOf(index)
+        if (position === -1) {
+          this.cartIdList.push(index)
+        } else {
+          this.cartIdList.splice(position, 1)
         }
-        self.deleteflag = 0
+        // 为了checkout的btn添加一段
+        // 如果cartIdList有东西就btnType = secondary
+        if (this.cartIdList.length > 0) {
+          this.btnType = 'secondary'
+        } else {
+          this.btnType = 'disabled'
+        }
+        var testRes = this.cartIdList.includes(index)
+        console.log(testRes);
+        console.log(`我就看看点击之后拿了啥:`, res);
+        // 调用calculateFee
+        this.calculateFee(this.cartIdList)
       },
       calculateFee: function (list) {
         /*
