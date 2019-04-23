@@ -21,9 +21,9 @@
 
           <view>
             <view v-for="(cartListItem, j) in item.cartList" :key="j" class="cart_block cart-item">
-              <checkbox-group @change="itemBlockChangeColor(cartListItem, cartListItem.cartId)" >
-                <checkbox class="sliderLeft" >
-                  <slider-left @delete.stop="handleDelete" :id="cartListItem.cartId">
+              <checkbox-group >
+                <checkbox class="sliderLeft" :id="cartListItem.cartId" @change="itemBlockChangeColor(cartListItem, cartListItem.cartId)">
+                  <slider-left @delete="handleDelete" :id="cartListItem.cartId">
                     <view class="itemBlock" :id="cartListItem.cartId">
                       <view class="row">
                         <view class="itemImage">
@@ -145,8 +145,7 @@
        */
     },
     onShow (options) {
-      this.getSettingKey
-      ();
+      this.getSettingKey();
     },
     methods: {
       move () {
