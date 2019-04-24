@@ -34,6 +34,9 @@
   import fly from "../../utils/fly";
   import {appMessages} from "../../common/constants/message";
   import {common} from "../../utils/common";
+  import {mapState, mapMutations} from 'vuex'
+  import {SET_OPEN_ID} from "../../store/mutation-types"
+
   //地址列表页
   export default {
     name: 'address',
@@ -48,11 +51,19 @@
     },
     onShow(){
       this.show_loading();
-      this.getSettingKey();
+      //this.getSettingKey();
     },
     created() {
     },
+    computed: {
+      ...mapState([
+        'openId'
+      ])
+    },
     methods: {
+      ...mapMutations([
+        SET_OPEN_ID
+      ]),
       editUserAddress(item){
         this.address = item;
         wx.navigateTo({

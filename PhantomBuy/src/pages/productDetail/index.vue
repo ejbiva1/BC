@@ -177,10 +177,7 @@
         this.show_loading();
         this.product_id = options.productId;
         // 数据初始化
-        this.getSettingKey();
-        //this.getProductDetail();
-
-
+        this.getProductDetail();
       }
     },
     onShow(){
@@ -224,12 +221,12 @@
                 url: '/pages/login/main'
               })
             } else {
-              this.getSettingKey()
+              self.getSettingKey()
             }
           },
           // 没有获得到SettingKey的时候重复调用本函数
           fail: function (err) {
-            this.getSettingKey()
+            self.getSettingKey()
           }
         })
       },
@@ -241,7 +238,8 @@
           success: function (data) {
             const cookieSession = String(data.data);
             self.sessionId = cookieSession.split('=')[1].split(';')[0];
-            self.getProductDetail();
+            self.addBuyCartSuccessfully();
+            //self.getProductDetail();
           },
           fail: function (err) {
             wx.navigateTo({
@@ -327,7 +325,8 @@
           return;
         }
 
-        this.addBuyCartSuccessfully();
+        //this.addBuyCartSuccessfully();
+        this.getSettingKey();
       },
       showErrMsg(){
         let self = this;
