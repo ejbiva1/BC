@@ -137,6 +137,8 @@
   import {authorize} from "../../utils/authorized";
   import suspension from "../../components/suspension/suspension";
   import {common} from "../../utils/common";
+  import {mapState, mapMutations} from 'vuex'
+  import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types"
 
   export default {
     // 商品详情页面目前缺少:
@@ -165,12 +167,18 @@
         },
         oldProductSizeIndex: 1000,
         toast: {},
-        sessionId: ''
+        authorized_index: 0  // 该标签标志 用户进入该商品详情页进行首次授权
       };
     },
     components: {
       'tab': tabs,
       'suspension': suspension
+    },
+    computed: {
+      ...mapState([
+        'settingKey',
+        'sessionId'
+      ])
     },
     onLoad(options) {
       if (options !== undefined) {
@@ -181,10 +189,13 @@
       }
     },
     onShow(){
+      if (this.authorized_index === 1) {
+        this.addBuyCartSuccessfully();
+        console.log("this.authorized_index:" + this.authorized_index);
+      }
     },
     onUnload(){
       // 初始化数据
-      this.is_authorized = false;
       this.productColorResponseList = [];
       this.defaultProductSizeList = [];
       this.productColorImageList = [];
@@ -201,52 +212,20 @@
         originalPriceRmb: '',
         salePriceRmb: '',
         productName: '',
-        is_authorized: false
-
-      }
+      };
+      this.authorized_index = 0;
     },
     methods: {
-      getSettingKey () {
-        let self = this;
-        let settingKey
-        wx.getStorage({
-          key: 'settingKey',
-          success: function (data) {
-            settingKey = data.data;
-            if (settingKey === '1') {
-              self.getSessionId();
-            } else if (settingKey === '0') {
-              // 未授权，跳转授权页面
-              wx.navigateTo({
-                url: '/pages/login/main'
-              })
-            } else {
-              self.getSettingKey()
-            }
-          },
-          // 没有获得到SettingKey的时候重复调用本函数
-          fail: function (err) {
-            self.getSettingKey()
-          }
-        })
-      },
-      // 获取当前用户sessionId
-      getSessionId() {
-        let self = this;
-        wx.getStorage({
-          key: 'cookieKey',
-          success: function (data) {
-            const cookieSession = String(data.data);
-            self.sessionId = cookieSession.split('=')[1].split(';')[0];
-            self.addBuyCartSuccessfully();
-            //self.getProductDetail();
-          },
-          fail: function (err) {
-            wx.navigateTo({
-              url: '/pages/login/main'
-            })
-          }
-        })
+      is_authorized(){
+        if (this.settingKey === '1') { // 已授权
+          return true;
+        } else {      // 未授权 , 不停地跳转至 登录页
+          this.authorized_index = 1;  // 标志着授权成功
+          wx.navigateTo({
+            url: '/pages/login/main'
+          })
+        }
+        return false;
       },
       getProductDetail(){
         let entityDTO = {entityDTO: {productId: this.product_id}};
@@ -325,8 +304,8 @@
           return;
         }
 
-        //this.addBuyCartSuccessfully();
-        this.getSettingKey();
+        if (this.is_authorized())
+          this.addBuyCartSuccessfully();
       },
       showErrMsg(){
         let self = this;

@@ -110,16 +110,6 @@
 
       </view>
 
-      <!--<view class="id_cards_img_section" v-show="id_card_img.length > 0">-->
-      <!--&lt;!&ndash;上传图片后，立即加载下来&ndash;&gt;-->
-      <!--<view v-for="(item, index) in id_card_img" class="id_cards_img" :key="index">-->
-      <!--<a target="_blank" :href="item.fileUrl">-->
-      <!--<img :src="item.fileUrl" class="id_card_img"/>-->
-      <!--</a>-->
-      <!--</view>-->
-      <!--</view>-->
-
-      <!--#007bff-->
       <view class="section_button">
         <wxc-button size="large" :btnStyle="button_style" type="beauty" value="完成"
                     @click="confirmAddress"></wxc-button>
@@ -147,6 +137,8 @@
   import {common} from "../../utils/common";
   import {service} from "../../common/constants/services";
   import  fly from "../../utils/fly";
+  import {mapState, mapMutations} from 'vuex';
+  import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types";
 
   //这个页面还剩 删除地址、 更新地址、 添加地址  访问api
   export default {
@@ -156,12 +148,10 @@
         has_border: true,
         address: new Address({}),
         toast: {},
-        sessionId: '',
         isEditAddress: false,
         style: 'display: flex;justify-content: space-between; width: 100%;border-radius: 46rpx;vertical-align: middle; height: 108rpx; line-height: 108rpx;  box-shadow:2px 2px 4px 1px #000 inset; -webkit-box-shadow: #666 0px 0px 10px; -moz-box-shadow: #666 0px 0px 10px; ',
         button_style: 'color: #fff;vertical-align: middle;text-align: center;border-radius: 20rpx;',
         delete_style: 'vertical-align: middle;text-align: center;border-radius: 20rpx;',
-        imageNum: 2,
         id_card_img: [],
         default_address: {
           value: '同意',
@@ -200,67 +190,36 @@
     },
     onShow(){
       this.getSettingKey();
-
     },
     created() {
     },
+    computed: {
+      ...mapState([
+        'settingKey',
+        'sessionId'
+      ])
+    },
     methods: {
       // 是否授权
-      getSettingKey () {
-        let self = this;
-        let settingKey
-        wx.getStorage({
-          key: 'settingKey',
-          success: function (data) {
-            settingKey = data.data;
-            if (settingKey === '1') {
-              self.getSessionId();
-              console.log(settingKey);
-            } else if (settingKey === '0') {
-              // 未授权，跳转授权页面
-              wx.navigateTo({
-                url: '/pages/login/main'
-              })
-            } else {
-              self.getSettingKey()
-            }
-          },
-          // 没有获得到SettingKey的时候重复调用本函数
-          fail: function (err) {
-            self.getSettingKey()
-          }
-        })
-      },
-      // 获取 SessionId
-      getSessionId() {
-        let self = this;
-        wx.getStorage({
-          key: 'cookieKey',
-          success: function (data) {
-            const cookieSession = String(data.data);
-            self.sessionId = cookieSession.split('=')[1].split(';')[0];
-            console.log(self.sessionId);
-          },
-          fail: function (err) {
-            console.log(err)
-            wx.navigateTo({
-              url: '/pages/login/main'
-            })
-          }
-        })
+      is_authorized(){
+        if (this.settingKey === '1') { // 已授权
+          return true;
+        } else {      // 未授权 , 不停地跳转至 登录页
+          wx.navigateTo({
+            url: '/pages/login/main'
+          })
+        }
+        return false;
       },
       confirmAddress(){
         fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
         this.address.fileList = this.id_card_img;
         this.address.isDefault = this.default_address.checked === true ? 1 : 0;
-        if (this.address.addressId !== undefined) {
-          // 更新 地址
+        if (this.address.addressId !== undefined) {   // 更新 地址
           this.editAddress();
-        } else {
-          // 添加地址
+        } else {   // 添加地址
           this.addAddress();
         }
-
       },
       addAddress(){
         let self = this;
@@ -270,7 +229,6 @@
             setTimeout(function () {
               self.toast.show_toast = false;
             }, 1500);
-
             setTimeout(function () {
               wx.navigateBack({
                 delta: 1
@@ -306,7 +264,6 @@
           }
         });
       },
-
       uploadImgBtn(index){
         var self = this;
         wx.chooseImage({
@@ -351,27 +308,7 @@
                 break;
             }
 
-
             self.id_card_img.push(data.data[0]);
-
-
-//            self.toast = common.showSuccessMsg('上传图片成功');
-//            setTimeout(function(){
-//              let data = JSON.parse(res.data);
-//            }, 1000);
-
-            // 判断最后一张图片上传
-//            if (imageNo == this.imageNum) {
-//              //wx.hideLoading();
-//              if (that.data.imageUploadFlag) { // 全部提交成功
-//                app.showOk('提交成功');
-//                wx.reLaunch({
-//                  url: '../map/map',
-//                })
-//              } else { // 其中有失败
-//                // app.showErr('出错', that.data.imageErr);
-//              }
-//            }
           },
           fail(res){
 

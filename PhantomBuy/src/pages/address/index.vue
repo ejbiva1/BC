@@ -34,8 +34,8 @@
   import fly from "../../utils/fly";
   import {appMessages} from "../../common/constants/message";
   import {common} from "../../utils/common";
-  import {mapState, mapMutations} from 'vuex'
-  import {SET_OPEN_ID} from "../../store/mutation-types"
+  import {mapState, mapMutations} from 'vuex';
+  import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types";
 
   //地址列表页
   export default {
@@ -44,81 +44,46 @@
       return {
         has_border: true,
         toast: {},
-        session_id: '',
         address: {},
         address_list: []
       }
     },
     onShow(){
       this.show_loading();
-      //this.getSettingKey();
+      if (this.is_authorized()) {
+        this.getUserAddressList();
+        this.hide_loading();
+      }
     },
     created() {
     },
     computed: {
       ...mapState([
-        'openId'
+        'settingKey',
+        'sessionId'
       ])
     },
     methods: {
-      ...mapMutations([
-        SET_OPEN_ID
-      ]),
+      is_authorized(){
+        if (this.settingKey === '1') { // 已授权
+          return true;
+        } else {      // 未授权 , 不停地跳转至 登录页
+          wx.navigateTo({
+            url: '/pages/login/main'
+          })
+        }
+        return false;
+      },
       editUserAddress(item){
         this.address = item;
         wx.navigateTo({
           url: '/pages/editaddress/main?isEditAddress= ' + true + '&address_detail=' + JSON.stringify(this.address)
         });
       },
-      getSettingKey () {
-        let self = this;
-        let settingKey
-        wx.getStorage({
-          key: 'settingKey',
-          success: function (data) {
-            settingKey = data.data;
-            if (settingKey === '1') {
-              self.getSessionId();
-            } else if (settingKey === '0') {
-              // 未授权，跳转授权页面
-              wx.navigateTo({
-                url: '/pages/login/main'
-              })
-            } else {
-              self.getSettingKey()
-            }
-          },
-          // 没有获得到SettingKey的时候重复调用本函数
-          fail: function (err) {
-            self.getSettingKey()
-          }
-        })
-      },
-
-      getSessionId() {
-        let self = this;
-        wx.getStorage({
-          key: 'cookieKey',
-          success: function (data) {
-            const cookieSession = String(data.data);
-            let sessionId = cookieSession.split('=')[1].split(';')[0];
-            self.getUserAddressList(sessionId);
-            self.hide_loading();
-
-          },
-          fail: function (err) {
-            console.log(err)
-            wx.navigateTo({
-              url: '/pages/login/main'
-            })
-          }
-        })
-      },
-      getUserAddressList(sessionId){
+      getUserAddressList(){
         let self = this;
         // 获取当前用户 地址列表
-        fly.config.headers["Cookie"] = "JSESSIONID=" + sessionId;
-        self.session_id = sessionId;
+        fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
         fly.post("phantombuy/userAddress/list", {entityDTO: {}}).then(res => {
           if (res.data.code === '1') {
             self.address_list = res.data.data.records;
@@ -148,10 +113,7 @@
         setTimeout(function () {
           wx.hideLoading()
         }, 1500);
-
       },
-      showMsg() {
-      }
     }
   }
 </script>
