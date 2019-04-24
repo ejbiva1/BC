@@ -177,8 +177,9 @@
         this.show_loading();
         this.product_id = options.productId;
         // 数据初始化
-        this.getProductDetail();
         this.getSettingKey();
+        //this.getProductDetail();
+
 
       }
     },
@@ -219,9 +220,9 @@
               self.getSessionId();
             } else if (settingKey === '0') {
               // 未授权，跳转授权页面
-//              wx.navigateTo({
-//                url: '/pages/login/main'
-//              })
+              wx.navigateTo({
+                url: '/pages/login/main'
+              })
             } else {
               this.getSettingKey()
             }
@@ -240,16 +241,12 @@
           success: function (data) {
             const cookieSession = String(data.data);
             self.sessionId = cookieSession.split('=')[1].split(';')[0];
-            if (!self.is_authorized) {
-              self.is_authorized = true;
-            }
-            else {
-              self.addBuyCartSuccessfully();
-            }
-
+            self.getProductDetail();
           },
           fail: function (err) {
-
+            wx.navigateTo({
+              url: '/pages/login/main'
+            })
           }
         })
       },
@@ -330,20 +327,7 @@
           return;
         }
 
-        // 这样是在第一次函数调用中
-
-        if (this.is_authorized) {
-          this.addBuyCartSuccessfully();
-        } else {
-          this.getSettingKey();
-          if (!this.is_authorized)
-          // 要求用户授权
-            wx.navigateTo({
-              url: '/pages/login/main'
-            })
-
-        }
-
+        this.addBuyCartSuccessfully();
       },
       showErrMsg(){
         let self = this;

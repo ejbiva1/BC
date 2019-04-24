@@ -3,7 +3,7 @@
     <view class="site">
       <view class="search-wrap" v-if="site !== undefined">
         <view class="search_form" style="border-radius:2px; background: #fff;">
-          <input class="search_input" placeholder="搜索" style="color: #333; width:30px;" v-model="search_key"/>
+          <input class="search_input" placeholder="搜索" style="color: #333; " v-model="search_key"/>
         </view>
       </view>
       <view style="border-radius:2px; " class="search-button-wrap">
@@ -84,7 +84,7 @@
   .site {
     display: flex;
     padding-bottom: 0.2rem;
-    padding-top:0.3rem;
+    padding-top: 0.3rem;
     /*justify-content: flex-start;*/
   }
 
@@ -120,6 +120,7 @@
     padding: 0 0.16rem;
     font-size: 0.28rem;
     background: #fff;
+    width: 100%;
   }
 
   .search-button-wrap {

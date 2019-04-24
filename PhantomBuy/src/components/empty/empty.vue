@@ -1,6 +1,6 @@
 <template>
   <div class="empty_product_div">
-    <view class="empty_product">没有该类商品，请选择其他种类商品看看吧。</view>
+    <view class="empty_product">没有该类商品，选择其他种类商品看看。</view>
   </div>
 </template>
 
@@ -19,9 +19,7 @@
   }
 
   .empty_product {
-    width: 100%;
-    /*padding-top: 2rem;*/
-    /*padding-bottom: 2rem;*/
+    padding-left: 0.4rem;
   }
 </style>
 
