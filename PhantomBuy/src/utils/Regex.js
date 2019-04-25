@@ -110,8 +110,11 @@ class Regex {
 
   //验证手机号
   validatePhone(phone) {
-    var regex = /^[1][3,4,5,6,7,8,9][0-9]{9}$/;
-    if (!regex.test(phone)) {
+    // var regex = /^[1][3,4,5,6,7,8,9][0-9]{9}$/;
+    // if (!regex.test(phone)) {
+    //   return false;
+    // }
+    if(phone.length < 11){
       return false;
     }
     return true;
@@ -132,6 +135,14 @@ class Regex {
     return (obj).replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
   }
 
+
+  // 验证 邮编
+  validatePostCode(post_code){
+    if(post_code.length ==0){
+      return false;
+    }
+    return true;
+  }
 
 }
 

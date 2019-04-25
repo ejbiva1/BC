@@ -138,7 +138,7 @@
   import {service} from "../../common/constants/services";
   import  fly from "../../utils/fly";
   import {mapState, mapMutations} from 'vuex';
-//  import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types";
+  //  import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types";
 
   //这个页面还剩 删除地址、 更新地址、 添加地址  访问api
   export default {
@@ -158,7 +158,8 @@
           checked: false
         },
         id_front_img: undefined,
-        id_backend_img: undefined
+        id_backend_img: undefined,
+        pageTitle: ''
       }
     },
     components: {
@@ -187,11 +188,11 @@
       } else {
         this.isEditAddress = true
       }
+
+      this.setNavigationBarTitle();
     },
     onShow(){
-     // this.getSettingKey();
-    },
-    created() {
+
     },
     computed: {
       ...mapState([
@@ -222,45 +223,35 @@
         }
       },
       addAddress(){
-        let self = this;
-        fly.post("phantombuy/userAddress/add", {entityDTO: self.address}).then(res => {
+        fly.post("phantombuy/userAddress/add", {entityDTO: this.address}).then(res => {
           if (res.data.code === '1') {
-            self.toast = common.showSuccessMsg('添加地址成功');
-            setTimeout(function () {
-              self.toast.show_toast = false;
-            }, 1500);
+            this.toast = common.showSuccessMsg('添加地址成功');
+            this.hideToast();
             setTimeout(function () {
               wx.navigateBack({
                 delta: 1
               })
             }, 1500);
           } else {
-            self.toast = common.showErrorMsg('添加地址失败');
-            setTimeout(function () {
-              self.toast.show_toast = false;
-            }, 1500);
+            this.toast = common.showErrorMsg('添加地址失败');
+            this.hideToast();
           }
         });
       },
       editAddress(){
         let self = this;
-        fly.post("phantombuy/userAddress/update", {entityDTO: self.address}).then(res => {
+        fly.post("phantombuy/userAddress/update", {entityDTO: this.address}).then(res => {
           if (res.data.code === '1') {
-            self.toast = common.showSuccessMsg('更新地址成功!');
-            setTimeout(function () {
-              self.toast.show_toast = false;
-            }, 1500);
-
+            this.toast = common.showSuccessMsg('更新地址成功!');
+            this.hideToast();
             setTimeout(function () {
               wx.navigateBack({
                 delta: 1
               })
             }, 1500);
           } else {
-            self.toast = common.showErrorMsg('更新地址失败');
-            setTimeout(function () {
-              self.toast.show_toast = false;
-            }, 1500);
+            this.toast = common.showErrorMsg('更新地址失败');
+            this.hideToast();
           }
         });
       },
@@ -316,57 +307,71 @@
         });
       },
       deleteAddress(){
-        let self = this;
-        fly.config.headers["Cookie"] = "JSESSIONID=" + self.sessionId;
+        fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
         let entityDTO = {
-          entityDTO: {addressId: self.address.addressId !== undefined ? self.address.addressId : undefined}
+          entityDTO: {addressId: this.address.addressId !== undefined ? this.address.addressId : undefined}
         };
         fly.post("phantombuy/userAddress/delete", entityDTO).then(res => {
           if (res.data.code === '1') {
-            self.toast = common.showErrorMsg("删除地址成功!");
-
-            setTimeout(function () {
-              self.toast.show_toast = false;
-              wx.navigateBack({
-                delta: 1
-              })
-            }, 1500);
+            this.toast = common.showErrorMsg("删除地址成功!");
+            this.hideToast();
+            wx.navigateBack({
+              delta: 1
+            })
           } else {
-            self.toast = common.showErrorMsg("删除地址错误");
-            setTimeout(function () {
-              self.toast.show_toast = false;
-            }, 1500);
+            this.toast = common.showErrorMsg("删除地址错误");
+            this.hideToast();
           }
         });
       },
       validateUserIdNumber(e){
         //  验证 身份证号码是否合规
-        let self = this;
-        self.address.idNumber = e.mp.detail.value;
-//        if (regex.validateUserIDCard(this.address.idNumber)) {
-//        } else {
-//          self.toast = common.showErrorMsg("身份证号码验证错误");
-//          setTimeout(function () {
-//            self.toast.show_toast = false;
-//          }, 1000);
-//        }
-
+        this.address.idNumber = e.mp.detail.value;
+        if (regex.validateUserIDCard(this.address.idNumber)) {
+        } else {
+//          this.toast = common.showErrorMsg("身份证号码验证错误");
+          this.toast = common.showErrorMsg("请填写正确的身份证号码");
+          this.hideToast();
+        }
       },
       validateUserPhoneNo(e){   // 验证手机号号码
         this.address.receiverPhone = e.mp.detail.value;
         if (regex.validatePhone(this.address.receiverPhone)) {
         } else {
-          //this.toast = toast.showErrorMsg("手机号码验证错误");
+          this.toast = common.showErrorMsg("长度应为11位");
+          this.hideToast();
         }
       },
       validateAddress(e){ // 验证地址是否合规
         this.address.addressDetail = e.mp.detail.value;
+        if (this.address.addressDetail.length !== 0) {
+        } else {
+          this.toast = common.showErrorMsg("姓名不能为空");
+          this.hideToast();
+        }
       },
       validatePostCode(e){   // 验证邮政编码
         this.address.postCode = e.mp.detail.value;
+        if (regex.validatePostCode(this.address.postCode)) {
+
+        } else {
+          this.toast = common.showErrorMsg("邮政编码不能为空");
+          this.hideToast();
+        }
       },
       validateUserName(e){
         this.address.receiver = e.mp.detail.value;
+        if (this.address.receiver.length !== 0) {
+        } else {
+          this.toast = common.showErrorMsg("姓名不能为空");
+          this.hideToast();
+        }
+      },
+      hideToast(){
+        let self = this;
+        setTimeout(function () {
+          self.toast.show_toast = false;
+        }, 1000);
       },
       // 设置为 默认地址
       setDefault(e){
@@ -375,6 +380,16 @@
         } else { // checkbox not checked
           this.default_address.checked = false;
         }
+      },
+      setNavigationBarTitle(){
+        if (this.isEditAddress) {
+          this.pageTitle = '编辑地址';
+        } else {
+          this.pageTitle = '添加地址';
+        }
+        wx.setNavigationBarTitle({
+          title: this.pageTitle   // 页面标题
+        })
       },
 
     }

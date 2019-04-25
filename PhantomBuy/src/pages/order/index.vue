@@ -23,7 +23,7 @@
             <view>
               <view v-for="(cartListItem, j) in item.cartList" :key="j" class="cart_block cart-item">
                 <checkbox-group @change="itemBlockChangeColor(cartListItem, cartListItem.cartId, $event)">
-                  <checkbox class="sliderLeft"  :value="cartListItem.cartId"
+                  <checkbox class="sliderLeft" :value="cartListItem.cartId"
                             :checked="cartListItem.checked">
                     <slider-left @delete="handleDelete" :id="cartListItem.cartId">
                       <view class="itemBlock" :id="cartListItem.cartId">
@@ -179,6 +179,9 @@
       },
       getOrderList () {
         if (this.is_authorized()) {
+          wx.showLoading({
+            title: 'Loading'
+          })
           fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
           fly.post("phantombuy/cart/list", {entityDTO: {}}).then((res) => {
             if (res.data.code === `1`) {                // 成功
@@ -189,10 +192,12 @@
                 }
                 this.displayData = 'none'
               }
+              wx.hideLoading()
             } else {
               // 无结果
               this.cart_list = []
               this.displayData = 'block'
+              wx.hideLoading()
             }
           }).catch(err => {
             console.log(`api请求出错:`, err);
@@ -298,7 +303,6 @@
         /*
          * 此处修改需要调用的接口
          * */
-        // var requestList = list_name + ':' + list
         fly.post("phantombuy/cart/calculateFee", {entityDTO: {cartIdList: list}}).then((res) => {
           if (res.data.code === `1`) {
             // 成功
