@@ -138,7 +138,7 @@
   import suspension from "../../components/suspension/suspension";
   import {common} from "../../utils/common";
   import {mapState, mapMutations} from 'vuex'
-  import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types"
+  //  import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types"
 
   export default {
     // 商品详情页面目前缺少:
@@ -201,6 +201,7 @@
       this.productColorImageList = [];
       this.productColorSizeResponse = {};
       this.skuId = 0;
+      this.quantity = 1;
       this.currentIndex = 0;
       this.productColorIndex = 0;
       this.productSizeIndex = 1000;
