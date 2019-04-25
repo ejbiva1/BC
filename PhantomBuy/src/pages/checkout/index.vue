@@ -1,6 +1,6 @@
 <template>
   <div class="my">
-    <view class="receive_info">
+    <view class="receive_info" v-if="user_default_address !== undefined">
       <wxc-panel>
         <view class="left">
           <div class="receive_address">
@@ -17,7 +17,7 @@
             </div>
           </div>
           <div class="title">身份证照片</div>
-          <div class="IDrow" v-show="user_default_address.fileList.length !== 0">
+          <div class="IDrow">
             <view v-for="(item , index) in user_default_address.fileList" :key="index">
               <img :src="item.fileUrl"/>
             </view>
@@ -100,17 +100,19 @@
   import {common} from "../../utils/common";
   import {service} from "../../common/constants/services";
   import  fly from "../../utils/fly";
+  import {mapState, mapMutations} from 'vuex';
+  import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types";
+
   export default {
     data(){
       return {
-        user_default_address: new Address({addressDetail: '', receiver: '', receiverPhone: '', idNumber: ''}),
+        user_default_address: new Address({}),
         total_fee: undefined,
         exciseTax: {exciseTax: ''},
         price: {price: ''},
         sitePromotionFee: {sitePromotionFee: ''},
         internationalShippingFee: {internationalShippingFee: ''},
         total: {total: ''},
-        sessionId: '',
         agree: {
           value: '同意',
           checked: false
@@ -124,23 +126,42 @@
         prepay_id: '',
         nonce_str: '',
         timeStamp: '',
-        total_fee: '',
+        total_fee: ''
       };
+    },
+    computed: {
+      ...mapState([
+        'settingKey',
+        'sessionId'
+      ])
     },
     components: {},
     onShow(){
-      this.show_loading();
-      this.getSettingKey();
     },
     onLoad(options){
       if (options.cartIdList !== undefined) {
+        this.show_loading();
         this.cartIdList = JSON.parse(options.cartIdList);
-        console.log(this.cartIdList);
+        if (this.is_authorized()) {
+          this.getDefaultAddress();
+          this.getProductFee();
+          this.hide_loading();
+        }
       } else {
         console.log("并没有选中任何商品,不应该跳转到该页面");
       }
     },
     methods: {
+      is_authorized(){
+        if (this.settingKey === '1') { // 已授权
+          return true;
+        } else {      // 未授权 , 不停地跳转至 登录页
+          wx.navigateTo({
+            url: '/pages/login/main'
+          })
+        }
+        return false;
+      },
       hideIdNumber(){
         let self = this;
         return (self.idNumber).replace(/(\w)/g, function (a, b, c, d) {
@@ -179,9 +200,8 @@
           success: function (data) {
             const cookieSession = String(data.data);
             self.sessionId = cookieSession.split('=')[1].split(';')[0];
-            self.getDefaultAddress();
-            self.getProductFee();
-            self.hide_loading();
+            this.show_loading();
+
           },
           fail: function (err) {
             wx.navigateTo({
@@ -221,6 +241,7 @@
         fly.post('phantombuy/userAddress/getDefaultAddress', entityDTO).then(res => {
           if (res.data.code === '1') {
             this.user_default_address = res.data.data;
+            console.log(this.user_default_address);
           } else {
             this.toast = common.showErrMsg("服务器内部错误");
             let self = this;
@@ -261,7 +282,7 @@
         fly.post('phantombuy/orderMain/add', entityDTO).then(res => {
           if (res.data.code === '1') {
             // this.user_default_address = res.data.data;
-            this.orderId =  res.data.data.orderId;
+            this.orderId = res.data.data.orderId;
             console.log(res.data);
             this.payorder()
             //
@@ -341,7 +362,8 @@
       },
       editAddress(){
         wx.navigateTo({
-          url: '/pages/editaddress/main?isEditAddress= ' + true + '&address_detail=' + JSON.stringify(this.user_default_address)
+          //url: '/pages/editaddress/main?isEditAddress= ' + true + '&address_detail=' + JSON.stringify(this.user_default_address)
+          url: '/pages/address/main'
         });
       },
       show_loading() {
