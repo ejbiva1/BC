@@ -239,7 +239,7 @@
                       })
                     } else if (res.data.code === `1`) {
                       if (res.data.data.records.length > 0) {
-                        self.order_list = res.data.data.records
+                        self.order_list = res.data.data.records.reverse()
                         self.displayData = 'none'
                       }
                     } else {
@@ -280,7 +280,8 @@
 
 <style scoped>
   .payButton{
-    padding-right: 240rpx;
+    padding-right: 310rpx;
+    margin-bottom: 20rpx;
   }
   .noList{
     background-color: white;
@@ -307,15 +308,13 @@
     font-size:small;
     margin-top:20rpx;
     margin-bottom: 20rpx;
-    margin-left: 46rpx;
+    margin-left: 36rpx;
   }
   .dataBlock{
-    margin-left:46rpx;
-    margin-right: 46rpx;
     background-color: white;
     padding-top:20rpx;
-    padding-left:20rpx;
-    padding-right:20rpx;
+    padding-left:36rpx;
+    padding-right:36rpx;
     padding-bottom: 50rpx;
   }
   .brand{

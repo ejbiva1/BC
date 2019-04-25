@@ -12,8 +12,8 @@ fly.interceptors.request.use((config, promise)=> {
 //配置请求基地址
 Vue.prototype.$http = fly
 // 体验版
-fly.config.baseURL="https://www.phantombuy.com:8443/"
+fly.config.baseURL = "https://www.phantombuy.com:8443/"
 // 正式环境
-//fly.config.baseURL = "https://www.phantombuy.com/"
+// fly.config.baseURL = "https://www.phantombuy.com/"
 
 export default fly
