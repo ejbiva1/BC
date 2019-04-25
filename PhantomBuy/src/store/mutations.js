@@ -15,7 +15,6 @@ const mutations = {
 
   [types.SET_SESSION_ID](state, session_id){
     state.sessionId = session_id;
-    console.log(state.sessionId);
   }
 }
 

@@ -138,7 +138,7 @@
   import {service} from "../../common/constants/services";
   import  fly from "../../utils/fly";
   import {mapState, mapMutations} from 'vuex';
-  import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types";
+//  import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types";
 
   //这个页面还剩 删除地址、 更新地址、 添加地址  访问api
   export default {
@@ -189,7 +189,7 @@
       }
     },
     onShow(){
-      this.getSettingKey();
+     // this.getSettingKey();
     },
     created() {
     },
@@ -206,10 +206,10 @@
           return true;
         } else {      // 未授权 , 不停地跳转至 登录页
           wx.navigateTo({
-            url: '/pages/login/main'
+            url: '/pages/login/main',
           })
+          return false;
         }
-        return false;
       },
       confirmAddress(){
         fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;

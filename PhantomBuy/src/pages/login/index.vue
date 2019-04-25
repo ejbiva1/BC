@@ -81,7 +81,7 @@
             weChatAppletLoginCode: self.code
           }
         }).then(res => {
-          console.log(`后台交互拿回数据:`, res);
+//          console.log(`后台交互拿回数据:`, res);
           //跳转应该放在授权的接口里面的，这里好像不太对
           /*
            wx.switchTab({
