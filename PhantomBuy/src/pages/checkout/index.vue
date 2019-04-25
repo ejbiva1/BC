@@ -36,25 +36,25 @@
           </div>
           <div class="price">
             <div class="leftTitle">商品价格合计：</div>
-            <div class="rightData">{{price.price}}<span v-show="total_fee!== undefined">元</span></div>
+            <div class="rightData">{{price.price}}<span v-show="total_fee!== ''">元</span></div>
           </div>
           <div class="price">
             <div class="leftTitle">消费税合计：</div>
-            <div class="rightData">{{exciseTax.exciseTax}}<span v-show="total_fee!== undefined">元</span></div>
+            <div class="rightData">{{exciseTax.exciseTax}}<span v-show="total_fee!== ''">元</span></div>
           </div>
           <div class="price">
             <div class="leftTitle">国际快递合计：</div>
             <div class="rightData">{{internationalShippingFee.internationalShippingFee}}<span
-              v-show="total_fee!== undefined">元</span></div>
+              v-show="total_fee!== ''">元</span></div>
           </div>
           <div class="price">
             <div class="leftTitle">平台佣金合计：</div>
             <div class="rightData">{{sitePromotionFee.sitePromotionFee}}<span
-              v-show="total_fee!== undefined">元</span></div>
+              v-show="total_fee!== ''">元</span></div>
           </div>
           <div class="price">
             <div class="leftTitle">人民币合计：</div>
-            <div class="rightData">{{total.total}}<span v-show="total_fee!== undefined">元</span></div>
+            <div class="rightData">{{total.total}}<span v-show="total_fee!== ''">元</span></div>
           </div>
           <div class="title">预计送到时间：</div>
           <div class="receivedTime">2019年4月3日至2019年4月7日之间（根据不同时间段会有偏差，仅作为参考）</div>
@@ -103,13 +103,13 @@
   export default {
     data(){
       return {
-        user_default_address: new Address({}),
+        user_default_address: new Address({addressDetail: '', receiver: '', receiverPhone: '', idNumber: ''}),
         total_fee: undefined,
-        exciseTax: {},
-        price: {},
-        sitePromotionFee: {},
-        internationalShippingFee: {},
-        total: {},
+        exciseTax: {exciseTax: ''},
+        price: {price: ''},
+        sitePromotionFee: {sitePromotionFee: ''},
+        internationalShippingFee: {internationalShippingFee: ''},
+        total: {total: ''},
         sessionId: '',
         agree: {
           value: '同意',
@@ -123,7 +123,8 @@
         sign: '',
         prepay_id: '',
         nonce_str: '',
-        timeStamp: ''
+        timeStamp: '',
+        total_fee: '',
       };
     },
     components: {},
