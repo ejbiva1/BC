@@ -164,6 +164,7 @@
     },
     onShow() {
       this.getOrderList();
+      console.log(getCurrentPages());
     },
     methods: {
       is_authorized(){
@@ -486,7 +487,7 @@
   .price_panel {
     padding-top: 0.2rem;
     padding-left: 0.1rem;
-    width: 70%;
+    width: 90%;
   }
 
   .main_content {

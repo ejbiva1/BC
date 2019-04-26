@@ -43,6 +43,7 @@
     onLoad(){
       this.show_loading();
       this.getSiteList();
+      console.log(getCurrentPages());
     },
     computed: {},
     methods: {

@@ -186,6 +186,7 @@
         this.product_id = options.productId;
         // 数据初始化
         this.getProductDetail();
+        console.log(getCurrentPages());
       }
     },
     onShow(){
