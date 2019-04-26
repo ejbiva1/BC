@@ -63,6 +63,8 @@
       } else {
         this.change_receive_address = false;
       }
+
+      console.log(getCurrentPages());
     },
     created() {
     },

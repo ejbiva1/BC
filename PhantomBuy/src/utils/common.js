@@ -19,6 +19,14 @@ class Common {
       show_toast: true
     };
   };
+
+
+  isEmptyObject(obj) {
+    for (var i in obj) { // 如果不为空，则会执行到这一步，返回true
+      return true
+    }
+    return false // 如果为空,返回false
+  };
 }
 ;
 

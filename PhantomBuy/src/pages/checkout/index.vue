@@ -35,6 +35,21 @@
       </wxc-panel>
     </view>
 
+    <view class="receive_info" v-if="user_default_address === undefined">
+      <wxc-panel @click="editAddress">
+        <view class="address_sort">
+          <span class="address_img">
+            <img src="/static/images/address.png"/>
+              <span class="address_title">请填写收货地址</span>
+
+          </span>
+
+           <span style="padding-left: 1.5rem;" class="address_arrow_right">
+            <wxc-icon color="#red" size="30" type="arrow-right"></wxc-icon>
+          </span>
+        </view>
+      </wxc-panel>
+    </view>
 
     <view class="payment_info">
       <wxc-panel>
@@ -64,8 +79,8 @@
             <div class="leftTitle">人民币合计：</div>
             <div class="rightData">{{total.total}}<span v-show="total_fee!== ''">元</span></div>
           </div>
-          <div class="title">预计送到时间：</div>
-          <div class="receivedTime">2019年4月3日至2019年4月7日之间（根据不同时间段会有偏差，仅作为参考）</div>
+          <!--<div class="title">预计送到时间：</div>-->
+          <!--<div class="receivedTime">2019年4月3日至2019年4月7日之间（根据不同时间段会有偏差，仅作为参考）</div>-->
         </view>
       </wxc-panel>
     </view>
@@ -114,7 +129,7 @@
   export default {
     data(){
       return {
-        user_default_address: new Address({}),
+        user_default_address: undefined,
         total_fee: undefined,
         exciseTax: {exciseTax: ''},
         price: {price: ''},
@@ -262,7 +277,11 @@
         fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
         fly.post('phantombuy/userAddress/getDefaultAddress', entityDTO).then(res => {
           if (res.data.code === '1') {
-            this.user_default_address = res.data.data;
+            if (common.isEmptyObject(res.data.data)) {
+              this.user_default_address = res.data.data;
+            } else {
+              this.user_default_address = undefined;
+            }
             console.log(this.user_default_address);
           } else {
             this.toast = common.showErrMsg("服务器内部错误");
@@ -368,7 +387,7 @@
                 'signType': 'MD5',
                 'paySign': this.sign,
                 'success': (res) => {
-                 // console.log(`支付成功:`, res)
+                  // console.log(`支付成功:`, res)
                   wx.switchTab({
                     url: '/pages/home/main'
                   })
@@ -554,6 +573,34 @@
   .IDrow img {
     height: 3rem;
     width: 3rem;
+  }
+
+  .address_sort {
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+    width: 100%;
+    vertical-align: middle;
+    padding-left: 5%;
+  }
+
+  .address_img {
+    padding-top: 0.1rem;
+  }
+
+  .address_img img {
+    width: 0.4rem;
+    height: 0.4rem;
+  }
+
+  .address_title {
+    padding-left: 0.2rem;
+    font-size: 16px;
+  }
+
+  .address_arrow_right {
+    float: right;
+    position: relative;
+    right: 7%;
   }
 
   /*checkbox .wx-checkbox-input {*/

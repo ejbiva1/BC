@@ -160,6 +160,7 @@
       this.getListSiteProductCategory();
       this.getAllProductList();
       console.log(this.scrollTop);
+      console.log(getCurrentPages());
     },
     onUnload(){
       this.is_empty = false;
