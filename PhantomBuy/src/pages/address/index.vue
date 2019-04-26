@@ -10,7 +10,7 @@
           </view>
           <view class="address">
             <view class="address_detail">{{item.addressDetail}}</view>
-            <view class="operate" @click="editUserAddress(item)">编辑</view>
+            <view class="operate" @click.stop="editUserAddress(item)">编辑</view>
           </view>
         </view>
       </wxc-panel>
