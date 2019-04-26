@@ -219,10 +219,16 @@
         if (this.address.addressId !== undefined) {   // 更新 地址
           this.editAddress();
         } else {   // 添加地址
+
           this.addAddress();
         }
       },
       addAddress(){
+        if (this.address.fileList.length !== 2) {
+          this.toast = common.showErrorMsg('请上传2张图片');
+          this.hideToast();
+          return false;
+        }
         fly.post("phantombuy/userAddress/add", {entityDTO: this.address}).then(res => {
           if (res.data.code === '1') {
             this.toast = common.showSuccessMsg('添加地址成功');

@@ -1,7 +1,8 @@
 <template>
   <div class="animated fadeIn">
     <view class="addresss">
-      <wxc-panel :border="has_border" v-for="(item, index) in address_list" :key="i">
+      <wxc-panel :border="has_border" v-for="(item, index) in address_list" :key="i"
+                 @click="changeReceiveAddress(item,index)">
         <view class="address_home padding">
           <view class="user_phone">
             <text>{{item.receiver}}</text>
@@ -45,7 +46,8 @@
         has_border: true,
         toast: {},
         address: {},
-        address_list: []
+        address_list: [],
+        change_receive_address: false
       }
     },
     onShow(){
@@ -53,6 +55,13 @@
       if (this.is_authorized()) {
         this.getUserAddressList();
         this.hide_loading();
+      }
+    },
+    onLoad(option){
+      if (option.change_receive_address !== undefined) {
+        this.change_receive_address = true;
+      } else {
+        this.change_receive_address = false;
       }
     },
     created() {
@@ -63,6 +72,11 @@
         'sessionId'
       ])
     },
+    onUnload(){
+      // 初始化数据
+      this.address_list = [];
+    },
+
     methods: {
       is_authorized(){
         if (this.settingKey === '1') { // 已授权
@@ -73,6 +87,17 @@
           })
         }
         return false;
+      },
+      changeReceiveAddress(item, index){
+        if (!this.change_receive_address) {
+          return;
+        }
+
+        wx.navigateTo({
+          //url: '/pages/editaddress/main?isEditAddress= ' + true + '&address_detail=' + JSON.stringify(this.user_default_address)
+          url: '/pages/checkout/main?receive_address_id=' + item.addressId
+        });
+
       },
       editUserAddress(item){
         this.address = item;

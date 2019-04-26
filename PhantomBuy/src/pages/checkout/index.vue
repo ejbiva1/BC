@@ -126,7 +126,8 @@
         prepay_id: '',
         nonce_str: '',
         timeStamp: '',
-        total_fee: ''
+        total_fee: '',
+        receive_address_id: ''
       };
     },
     computed: {
@@ -139,7 +140,7 @@
     onShow(){
     },
     onLoad(options){
-      if (options.cartIdList !== undefined) {
+      if (options.cartIdList !== undefined && options.receive_address_id == undefined) {
         this.show_loading();
         this.cartIdList = JSON.parse(options.cartIdList);
         if (this.is_authorized()) {
@@ -147,9 +148,22 @@
           this.getProductFee();
           this.hide_loading();
         }
-      } else {
+      } else if (options.receive_address_id !== undefined) {
+        this.receive_address_id = options.receive_address_id;
+        this.getUserAddress();
+        this.getProductFee();
         console.log("并没有选中任何商品,不应该跳转到该页面");
       }
+    },
+    onShow(){
+
+    },
+    onUnload(){
+      // 页面返回时，进入 购物车页面
+      wx.reLaunch({
+        url: '/pages/order/main'
+      })
+
     },
     methods: {
       is_authorized(){
@@ -239,6 +253,26 @@
         };
         fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
         fly.post('phantombuy/userAddress/getDefaultAddress', entityDTO).then(res => {
+          if (res.data.code === '1') {
+            this.user_default_address = res.data.data;
+            console.log(this.user_default_address);
+          } else {
+            this.toast = common.showErrMsg("服务器内部错误");
+            let self = this;
+            setTimeout(function () {
+              self.toast.show_toast = false;
+            }, 1500);
+          }
+        });
+      },
+      getUserAddress(){
+        let entityDTO = {
+          entityDTO: {
+            addressId: this.receive_address_id
+          }
+        };
+        fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
+        fly.post('phantombuy/userAddress/get', entityDTO).then(res => {
           if (res.data.code === '1') {
             this.user_default_address = res.data.data;
             console.log(this.user_default_address);
@@ -363,7 +397,7 @@
       editAddress(){
         wx.navigateTo({
           //url: '/pages/editaddress/main?isEditAddress= ' + true + '&address_detail=' + JSON.stringify(this.user_default_address)
-          url: '/pages/address/main'
+          url: '/pages/address/main?change_receive_address=' + true
         });
       },
       show_loading() {
