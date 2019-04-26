@@ -53,15 +53,14 @@
               </div>
             </div>
           </div>
-
         </div>
         <div class="payPrice row">
           <div class="payButton" >
-            <wxc-button size="small" v-bind:style="{display: displayBtn}" type="info" value="去支付" @click="payOrder(item.orderId)"></wxc-button>
+            <span v-show="item.status === 0">
+              <wxc-button size="small" type="info" value="去支付" @click="payOrder(item.orderId)"></wxc-button>
+            </span>
           </div>
-          <div class="totalTitle">支付金额：</div>
-          <div class="totalPrice">{{item.priceTotal}}</div>
-          <div class="totalUnit">元</div>
+          <div class="totalTitle">支付金额：{{item.chnFee}} 元</div>
         </div>
       </div>
       </div>
@@ -280,9 +279,13 @@
 
 <style scoped>
   .payButton{
-    padding-right: 310rpx;
-    margin-bottom: 20rpx;
+    position: absolute;
   }
+  .totalTitle{
+    left: 420rpx;
+    position: absolute;
+  }
+
   .noList{
     background-color: white;
     height:100%;
@@ -315,7 +318,7 @@
     padding-top:20rpx;
     padding-left:36rpx;
     padding-right:36rpx;
-    padding-bottom: 50rpx;
+    padding-bottom: 25rpx;
   }
   .brand{
     font-size: small;
@@ -338,7 +341,8 @@
     color:gray;
   }
   .payPrice{
-    float: right;
+    padding-top: 10rpx;
+    margin-bottom: 50rpx;
     font-size: small;
   }
   .product_tabs {
