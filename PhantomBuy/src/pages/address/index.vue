@@ -92,11 +92,20 @@
         if (!this.change_receive_address) {
           return;
         }
-
+        /*
         wx.navigateTo({
           url: '/pages/checkout/main?receive_address_id=' + item.addressId
         });
-
+        */
+        let pages = getCurrentPages()// 当前页面    （pages就是获取的当前页面的JS里面所有pages的信息）
+        let prevPage = pages[pages.length - 2];// 上一页面（prevPage 就是获取的上一个页面的JS里面所有pages的信息）
+        prevPage.setData({
+          state: 1,
+          receive_address_id: item.addressId
+        })
+        wx.navigateBack({
+          delta: 1
+        })
       },
       editUserAddress(item){
         this.address = item;

@@ -135,7 +135,9 @@
         nonce_str: '',
         timeStamp: '',
         total_fee: '',
-        receive_address_id: ''
+        receive_address_id: '',
+        state: 0
+
       };
     },
     computed: {
@@ -146,27 +148,25 @@
     },
     components: {},
     onShow(){
-    },
-    onLoad(options){
-      if (options.cartIdList !== undefined && options.receive_address_id == undefined) {
-        this.show_loading();
-        this.cartIdList = JSON.parse(options.cartIdList);
-        if (this.is_authorized()) {
-          this.getDefaultAddress();
-          this.getProductFee();
-          this.hide_loading();
-        }
-      } else if (options.receive_address_id !== undefined) {
-        this.receive_address_id = options.receive_address_id;
-        this.getUserAddress();
-        this.getProductFee();
+      const self = this
+      let pages = getCurrentPages();
+      if (pages[1].data.state === 1) {
         console.log("并没有选中任何商品,不应该跳转到该页面");
+        self.receive_address_id = pages[1].data.receive_address_id
+        self.getUserAddress();
+        self.getProductFee();
       }
-
       console.log(getCurrentPages());
     },
-    onShow(){
-
+    onLoad(options){
+      this.show_loading();
+      this.cartIdList = JSON.parse(options.cartIdList);
+      if (this.is_authorized()) {
+        this.getDefaultAddress();
+        this.getProductFee();
+        this.hide_loading();
+      }
+      console.log(getCurrentPages());
     },
     onUnload(){
       // 页面返回时，进入 购物车页面(进入tabBar页面)
