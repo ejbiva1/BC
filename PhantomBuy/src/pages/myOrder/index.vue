@@ -189,6 +189,9 @@
         /*
          * 这段getSettingKey需要复用
          * */
+        wx.showLoading({
+          title: '加载中'
+        })
         const self = this
         wx.getStorage({
           key: 'settingKey',
@@ -231,6 +234,7 @@
                   }
                   fly.post('phantombuy/orderMain/list', json).then((res) => {
                     if (res.data.code === `888`) {
+                      wx.hideLoading()
                       // 跳转授权页
                       console.log(`请先登录:`, res)
                       wx.navigateTo({
@@ -240,18 +244,22 @@
                       if (res.data.data.records.length > 0) {
                         self.order_list = res.data.data.records.reverse()
                         self.displayData = 'none'
+                        wx.hideLoading()
                       }
                     } else {
                       // Todo: 列表为空 应该要展示一个空的蒙版
                       self.order_list = []
                       self.displayData = 'block'
                       console.log(`我的订单数据:`, res)
+                      wx.hideLoading()
                     }
                   }).catch(err => {
                     console.log(`api请求出错:`, err)
+                    wx.hideLoading()
                   })
                 },
                 fail: function (err) {
+                  wx.hideLoading()
                   console.log(err)
                   wx.navigateTo({
                     url: '/pages/login/main'
@@ -260,6 +268,7 @@
               })
             } else if (settingKey === '0' ) {
               // 未授权，跳转授权页面
+              wx.hideLoading()
               wx.navigateTo({
                 url: '/pages/login/main'
               })
