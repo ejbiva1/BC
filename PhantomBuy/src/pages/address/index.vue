@@ -81,7 +81,7 @@
       is_authorized(){
         if (this.settingKey === '1') { // 已授权
           return true;
-        } else {      // 未授权 , 不停地跳转至 登录页
+        } else if (this.settingKey === '0') {      // 未授权 , 不停地跳转至 登录页
           wx.navigateTo({
             url: '/pages/login/main'
           })
@@ -94,7 +94,6 @@
         }
 
         wx.navigateTo({
-          //url: '/pages/editaddress/main?isEditAddress= ' + true + '&address_detail=' + JSON.stringify(this.user_default_address)
           url: '/pages/checkout/main?receive_address_id=' + item.addressId
         });
 

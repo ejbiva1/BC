@@ -167,14 +167,14 @@
     },
     methods: {
       is_authorized(){
-        let self = this;
-        if (self.settingKey === '1') { // 已授权
+        if (this.settingKey === '1') { // 已授权
           return true;
-        } else if (self.settingKey === '0') {      // 未授权 , 不停地跳转至 登录页
+        } else if (this.settingKey === '0') {      // 未授权 , 不停地跳转至 登录页
           wx.navigateTo({
             url: '/pages/login/main'
           })
         }
+
         return false;
       },
       getOrderList () {

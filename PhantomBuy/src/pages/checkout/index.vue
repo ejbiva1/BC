@@ -7,15 +7,23 @@
             <view class="title">收件信息</view>
             <view class="edit_address" @click="editAddress">修改地址</view>
           </div>
-          <div class="blockData">
-            <div class="add">{{user_default_address.addressDetail}}</div>
-            <div class="name">{{user_default_address.receiver}}</div>
-            <div class="phoneNum">{{user_default_address.receiverPhone}}</div>
-            <div class="row">
-              <div class="IDTitle">身份证号</div>
-              <div class="IDNum">{{user_default_address.idNumber}}</div>
-            </div>
-          </div>
+          <view class="receiver_info">
+            <view class="receiver_title">
+              <view>收件地址:</view>
+              <view>收件人:</view>
+              <view>联系方式:</view>
+              <view>身份证号:</view>
+            </view>
+            <view class="blockData">
+              <div class="add">{{user_default_address.addressDetail}}</div>
+              <div class="name">{{user_default_address.receiver}}</div>
+              <div class="phoneNum">{{user_default_address.receiverPhone}}</div>
+              <div class="row">
+                <div class="IDNum">{{user_default_address.idNumber}}</div>
+              </div>
+            </view>
+          </view>
+
           <div class="title">身份证照片</div>
           <div class="IDrow">
             <view v-for="(item , index) in user_default_address.fileList" :key="index">
@@ -154,22 +162,23 @@
         this.getProductFee();
         console.log("并没有选中任何商品,不应该跳转到该页面");
       }
+
+      console.log(getCurrentPages());
     },
     onShow(){
 
     },
     onUnload(){
-      // 页面返回时，进入 购物车页面
-      wx.reLaunch({
+      // 页面返回时，进入 购物车页面(进入tabBar页面)
+      wx.switchTab({
         url: '/pages/order/main'
       })
-
     },
     methods: {
       is_authorized(){
         if (this.settingKey === '1') { // 已授权
           return true;
-        } else {      // 未授权 , 不停地跳转至 登录页
+        } else if (this.settingKey === '0') {      // 未授权 , 不停地跳转至 登录页
           wx.navigateTo({
             url: '/pages/login/main'
           })
@@ -181,7 +190,6 @@
         return (self.idNumber).replace(/(\w)/g, function (a, b, c, d) {
           return ((c > 1 && c < 6) || c > (self.idNumber.length - 5)) ? '*' : a
         });
-        ;
       },
       getSettingKey () {
         let self = this;
@@ -275,7 +283,7 @@
         fly.post('phantombuy/userAddress/get', entityDTO).then(res => {
           if (res.data.code === '1') {
             this.user_default_address = res.data.data;
-            console.log(this.user_default_address);
+            //console.log(this.user_default_address);
           } else {
             this.toast = common.showErrMsg("服务器内部错误");
             let self = this;
@@ -311,13 +319,12 @@
           }
         };
 
-        console.log(orderIdList);
+        //console.log(orderIdList);
         fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
         fly.post('phantombuy/orderMain/add', entityDTO).then(res => {
           if (res.data.code === '1') {
             // this.user_default_address = res.data.data;
             this.orderId = res.data.data.orderId;
-            console.log(res.data);
             this.payorder()
             //
           } else {
@@ -340,7 +347,7 @@
         fly.post('phantombuy/orderMain/wechatUnifiedorder', entityDTO).then(res => {
           if (res.data.return_code === "SUCCESS") {
             // this.user_default_address = res.data.data;
-            console.log(`看看后台返回了什么给我:`, res.data)
+            //console.log(`看看后台返回了什么给我:`, res.data)
             this.appid = res.data.appid
             this.sign = res.data.sign
             this.prepay_id = 'prepay_id=' + res.data.prepay_id
@@ -348,10 +355,10 @@
             this.timeStamp = res.data.timeStamp
             // this.timeStamp = Date.parse(new Date())
             // this.timeStamp = String(this.timeStamp / 1000)
-            console.log(`timeStamp:`, this.timeStamp)
-            console.log(`nonceStr:`, this.nonce_str)
-            console.log(`package:`, this.prepay_id)
-            console.log(`paySign:`, this.sign)
+//            console.log(`timeStamp:`, this.timeStamp)
+//            console.log(`nonceStr:`, this.nonce_str)
+//            console.log(`package:`, this.prepay_id)
+//            console.log(`paySign:`, this.sign)
             wx.requestPayment(
               {
                 'appId': '',
@@ -361,7 +368,7 @@
                 'signType': 'MD5',
                 'paySign': this.sign,
                 'success': (res) => {
-                  console.log(`支付成功:`, res)
+                 // console.log(`支付成功:`, res)
                   wx.switchTab({
                     url: '/pages/home/main'
                   })
@@ -496,9 +503,23 @@
     height: 4rem;
   }
 
+  .receiver_info {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .receiver_title {
+    margin-bottom: 0.1rem;
+    font-weight: bold;
+    font-size: 14px;
+  }
+
   .blockData {
     font-size: 14px;
     margin-bottom: 0.1rem;
+    width: 78%;
   }
 
   .receivedTime {

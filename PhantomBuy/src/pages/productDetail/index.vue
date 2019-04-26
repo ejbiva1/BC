@@ -220,7 +220,7 @@
       is_authorized(){
         if (this.settingKey === '1') { // 已授权
           return true;
-        } else {      // 未授权 , 不停地跳转至 登录页
+        } else if (this.settingKey === '0') {      // 未授权 , 不停地跳转至 登录页
           this.authorized_index = 1;  // 标志着授权成功
           wx.navigateTo({
             url: '/pages/login/main'

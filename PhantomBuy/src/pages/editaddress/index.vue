@@ -6,9 +6,16 @@
       <view class="section">
         <wxc-panel :border="has_border">
           <!--收件人姓名、电话号码-->
-          <wxc-input type="text" title="手机号" placeholder="请输入手机号" color="#ccc"
-                     :value="address.receiverPhone" v-on:blur="validateUserPhoneNo"
-          ></wxc-input>
+          <wxc-input type="number" title="手机号" placeholder="请输入手机号" color="#ccc" maxlength="11" data-type="mobile"
+                     :value="address.receiverPhone" v-on:blur="validateUserPhoneNo">
+          </wxc-input>
+          <view class="tips">
+            <!--<text v-if="{{mobileTip}}" class="warn-tip">请输入正确的手机号码</text>-->
+            <!--<view v-if="{{mobileNumber && mobileNumber.length}}" class="clear-wrap" data-type="mobile"-->
+            <!--bindtap="clearInput">-->
+            <!--<icon type="clear" size="14" color="#ccc"/>-->
+            <!--</view>-->
+          </view>
         </wxc-panel>
 
       </view>
@@ -58,7 +65,7 @@
       </view>
 
 
-      <view class="section" v-if="id_front_img === undefined">
+      <view class="section" v-if="!isEditAddress">
         <!--上传身份证照片(限制为2张)-->
         <view class="section_ID_button">
           <wxc-button plain="true" type="disabled"
@@ -110,15 +117,19 @@
 
       </view>
 
-      <view class="section_button">
-        <wxc-button size="large" :btnStyle="button_style" type="beauty" value="完成"
-                    @click="confirmAddress"></wxc-button>
+      <view class="button_section">
+        <view class="section_button">
+          <wxc-button size="large" :btnStyle="button_style" type="beauty" value="完成"
+                      @click="confirmAddress"></wxc-button>
+
+        </view>
+        <view class="section_button" v-if="isEditAddress == true">
+          <wxc-button size="large" :btnStyle="delete_style" type="dark" plain="true" value="删除"
+                      @click="deleteAddress"></wxc-button>
+        </view>
+
       </view>
 
-      <view class="section_button" v-if="isEditAddress == true">
-        <wxc-button size="large" :btnStyle="delete_style" type="dark" plain="true" value="删除"
-                    @click="deleteAddress"></wxc-button>
-      </view>
 
       <view class="toast">
         <wxc-toast :is-show="toast.show_toast"
@@ -205,12 +216,13 @@
       is_authorized(){
         if (this.settingKey === '1') { // 已授权
           return true;
-        } else {      // 未授权 , 不停地跳转至 登录页
+        } else if (this.settingKey === '0') {      // 未授权 , 不停地跳转至 登录页
           wx.navigateTo({
-            url: '/pages/login/main',
+            url: '/pages/login/main'
           })
-          return false;
         }
+
+        return false;
       },
       confirmAddress(){
         fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
@@ -229,6 +241,8 @@
           this.hideToast();
           return false;
         }
+
+
         fly.post("phantombuy/userAddress/add", {entityDTO: this.address}).then(res => {
           if (res.data.code === '1') {
             this.toast = common.showSuccessMsg('添加地址成功');
@@ -282,6 +296,7 @@
       uploadImage: function (imageUrl, imageNo, index) {
         // 上传后的身份证照片不需要保存到本地
         let self = this;
+        self.show_loading();
         wx.uploadFile({
           url: fly.config.baseURL + 'phantombuy/userAddress/uploadAttachmentByWechatApplet',
           filePath: imageUrl,
@@ -306,6 +321,7 @@
             }
 
             self.id_card_img.push(data.data[0]);
+            self.hide_loading();
           },
           fail(res){
 
@@ -334,43 +350,52 @@
         //  验证 身份证号码是否合规
         this.address.idNumber = e.mp.detail.value;
         if (regex.validateUserIDCard(this.address.idNumber)) {
+          return true;
         } else {
 //          this.toast = common.showErrorMsg("身份证号码验证错误");
           this.toast = common.showErrorMsg("请填写正确的身份证号码");
           this.hideToast();
+          return false;
         }
       },
       validateUserPhoneNo(e){   // 验证手机号号码
         this.address.receiverPhone = e.mp.detail.value;
         if (regex.validatePhone(this.address.receiverPhone)) {
+          return true;
         } else {
           this.toast = common.showErrorMsg("长度应为11位");
           this.hideToast();
+          return false;
         }
       },
       validateAddress(e){ // 验证地址是否合规
         this.address.addressDetail = e.mp.detail.value;
         if (this.address.addressDetail.length !== 0) {
+          return true;
         } else {
           this.toast = common.showErrorMsg("姓名不能为空");
           this.hideToast();
+          return false;
         }
       },
       validatePostCode(e){   // 验证邮政编码
         this.address.postCode = e.mp.detail.value;
         if (regex.validatePostCode(this.address.postCode)) {
-
+          return true;
         } else {
           this.toast = common.showErrorMsg("邮政编码不能为空");
           this.hideToast();
+          return false;
         }
       },
       validateUserName(e){
         this.address.receiver = e.mp.detail.value;
         if (this.address.receiver.length !== 0) {
+          return true;
         } else {
           this.toast = common.showErrorMsg("姓名不能为空");
           this.hideToast();
+          return false;
         }
       },
       hideToast(){
@@ -396,6 +421,17 @@
         wx.setNavigationBarTitle({
           title: this.pageTitle   // 页面标题
         })
+      },
+      show_loading() {
+        wx.showLoading({
+          title: '上传中',
+        })
+      },
+      hide_loading() {
+        setTimeout(function () {
+          wx.hideLoading()
+        }, 1000);
+
       },
 
     }
@@ -426,7 +462,12 @@
     vertical-align: middle;
     text-align: center;
     padding-left: 5%;
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .button_section {
+    margin-top: 1rem;
+    margin-bottom: 2rem;
   }
 
   .section_ID_button {
