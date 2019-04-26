@@ -426,6 +426,7 @@
     vertical-align: middle;
     text-align: center;
     padding-left: 5%;
+    margin-bottom: 0.4rem;
   }
 
   .section_ID_button {

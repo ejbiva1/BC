@@ -21,11 +21,13 @@
        A授权过：login，获取sessionId存入storage
        B没有授权：不操作
        */
+
+      const self = this
+
       wx.getSetting({
         success: (res) => {
           //已经授权过
           if (res.authSetting['scope.userInfo'] === true) {
-            const self = this
             wx.login({
               success (res) {
                 if (res.code) {
@@ -58,7 +60,8 @@
           //还没授权过
           else {
             console.log(`暂时未授权`);
-            wx.setStorageSync('settingKey', '0')
+            wx.setStorageSync('settingKey', '0');
+            self.SET_SETTING_KEY('0');
           }
         }
       })
