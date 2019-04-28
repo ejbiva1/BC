@@ -180,7 +180,7 @@
       getOrderList () {
         if (this.is_authorized()) {
           wx.showLoading({
-            title: 'Loading'
+            title: '加载中'
           })
           fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
           fly.post("phantombuy/cart/list", {entityDTO: {}}).then((res) => {
@@ -207,7 +207,7 @@
       itemBlockChangeColor: function (cartItem, index, e) {
         const self = this
         wx.showLoading({
-          title: 'Loading'
+          title: '加载中'
         })
 
         // 当前 cartItem checkbox checked 属性设置
@@ -236,7 +236,7 @@
       },
       handleDelete (e) {
         wx.showLoading({
-          title: 'Loading'
+          title: '加载中'
         })
         const self = this
         fly.config.headers['Cookie'] = 'JSESSIONID=' + this.sessionId
@@ -263,7 +263,7 @@
       },
       onChangeNumber (e) {
         wx.showLoading({
-          title: 'Loading'
+          title: '加载中'
         })
         const self = this
         fly.config.headers['Cookie'] = 'JSESSIONID=' + this.sessionId
