@@ -164,7 +164,6 @@
     },
     onShow() {
       this.getOrderList();
-      console.log(getCurrentPages());
     },
     methods: {
       is_authorized(){

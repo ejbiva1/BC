@@ -166,12 +166,10 @@
       const self = this
       let pages = getCurrentPages();
       if (pages[1].data.state === 1) {
-        console.log("并没有选中任何商品,不应该跳转到该页面");
         self.receive_address_id = pages[1].data.receive_address_id
         self.getUserAddress();
         self.getProductFee();
       }
-      console.log(getCurrentPages());
     },
     onLoad(options){
       this.show_loading();
@@ -280,7 +278,7 @@
             if (common.isEmptyObject(res.data.data)) {
               this.user_default_address = res.data.data;
             } else {
-              this.user_default_address = undefined;
+              //this.user_default_address = undefined;
             }
             console.log(this.user_default_address);
           } else {
