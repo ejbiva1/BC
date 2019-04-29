@@ -93,10 +93,11 @@
         </wxc-panel>
       </div>
     </scroll-view>
-    <!--<wxc-loadmore-->
-    <!--text="正在努力加载中..."-->
-    <!--icon="https://s10.mogucdn.com/mlcdn/c45406/171018_8gj08gbl9fj6igb380dec9k1ifhe2_32x32.png"-->
-    <!--&gt;</wxc-loadmore>-->
+
+
+    <view class="loadmore" v-if="is_end">
+      <loadmore></loadmore>
+    </view>
 
     <view v-if="is_empty">
       <empty></empty>
@@ -113,9 +114,11 @@
   import {pageDTO} from "../../common/model/pageDTO";
   import {default_product_list} from "../../common/model/defaultProduct";
   import empty from "../../components/empty/empty";
+  import loadmore from "../../components/loadmore/loadmore";
   export default {
     data() {
       return {
+        b: 'a',
         ListSiteProductCategory: [],
         site_product_category_list: [],
         site_no_product_category_list: [],
@@ -124,7 +127,6 @@
         site_detail: {},
         pageDto: new pageDTO(),
         pageDtoSetting: {},
-        search: "搜索",
         current_prod_categoryid: 0,
         previous_pro_cate_id: 0,
         product_category_id: 0,
@@ -137,14 +139,16 @@
         scrollTop: '',
         is_empty: false,
         productCategoryName: undefined,
-        site_promotion_list: []
+        site_promotion_list: [],
+        is_end: false
 
       };
     },
     components: {
       "search": search,
       "tabs": tabs,
-      "empty": empty
+      "empty": empty,
+      "loadmore": loadmore
     },
     onLoad(options){
       if (options !== undefined) {
@@ -193,8 +197,6 @@
             return first_site_promotion.promotionCategoryName != item.promotionCategoryName;
           });
           this.site_promotion_list.push(first_site_promotion);
-
-
         }
       },
       setNavigationBarTitle(){
@@ -250,9 +252,19 @@
         }
         fly.post("phantombuy/product/list", entityDTO).then((res) => {
           if (res.data.code === '1') {
+            // 某类商品数据是否已加载到底部
+            if (res.data.data.records.length == 0) {
+              this.is_end = true;
+              this.hide_loading();
+              return
+            }
+            else {
+              this.is_end = false;
+            }
             // 某类商品数据是否为空
-            if (res.data.data.records.length > 0 || this.product_detail_list.length > 0) {
+            if (res.data.data.records.length > 0) {
               if (this.is_empty)    this.is_empty = !this.is_empty;
+              if (this.is_end) this.is_end = !this.is_end;
               for (let i = 0; i < res.data.data.records.length; i++) {
                 this.product_detail_list.push(res.data.data.records[i]);
               }
@@ -373,14 +385,24 @@
 //            this.sub_category_index = this.index_initial;
 //            this.product_category_id = this.index_initial;
 
-            if (res.data.data.records.length > 0 || this.product_detail_list.length > 0) {
+            if (res.data.data.records.length == 0) {
+              this.is_end = true;
+              this.hide_loading();
+              return
+            }
+            else {
+              this.is_end = false;
+            }
+
+            if (res.data.data.records.length > 0) {
               if (this.is_empty)    this.is_empty = !this.is_empty;
+              if (this.is_end) this.is_end = !this.is_end;
               for (let i = 0; i < res.data.data.records.length; i++) {
                 this.product_detail_list.push(res.data.data.records[i]);
               }
-
               console.log(this.product_detail_list);
               this.hide_loading();
+
             } else {
               if (!this.is_empty)    this.is_empty = !this.is_empty;
             }
