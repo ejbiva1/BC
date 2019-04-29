@@ -20,9 +20,9 @@
     </div>
     <!--商品种类-->
     <div class="swiper-home" v-if="site_product_category_list.length > 0">
-      <scroll-view class="scroll-view_x" v-if="sub_category_index ===0"
+      <scroll-view v-if="sub_category_index ===0"
                    :scroll-x="true"
-                   :style="'{width: auto;}'">
+                   style="width: auto;">
 
         <view class="product_kind_list">
           <view class="site_product" v-for="(item, index) in site_no_product_category_list" :key="index"
@@ -32,9 +32,9 @@
           </view>
         </view>
       </scroll-view>
-      <scroll-view class="scroll-view_x" v-if="sub_category_index ===1"
+      <scroll-view v-if="sub_category_index ===1"
                    :scroll-x="true"
-                   :style="'{width: auto;}'">
+                   style="width: auto; width: 100%; height: 50px;">
         <view class="product_kind_list">
           <view class="site_product" v-for="(item, index) in site_man_category_list" :key="index"
                 @click="getSingleKindProductList(item, index)">
@@ -43,9 +43,9 @@
           </view>
         </view>
       </scroll-view>
-      <scroll-view class="scroll-view_x" v-if="sub_category_index ===2"
+      <scroll-view v-if="sub_category_index ===2"
                    :scroll-x="true"
-                   :style="'{width: auto;}'">
+                   style="width: auto; width: 100%;   height: 50px">
         <view class="product_kind_list">
           <view class="site_product" v-for="(item, index) in site_woman_category_list" :key="index"
                 @click="getSingleKindProductList(item, index)">
@@ -419,14 +419,23 @@
   .animated {
     background-color: #F7F7F7;
     font-family: "Microsoft Yahei";
+    overflow: hidden;
   }
 
   .swiper-home {
     width: 100%;
-    height: 15%;
-    padding: 10px 10px 3px 0.78rem;
+    height: 100%;
+    padding: 10px 10px 3px 0.85rem;
     text-align: justify;
     word-break: break-all;
+  }
+
+  .scroll-view-container {
+    width: 100%;
+    height: 0.80rem;
+    /* border-top: 1rpx solid #EF639F;
+    border-bottom: 1rpx solid #EF639F; */
+    /*background-color: #EEE;*/
   }
 
   .product_kind_list {
@@ -442,12 +451,10 @@
   .site_product {
     min-width: 65px;
     text-align: left;
-    height: 40px;
-    line-height: 40px;
     font: 14px black;
-    /*text-align: justify;*/
-    /*word-break: break-all;*/
     vertical-align: middle;
+    line-height: 0.70rem;
+    height: 0.70rem;
   }
 
   ::-webkit-scrollbar {
