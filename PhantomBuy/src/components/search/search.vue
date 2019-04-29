@@ -13,10 +13,11 @@
 
     <view class="site_bonus" v-show="site_promotions.length !==0">
       <div class="fee" v-for="(item, i)  in site_promotions" :key="i">
-        <div class="promotion_name">
-          {{item.promotionCategoryName}}
-        </div>
+        <!--<div class="promotion_name">-->
+          <!--{{item.promotionCategoryName}}-->
+        <!--</div>-->
         <div class="promotion_detail">
+          {{item.promotionCategoryName}}:
           {{item.sitePromotionName}}
         </div>
 
@@ -155,22 +156,25 @@
   }
 
   .site_bonus .fee {
-    display: flex;
-    flex-direction: row;
+    /*display: flex;*/
+    /*flex-direction: row;*/
     font-size: 13px;
+    text-align: justify;
   }
 
   .fee .promotion_name {
     width: 18%;
-    padding-top: 0.1rem;
+    /*padding-top: 0.1rem;*/
     padding-bottom: 0.1rem;
   }
 
   .fee .promotion_detail {
-    width: 78%;
-    display: flex;
+    width: 95%;
     flex-wrap: nowrap;
-    padding-top: 0.1rem;
-    padding-bottom: 0.1rem;
+    padding-bottom: 0.3rem;
+    height: 100%;
+    display: inline-block;
+    text-align: justify;
+    /*word-break: break-all;*/
   }
 </style>

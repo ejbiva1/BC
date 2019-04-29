@@ -21,14 +21,16 @@
 
       <view class="site_discount">
         <div class="fee" v-if="site_promotion_list.length >0" v-for="(item, i)  in site_promotion_list" :key="i">
-          <div class="promotion_name">
-            {{item.promotionCategoryName}}
-          </div>
+          <!--<div class="promotion_name">-->
+            <!--{{item.promotionCategoryName}}-->
+          <!--</div>-->
           <div class="promotion_detail">
+            {{item.promotionCategoryName}}:
             {{item.sitePromotionName}}
           </div>
 
         </div>
+
       </view>
     </view>
 
@@ -129,8 +131,6 @@
   .site_detail_header {
     display: flex;
     align-items: center;
-    height: 0.6rem;
-    line-height: 0.6rem;
   }
 
   .site_title {
@@ -138,7 +138,7 @@
     color: #333;
     padding-top: .01rem;
     font-weight: 500;
-    /*//font-family:"Microsoft Yahei";*/
+
   }
 
   .ellipsis {
@@ -154,48 +154,39 @@
 
   }
 
-  .site_right .rating_order_num .rating_order_num_right {
-    display: flex;
-    /*-ms-flex-align: center;*/
-    /*align-items: center;*/
-    transform: scale(.8);
-    /*min-width: 5rem;*/
-    /*-ms-flex-pack: end;*/
-    /*justify-content: flex-end;*/
-    /*margin-right: -.8rem;*/
-    position: relative;
-    left: -15px;;
-  }
-
   .site_discount {
     flex: auto;
     witdh: 100%;
     min-height: 1.0rem;
-    /*height: 10%;*/
+
   }
 
   .site_discount .fee {
-    display: flex;
+    /*display: flex;*/
     padding-left: .2rem;
     font-size: .23rem;
     color: black;
-    flex-direction: row;
-    justify-content: space-between;
+    /*flex-direction: row;*/
+    /*justify-content: space-between;*/
+
   }
 
   .site_discount .fee .promotion_name {
     width: 20%;
-    height: 0.5rem;
-    padding-top: 0.2rem;
-    padding-bottom: 0.2rem;
+    padding-bottom: 0.3rem;
+
   }
 
   .site_discount .fee .promotion_detail {
-    width: 80%;
-    display: flex;
+    width: 70%;
     flex-wrap: nowrap;
-    padding-top: 0.2rem;
-    padding-bottom: 0.2rem;
+    padding-bottom: 0.3rem;
+    height: 100%;
+    display: inline-block;
+    text-align: justify;
+    box-sizing: border-box;
+    position: relative;
+    left:22%;
   }
 
 
