@@ -118,7 +118,6 @@
   export default {
     data() {
       return {
-        b: 'a',
         ListSiteProductCategory: [],
         site_product_category_list: [],
         site_no_product_category_list: [],
