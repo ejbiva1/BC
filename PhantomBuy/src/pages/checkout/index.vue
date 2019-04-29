@@ -495,7 +495,6 @@
     flex-direction: row;
     font-size: 14px;
     padding-bottom: 0.1rem;
-    padding-left: 0.1rem;
   }
 
   .price {

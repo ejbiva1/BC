@@ -1,7 +1,7 @@
 <template xmlns="http://www.w3.org/1999/xhtml">
   <view class="search_component">
     <view class="site">
-      <view class="search-wrap" v-if="site !== undefined">
+      <view class="search-wrap">
         <view class="search_form" style="border-radius:2px; background: #fff;">
           <input class="search_input" placeholder="搜索" style="color: #333; " v-model="search_key"/>
         </view>
@@ -11,8 +11,8 @@
       </view>
     </view>
 
-    <view class="site_bonus" v-show="site.sitePromotionList.length >0">
-      <div class="fee" v-for="(item, i)  in site.sitePromotionList" :key="i">
+    <view class="site_bonus" v-show="site_promotions.length !==0">
+      <div class="fee" v-for="(item, i)  in site_promotions" :key="i">
         <div class="promotion_name">
           {{item.promotionCategoryName}}
         </div>
@@ -42,21 +42,25 @@
         bg_color: '#fff',
         btn_color: '#2CB42F',
         site_promotion_list: [],
-        search_key: '',
+        search_key: "",
         toast: {}
       };
     },
     props: {
-      site: {
+      site_promotions: {
         type: Object
       }
     },
     onLoad() {
       this.search_key = "";
+      this.showPromotionDetail();
     },
     methods: {
+      showPromotionDetail(){
+
+      },
       search_products() {
-        if (this.search_key == "" || this.search_key === undefined) {
+        if (this.search_key === "") {
           let self = this;
           self.toast = common.showErrorMsg('请输入关键字!');
           setTimeout(function () {
@@ -64,7 +68,7 @@
           }, 1500);
           return
         } else {
-          this.$emit("search");
+          this.$emit("search", 3);
         }
       },
       showMsg(){
@@ -157,12 +161,16 @@
   }
 
   .fee .promotion_name {
-    width: 20%;
+    width: 18%;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
   }
 
   .fee .promotion_detail {
-    width: 80%;
+    width: 78%;
     display: flex;
     flex-wrap: nowrap;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
   }
 </style>

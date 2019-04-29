@@ -41,7 +41,7 @@
   export default {
     data(){
       return {
-        site_promotion_list: []
+        site_promotion_list: [],
       };
     },
     props: {
@@ -61,11 +61,18 @@
         if (this.$props.item.sitePromotionList.length > 0) {
           this.site_promotion_list = this.$props.item.sitePromotionList;
 
+          let first_site_promotion = this.site_promotion_list[0];
+          this.site_promotion_list = this.site_promotion_list.filter((item, index) => {
+            return first_site_promotion.promotionCategoryName != item.promotionCategoryName;
+          });
+          this.site_promotion_list.push(first_site_promotion);
+
         }
+
+      }
 
 //        console.log(this.site_promotion);
 //        console.log(this.site_promotion === undefined);
-      }
     }
 
   }
@@ -73,13 +80,13 @@
 
 <style>
   font {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .site {
     border-bottom: .025rem solid #f1f1f1;
     padding: 0.2rem 0.2rem;
-    height: 2rem;
+
     width: 100%;
   }
 
@@ -130,7 +137,6 @@
     width: 5.5rem;
     color: #333;
     padding-top: .01rem;
-    font: .40rem/.40rem Microsoft Yahei;
     font-weight: 500;
     /*//font-family:"Microsoft Yahei";*/
   }
@@ -164,30 +170,32 @@
   .site_discount {
     flex: auto;
     witdh: 100%;
+    min-height: 1.0rem;
     /*height: 10%;*/
   }
 
   .site_discount .fee {
     display: flex;
     padding-left: .2rem;
-    font-size: .30rem;
+    font-size: .23rem;
     color: black;
-    min-height: 1.0rem;
     flex-direction: row;
     justify-content: space-between;
-
   }
 
   .site_discount .fee .promotion_name {
     width: 20%;
     height: 0.5rem;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
   }
 
   .site_discount .fee .promotion_detail {
     width: 80%;
-    height: 0.5rem;
     display: flex;
     flex-wrap: nowrap;
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
   }
 
 
