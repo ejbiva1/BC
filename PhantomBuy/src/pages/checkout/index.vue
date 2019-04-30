@@ -9,10 +9,10 @@
           </div>
           <view class="receiver_info">
             <view class="receiver_title">
-              <view>收件地址:</view>
-              <view>收件人:</view>
-              <view>联系方式:</view>
-              <view>身份证号:</view>
+              <view>收件地址</view>
+              <view>收件人</view>
+              <view>联系方式</view>
+              <view>身份证号</view>
             </view>
             <view class="blockData">
               <div class="add">{{user_default_address.addressDetail}}</div>
@@ -166,12 +166,10 @@
       const self = this
       let pages = getCurrentPages();
       if (pages[1].data.state === 1) {
-        console.log("并没有选中任何商品,不应该跳转到该页面");
         self.receive_address_id = pages[1].data.receive_address_id
         self.getUserAddress();
         self.getProductFee();
       }
-      console.log(getCurrentPages());
     },
     onLoad(options){
       this.show_loading();
@@ -280,7 +278,7 @@
             if (common.isEmptyObject(res.data.data)) {
               this.user_default_address = res.data.data;
             } else {
-              this.user_default_address = undefined;
+              //this.user_default_address = undefined;
             }
             console.log(this.user_default_address);
           } else {
@@ -497,7 +495,6 @@
     flex-direction: row;
     font-size: 14px;
     padding-bottom: 0.1rem;
-    padding-left: 0.1rem;
   }
 
   .price {

@@ -1,6 +1,6 @@
 <template>
   <div class="animated fadeIn">
-    <search v-bind:site="site_detail" @search="SearchProducts" ref="find"></search>
+    <search v-bind:site_promotions="site_promotion_list" @search="SearchProducts" ref="find"></search>
 
     <div class="select">
       <div class="ass_category">
@@ -20,9 +20,9 @@
     </div>
     <!--商品种类-->
     <div class="swiper-home" v-if="site_product_category_list.length > 0">
-      <scroll-view class="scroll-view_x" v-if="sub_category_index ===0"
+      <scroll-view v-if="sub_category_index ===0"
                    :scroll-x="true"
-                   :style="'{width: auto;}'">
+                   style="width: auto;">
 
         <view class="product_kind_list">
           <view class="site_product" v-for="(item, index) in site_no_product_category_list" :key="index"
@@ -32,9 +32,9 @@
           </view>
         </view>
       </scroll-view>
-      <scroll-view class="scroll-view_x" v-if="sub_category_index ===1"
+      <scroll-view v-if="sub_category_index ===1"
                    :scroll-x="true"
-                   :style="'{width: auto;}'">
+                   style="width: auto; width: 100%; height: 50px;">
         <view class="product_kind_list">
           <view class="site_product" v-for="(item, index) in site_man_category_list" :key="index"
                 @click="getSingleKindProductList(item, index)">
@@ -43,9 +43,9 @@
           </view>
         </view>
       </scroll-view>
-      <scroll-view class="scroll-view_x" v-if="sub_category_index ===2"
+      <scroll-view v-if="sub_category_index ===2"
                    :scroll-x="true"
-                   :style="'{width: auto;}'">
+                   style="width: auto; width: 100%;   height: 50px">
         <view class="product_kind_list">
           <view class="site_product" v-for="(item, index) in site_woman_category_list" :key="index"
                 @click="getSingleKindProductList(item, index)">
@@ -93,10 +93,11 @@
         </wxc-panel>
       </div>
     </scroll-view>
-    <!--<wxc-loadmore-->
-    <!--text="正在努力加载中..."-->
-    <!--icon="https://s10.mogucdn.com/mlcdn/c45406/171018_8gj08gbl9fj6igb380dec9k1ifhe2_32x32.png"-->
-    <!--&gt;</wxc-loadmore>-->
+
+
+    <view class="loadmore" v-if="is_end">
+      <loadmore></loadmore>
+    </view>
 
     <view v-if="is_empty">
       <empty></empty>
@@ -113,6 +114,7 @@
   import {pageDTO} from "../../common/model/pageDTO";
   import {default_product_list} from "../../common/model/defaultProduct";
   import empty from "../../components/empty/empty";
+  import loadmore from "../../components/loadmore/loadmore";
   export default {
     data() {
       return {
@@ -124,7 +126,6 @@
         site_detail: {},
         pageDto: new pageDTO(),
         pageDtoSetting: {},
-        search: "搜索",
         current_prod_categoryid: 0,
         previous_pro_cate_id: 0,
         product_category_id: 0,
@@ -135,13 +136,18 @@
         sex: undefined,
         index_initial: 1000,
         scrollTop: '',
-        is_empty: false
+        is_empty: false,
+        productCategoryName: undefined,
+        site_promotion_list: [],
+        is_end: false
+
       };
     },
     components: {
       "search": search,
       "tabs": tabs,
-      "empty": empty
+      "empty": empty,
+      "loadmore": loadmore
     },
     onLoad(options){
       if (options !== undefined) {
@@ -157,6 +163,7 @@
       this.product_category_id = 0;
       this.current_prod_categoryid = 0;
 
+      this.set_site_promotion_list();
       this.getListSiteProductCategory();
       this.getAllProductList();
       console.log(this.scrollTop);
@@ -164,6 +171,8 @@
     },
     onUnload(){
       this.is_empty = false;
+      this.site_detail = {};
+      this.site_promotion_list = [];
 
     },
     async onPullDownRefresh() {
@@ -172,19 +181,23 @@
       wx.stopPullDownRefresh();
     },
     onReachBottom() {
-      // 搜索 and 下拉刷新 这里逻辑 有问题
-      if (this.$refs.find.search_key !== '') {
-        this.toNextPage();
-        this.SearchProducts();
-        return
-      }
       this.previous_pro_cate_id = this.current_prod_categoryid;
-      // this.current_prod_categoryid =  this.current_prod_categoryid;
+      this.current_prod_categoryid = this.current_prod_categoryid;
       this.toNextPage();
       this.loadReachBottomList();
     },
     computed: {},
     methods: {
+      set_site_promotion_list(){
+        if (this.site_detail.sitePromotionList.length > 0) {
+          this.site_promotion_list = this.site_detail.sitePromotionList;
+          let first_site_promotion = this.site_promotion_list[0];
+          this.site_promotion_list = this.site_promotion_list.filter((item, index) => {
+            return first_site_promotion.promotionCategoryName != item.promotionCategoryName;
+          });
+          this.site_promotion_list.push(first_site_promotion);
+        }
+      },
       setNavigationBarTitle(){
         wx.setNavigationBarTitle({
           title: this.site_detail.brandNameCh   // 页面标题
@@ -238,9 +251,19 @@
         }
         fly.post("phantombuy/product/list", entityDTO).then((res) => {
           if (res.data.code === '1') {
+            // 某类商品数据是否已加载到底部
+            if (res.data.data.records.length == 0) {
+              this.is_end = true;
+              this.hide_loading();
+              return
+            }
+            else {
+              this.is_end = false;
+            }
             // 某类商品数据是否为空
-            if (res.data.data.records.length > 0 || this.product_detail_list.length > 0) {
+            if (res.data.data.records.length > 0) {
               if (this.is_empty)    this.is_empty = !this.is_empty;
+              if (this.is_end) this.is_end = !this.is_end;
               for (let i = 0; i < res.data.data.records.length; i++) {
                 this.product_detail_list.push(res.data.data.records[i]);
               }
@@ -249,10 +272,6 @@
             }
 
             this.hide_loading();
-//            wx.pageScrollTo({
-//              scrollTop: this.scrollTop,
-//              duration: 300
-//            });
 
           } else {
           }
@@ -263,6 +282,7 @@
         this.show_loading();
         this.product_detail_list = [];
         this.pageDtoSetting = this.pageDto;
+
         this.getProducts();
       },
       getSingleKindProductList(productCategory, index) {
@@ -271,9 +291,15 @@
         console.log(this.product_category_id);
         this.previous_pro_cate_id = this.current_prod_categoryid;
         this.current_prod_categoryid = productCategory.productCategoryId;
+        this.productCategoryName = productCategory.productCategoryName;
         this.product_detail_list = [];
         this.pageDtoSetting = this.pageDto;
-        this.getProducts();
+        if (this.$refs.find.search_key !== "") {
+          this.searchProductList();
+        } else {
+          this.getProducts();
+        }
+
       },
       loadReachBottomList(){
         //current_prod_categoryid: 0,
@@ -281,47 +307,101 @@
         if (this.current_prod_categoryid != this.previous_pro_cate_id) {
           this.product_detail_list = [];
         }
+
+        // 搜索 and 下拉刷新 这里逻辑 有问题
+        if (this.$refs.find.search_key !== "") {
+          this.searchProductList();
+          return
+        }
+
+        // case 1: All Products
+        // case 2: product category list
         this.getProducts();
       },
-      toProductDetail(productId, e) {
-        // console.log(e);
-        //const clientX = e.clientX;
-        this.scrollTop = e.clientY;
-        // 记录下当前 (x,y)坐标
-        wx.navigateTo({
-          url: '/pages/productDetail/main?productId=' + productId,
-        });
-      },
-      show_loading() {
-        wx.showLoading({
-          title: '加载中',
-        })
-      },
-      hide_loading() {
-        wx.hideLoading();
-      },
-      toNextPage() {
-        this.pageDtoSetting = this.pageDto.nextPage(this.pageDtoSetting);
-      },
-      SearchProducts(){
+
+      SearchProducts(category){
         // 站内搜索
+        this.chooseSubCategory(undefined, category);
+      },
+      chooseSubCategory(item, index){
+        this.sub_category_index = index;
+        this.product_category_id = this.index_initial;
+        this.current_prod_categoryid = 0;
+        this.previous_pro_cate_id = 0;
+        this.productCategoryName = item !== undefined ? item.productCategoryName : undefined;
+        switch (this.sub_category_index) {
+          case 0:    // 全部商品
+            this.sex = undefined;
+            if (this.$refs.find.search_key !== "") {
+              this.searchProductList();
+            } else {
+              this.getAllProductList();
+            }
+
+            break;
+          case 1:  // 男款
+            this.site_man_category_list = this.site_product_category_list.filter((item, index) => {
+              return item.sex == 1;
+            });
+            //array.splice(4,0,5);
+            this.site_man_category_list.splice(0, 0, default_product_list[1]);
+            this.sex = 1;
+            if (this.$refs.find.search_key !== "") {
+              this.searchProductList();
+            } else {
+              this.getAllProductList();
+            }
+            break;
+          case 2:  // 女款
+            this.site_woman_category_list = this.site_product_category_list.filter((item, index) => {
+              return item.sex == 0;
+            });
+            this.site_woman_category_list.splice(0, 0, default_product_list[0]);
+            this.sex = 0;
+            if (this.$refs.find.search_key !== "") {
+              this.searchProductList();
+            } else {
+              this.getAllProductList();
+            }
+            break;
+          case 3:
+            this.product_detail_list = [];
+            this.searchProductList();
+        }
+      },
+      searchProductList(){
         let entityDTO = {
           entityDTO: {
             siteId: this.site_detail.siteId,
-            searchKey: this.$refs.find.search_key !== undefined ? this.$refs.find.search_key : undefined
+            searchKey: this.$refs.find.search_key !== undefined ? this.$refs.find.search_key : undefined,
+            productCategoryName: this.productCategoryName || undefined,
+            sex: this.sex
           },
           pageDTO: this.pageDtoSetting
         };
         fly.post("phantombuy/product/search", entityDTO).then(res => {
           if (res.data.code === '1') {
-            this.sub_category_index = this.index_initial;
-            this.product_category_id = this.index_initial;
-            this.product_detail_list = [];
-            if (res.data.data.records.length > 0 || this.product_detail_list.length > 0) {
+//            this.sub_category_index = this.index_initial;
+//            this.product_category_id = this.index_initial;
+
+            if (res.data.data.records.length == 0) {
+              this.is_end = true;
+              this.hide_loading();
+              return
+            }
+            else {
+              this.is_end = false;
+            }
+
+            if (res.data.data.records.length > 0) {
               if (this.is_empty)    this.is_empty = !this.is_empty;
+              if (this.is_end) this.is_end = !this.is_end;
               for (let i = 0; i < res.data.data.records.length; i++) {
                 this.product_detail_list.push(res.data.data.records[i]);
               }
+              console.log(this.product_detail_list);
+              this.hide_loading();
+
             } else {
               if (!this.is_empty)    this.is_empty = !this.is_empty;
             }
@@ -332,36 +412,26 @@
           }
         });
       },
-      chooseSubCategory(item, index){
-        this.sub_category_index = index;
-        this.product_category_id = this.index_initial;
-        this.current_prod_categoryid = 0;
-        this.previous_pro_cate_id = 0;
-        switch (this.sub_category_index) {
-          case 0:    // 全部商品
-            this.sex = undefined;
-            this.getAllProductList();
-            break;
-          case 1:  // 男款
-            this.site_man_category_list = this.site_product_category_list.filter((item, index) => {
-              return item.sex == 1;
-            });
-
-            //array.splice(4,0,5);
-            this.site_man_category_list.splice(0, 0, default_product_list[1]);
-            this.sex = 1;
-            this.getAllProductList();
-            break;
-          case 2:  // 女款
-            this.site_woman_category_list = this.site_product_category_list.filter((item, index) => {
-              return item.sex == 0;
-            });
-            this.site_woman_category_list.splice(0, 0, default_product_list[0]);
-            this.sex = 0;
-            this.getAllProductList();
-            break;
-        }
-      }
+      toProductDetail(productId, e) {
+        // console.log(e);
+        //const clientX = e.clientX;
+        this.scrollTop = e.clientY;
+        // 记录下当前 (x,y)坐标
+        wx.navigateTo({
+          url: '/pages/productDetail/main?productId=' + productId,
+        });
+      },
+      toNextPage() {
+        this.pageDtoSetting = this.pageDto.nextPage(this.pageDtoSetting);
+      },
+      show_loading() {
+        wx.showLoading({
+          title: '加载中',
+        })
+      },
+      hide_loading() {
+        wx.hideLoading();
+      },
     },
   }
 </script>
@@ -370,14 +440,23 @@
   .animated {
     background-color: #F7F7F7;
     font-family: "Microsoft Yahei";
+    overflow: hidden;
   }
 
   .swiper-home {
     width: 100%;
-    height: 15%;
-    padding: 10px 10px 3px 0.78rem;
+    height: 100%;
+    padding: 10px 10px 3px 0.85rem;
     text-align: justify;
     word-break: break-all;
+  }
+
+  .scroll-view-container {
+    width: 100%;
+    height: 0.80rem;
+    /* border-top: 1rpx solid #EF639F;
+    border-bottom: 1rpx solid #EF639F; */
+    /*background-color: #EEE;*/
   }
 
   .product_kind_list {
@@ -393,12 +472,10 @@
   .site_product {
     min-width: 65px;
     text-align: left;
-    height: 40px;
-    line-height: 40px;
     font: 14px black;
-    /*text-align: justify;*/
-    /*word-break: break-all;*/
     vertical-align: middle;
+    line-height: 0.70rem;
+    height: 0.70rem;
   }
 
   ::-webkit-scrollbar {

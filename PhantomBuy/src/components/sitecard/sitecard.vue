@@ -21,14 +21,16 @@
 
       <view class="site_discount">
         <div class="fee" v-if="site_promotion_list.length >0" v-for="(item, i)  in site_promotion_list" :key="i">
-          <div class="promotion_name">
-            {{item.promotionCategoryName}}
-          </div>
+          <!--<div class="promotion_name">-->
+            <!--{{item.promotionCategoryName}}-->
+          <!--</div>-->
           <div class="promotion_detail">
+            {{item.promotionCategoryName}}:
             {{item.sitePromotionName}}
           </div>
 
         </div>
+
       </view>
     </view>
 
@@ -41,7 +43,7 @@
   export default {
     data(){
       return {
-        site_promotion_list: []
+        site_promotion_list: [],
       };
     },
     props: {
@@ -61,11 +63,18 @@
         if (this.$props.item.sitePromotionList.length > 0) {
           this.site_promotion_list = this.$props.item.sitePromotionList;
 
+          let first_site_promotion = this.site_promotion_list[0];
+          this.site_promotion_list = this.site_promotion_list.filter((item, index) => {
+            return first_site_promotion.promotionCategoryName != item.promotionCategoryName;
+          });
+          this.site_promotion_list.push(first_site_promotion);
+
         }
+
+      }
 
 //        console.log(this.site_promotion);
 //        console.log(this.site_promotion === undefined);
-      }
     }
 
   }
@@ -73,13 +82,13 @@
 
 <style>
   font {
-    font-size: 15px;
+    font-size: 13px;
   }
 
   .site {
     border-bottom: .025rem solid #f1f1f1;
     padding: 0.2rem 0.2rem;
-    height: 2rem;
+
     width: 100%;
   }
 
@@ -122,17 +131,14 @@
   .site_detail_header {
     display: flex;
     align-items: center;
-    height: 0.6rem;
-    line-height: 0.6rem;
   }
 
   .site_title {
     width: 5.5rem;
     color: #333;
     padding-top: .01rem;
-    font: .40rem/.40rem Microsoft Yahei;
     font-weight: 500;
-    /*//font-family:"Microsoft Yahei";*/
+
   }
 
   .ellipsis {
@@ -148,46 +154,39 @@
 
   }
 
-  .site_right .rating_order_num .rating_order_num_right {
-    display: flex;
-    /*-ms-flex-align: center;*/
-    /*align-items: center;*/
-    transform: scale(.8);
-    /*min-width: 5rem;*/
-    /*-ms-flex-pack: end;*/
-    /*justify-content: flex-end;*/
-    /*margin-right: -.8rem;*/
-    position: relative;
-    left: -15px;;
-  }
-
   .site_discount {
     flex: auto;
     witdh: 100%;
-    /*height: 10%;*/
+    min-height: 1.0rem;
+
   }
 
   .site_discount .fee {
-    display: flex;
+    /*display: flex;*/
     padding-left: .2rem;
-    font-size: .30rem;
+    font-size: .23rem;
     color: black;
-    min-height: 1.0rem;
-    flex-direction: row;
-    justify-content: space-between;
+    /*flex-direction: row;*/
+    /*justify-content: space-between;*/
 
   }
 
   .site_discount .fee .promotion_name {
     width: 20%;
-    height: 0.5rem;
+    padding-bottom: 0.3rem;
+
   }
 
   .site_discount .fee .promotion_detail {
-    width: 80%;
-    height: 0.5rem;
-    display: flex;
+    width: 70%;
     flex-wrap: nowrap;
+    padding-bottom: 0.3rem;
+    height: 100%;
+    display: inline-block;
+    text-align: justify;
+    box-sizing: border-box;
+    position: relative;
+    left:22%;
   }
 
 
