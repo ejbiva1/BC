@@ -23,6 +23,11 @@
   export default {
     mounted () {
     },
+    data() {
+      return {
+        userInfo: {}
+      }
+    },
     computed: {
       ...mapState([
         'settingKey',
@@ -43,7 +48,8 @@
               if (res.code) {
                 self.code = res.code
                 //储存getUserInfo接口的信息，需要后端配合
-                //self.wxGetUserInfo(res.code)
+                self.userInfo = e.mp.detail.userInfo
+                console.log(`获取的授权用户数据:`, self.userInfo)
                 fly.post("phantombuy/auth/weChatAppletlogin", {
                   entityDTO: {
                     weChatAppletLoginCode: self.code
@@ -56,10 +62,27 @@
                     wx.setStorageSync('settingKey', '1')
                     self.SET_SETTING_KEY('1');
                     self.SET_SESSION_ID(res.headers['set-cookie'].split('=')[1].split(';')[0]);
-
-                    wx.navigateBack({
-                      delta: 1
+                    fly.config.headers["Cookie"] = "JSESSIONID=" + res.headers['set-cookie'].split('=')[1].split(';')[0];
+                    //把微信的女2转女0
+                    if (self.userInfo.gender === 2) {
+                      self.userInfo.gender = 0
+                    }
+                    fly.post("phantombuy/user/update", {
+                      entityDTO: {
+                        weixinNickname: self.userInfo.nickName,
+                        gender: self.userInfo.gender,
+                        weixinHeadingUrl: self.userInfo.avatarUrl
+                      }
+                    }).then(res => {
+                      wx.navigateBack({
+                        delta: 1
+                      })
+                    }).catch(err => {
+                      console.log(`api请求出错:`, err)
+                      wx.setStorageSync('settingKey', '0')
+                      self.SET_SETTING_KEY('0');
                     })
+
                   } else {
                     wx.setStorageSync('settingKey', '0')
                     self.SET_SETTING_KEY('0');

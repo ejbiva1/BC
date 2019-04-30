@@ -26,6 +26,7 @@
     "@minui/wxc-mask": "^1.0.8",
     "@minui/wxc-panel": "^1.0.1",
     "@minui/wxc-price": "^1.0.8",
+    "@minui/wxc-progress": "^1.0.5",
     "@minui/wxc-search": "^1.0.1",
     "@minui/wxc-tab": "^1.0.8",
     "@minui/wxc-toast": "^1.0.9",
@@ -37,7 +38,8 @@
     "flyio": "^0.5.9",
     "mpvue": "^1.0.11",
     "mpvue-router-patch": "^2.0.0",
-    "vuex": "^3.0.1"
+    "vuex": "^3.0.1",
+    "vuex-persistedstate": "^2.5.4"
   },
   "devDependencies": {
     "mpvue-loader": "^1.1.2",
