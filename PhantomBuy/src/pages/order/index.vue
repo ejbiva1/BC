@@ -408,7 +408,7 @@
   .price_row {
     display: flex;
     flex-direction: row;
-    padding-bottom: 0.20rem;
+    padding-bottom: 0.10rem;
   }
 
   .site_choose {
@@ -505,9 +505,9 @@
 
   .cart-footer .button {
     line-height: 0.8rem;
-    height: 1rem;
+    /*height: 1rem;*/
     font-size: 0.3rem;
-    width: 30%;
+    width: 25%;
     bottom: 0;
     position: absolute;
     right: 0;

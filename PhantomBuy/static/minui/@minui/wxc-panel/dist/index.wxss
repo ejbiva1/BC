@@ -1,6 +1,6 @@
 .panel {
     position: relative;
-    margin-top: 30rpx;
+    margin-top: 0rpx;
     background: #fff;
     overflow: hidden
 }

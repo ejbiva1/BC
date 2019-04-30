@@ -9,10 +9,10 @@
           </div>
           <view class="receiver_info">
             <view class="receiver_title">
-              <view>收件地址:</view>
-              <view>收件人:</view>
-              <view>联系方式:</view>
-              <view>身份证号:</view>
+              <view>收件地址</view>
+              <view>收件人</view>
+              <view>联系方式</view>
+              <view>身份证号</view>
             </view>
             <view class="blockData">
               <div class="add">{{user_default_address.addressDetail}}</div>

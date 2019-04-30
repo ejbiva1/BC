@@ -20,7 +20,7 @@
 
         </view>
       </wxc-panel>
-      <wxc-panel :border="has_border" @click="toMyAddressPage">
+      <wxc-panel :border="has_border" @click="toMyAddressPage" >
         <view class="address_sort padding">
           <view>收货地址管理</view>
           <view>
@@ -79,7 +79,7 @@
 
   .myDataBlock {
     width: 100%;
-    padding: 0rem 0.20rem 0rem 0rem;
+    padding: 0.3rem 0.20rem 0rem 0rem;
   }
 
   .row {
