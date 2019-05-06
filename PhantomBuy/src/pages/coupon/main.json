@@ -1,13 +1,10 @@
 {
-  "navigationBarTitleText": "我的",
+  "navigationBarTitleText":"我的卡券",
   "usingComponents": {
-    "wxc-label": "/static/minui/@minui/wxc-label/dist/index",
     "wxc-icon": "/static/minui/@minui/wxc-icon/dist/index",
     "wxc-panel": "/static/minui/@minui/wxc-panel/dist/index",
     "wxc-toast": "/static/minui/@minui/wxc-toast/dist/index",
-    "wxc-input": "/static/minui/@minui/wxc-input/dist/index",
     "wxc-button": "/static/minui/@minui/wxc-button/dist/index",
-    "wxc-tab": "/static/minui/@minui/wxc-tab/dist/index",
     "wxc-tab-panel": "/static/minui/@minui/wxc-tab/dist/panel"
   }
 }

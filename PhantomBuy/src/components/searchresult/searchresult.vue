@@ -1,26 +1,19 @@
-<template xmlns="http://www.w3.org/1999/xhtml">
+<template xmlns="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
   <view class="search_component">
     <view class="site">
       <view class="search-wrap">
         <view class="search_form" style="border-radius:2px; background: #fff;">
-          <input class="search_input" placeholder="搜索" style="color: #333; " v-model="search_key"/>
+          <input class="search_input" type="text" placeholder="搜索" style="color: #333; " v-model="search_key"
+                 @focus="toSearch"/>
+
         </view>
       </view>
       <view style="border-radius:2px; " class="search-button-wrap">
-        <button class="search__button" :class="{search__button_active: press_search_button_index == 0 }"
-                @click="search_products(0)">搜索本站
-        </button>
-        <button class="search__button" :class="{search__button_active: press_search_button_index == 1 } "
-                @click="search_products(1)">搜索全站
-        </button>
       </view>
     </view>
 
     <view class="site_bonus" v-show="site_promotions.length !==0">
       <div class="fee" v-for="(item, i)  in site_promotions" :key="i">
-        <!--<div class="promotion_name">-->
-        <!--{{item.promotionCategoryName}}-->
-        <!--</div>-->
         <div class="promotion_detail">
           {{item.promotionCategoryName}}:
           {{item.sitePromotionName}}
@@ -49,14 +42,15 @@
         btn_color: '#2CB42F',
         site_promotion_list: [],
         search_key: "",
-        toast: {},
-        active: true,
-        press_search_button_index: 0
+        toast: {}
       };
     },
     props: {
       site_promotions: {
         type: Object
+      },
+      site_id: {
+        type: String
       }
     },
     onLoad() {
@@ -67,8 +61,7 @@
       showPromotionDetail(){
 
       },
-      search_products(press_button_index) {
-        this.press_search_button_index = press_button_index;
+      search_products() {
         if (this.search_key === "") {
           let self = this;
           self.toast = common.showErrorMsg('请输入关键字!');
@@ -80,6 +73,12 @@
           this.$emit("search", 3);
         }
       },
+      toSearch(){
+        wx.navigateTo({
+          url: '/pages/searchresult/main?site_id=' + this.$props.site_id,
+        });
+        // console.log("toSearch");
+      },
       showMsg(){
         this.toast = common.show
       }
@@ -90,7 +89,7 @@
 <style>
 
   .search_component {
-    padding-left: 0.25rem;
+    padding-left: 0.75rem;
     width: 100%;
   }
 
@@ -113,6 +112,7 @@
   .search-wrap {
     display: flex;
     align-items: center;
+    /*width: 66%;*/
   }
 
   .search_form {
@@ -127,12 +127,13 @@
   }
 
   .search_input {
-    /*flex: 1;*/
-    height: 0.60rem;
+
+    height: 0.8rem;
     padding: 0 0.16rem;
     font-size: 0.28rem;
     background: #fff;
     width: 100%;
+    border-radius: 5px;
   }
 
   .search-button-wrap {
@@ -145,16 +146,12 @@
     line-height: 0.60rem;
     font-size: 0.28rem;
     overflow: hidden;
+    color: #fff;
+    background-color: #40a9ff;
+    border-color: #40a9ff;
     border-radius: 0px;
     padding-left: 0.08rem;
     padding-right: 0.08rem;
-    /*background: #f5f5f5;*/
-    border-color: #d9d9d9;
-  }
-
-  .search__button_active {
-    background-color: #40a9ff;
-    border-color: #40a9ff;
   }
 
   .search__button::after {
@@ -167,15 +164,12 @@
   }
 
   .site_bonus .fee {
-    /*display: flex;*/
-    /*flex-direction: row;*/
     font-size: 13px;
     text-align: justify;
   }
 
   .fee .promotion_name {
     width: 18%;
-    /*padding-top: 0.1rem;*/
     padding-bottom: 0.1rem;
   }
 
@@ -190,6 +184,6 @@
   }
 
   input {
-    width: 4.2rem;
+    width: 6.2rem;
   }
 </style>

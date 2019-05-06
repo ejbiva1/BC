@@ -1,6 +1,7 @@
 <template>
   <div class="animated fadeIn">
-    <search v-bind:site_promotions="site_promotion_list" @search="SearchProducts" ref="find"></search>
+    <search-result v-bind:site_promotions="site_promotion_list" v-bind:site_id="site_detail.siteId"
+                   @search="SearchProducts" ref="find"></search-result>
 
     <div class="select">
       <div class="ass_category">
@@ -19,7 +20,7 @@
       </div>
     </div>
     <!--商品种类-->
-    <div class="swiper-home" v-if="site_product_category_list.length > 0">
+    <div class="swiper-home">
       <scroll-view v-if="sub_category_index ===0"
                    :scroll-x="true"
                    style="width: auto;">
@@ -108,13 +109,13 @@
 
 <!--商家-->
 <script type="text/ecmascript-6">
-  import search from "../../components/search/search";
+  import searchresult from "../../components/searchresult/searchresult";
   import  fly from "../../utils/fly";
-  import tabs from "../../components/tabs/tabs";
   import {pageDTO} from "../../common/model/pageDTO";
   import {default_product_list} from "../../common/model/defaultProduct";
   import empty from "../../components/empty/empty";
   import loadmore from "../../components/loadmore/loadmore";
+  import {TabsConstants} from "../../common/constants/tabs-constants";
   export default {
     data() {
       return {
@@ -144,8 +145,7 @@
       };
     },
     components: {
-      "search": search,
-      "tabs": tabs,
+      "search-result": searchresult,
       "empty": empty,
       "loadmore": loadmore
     },
@@ -153,6 +153,8 @@
       if (options !== undefined) {
         this.site_detail = JSON.parse(options.site);
         this.setNavigationBarTitle();
+        let product_tabs = TabsConstants.productTabConstants;
+        console.log(product_tabs);
       }
     },
     onShow(){

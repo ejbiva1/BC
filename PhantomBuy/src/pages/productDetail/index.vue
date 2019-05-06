@@ -132,7 +132,7 @@
 
 <script type="text/ecmascript-6">
   import fly from '../../utils/fly';
-  import tabs from "../../components/tabs/tabs";
+  import tabs from "../../components/product-tabs/product-tabs";
   import {appMessages} from "../../common/constants/message";
   import {authorize} from "../../utils/authorized";
   import suspension from "../../components/suspension/suspension";
@@ -511,7 +511,7 @@
     justify-content: flex-end;
     position: fixed;
     bottom: 0;
-    border-top: 2px solid #eee;
+    /*border-top: 2px solid #eee;*/
   }
 
   /*加入购物车按钮*/

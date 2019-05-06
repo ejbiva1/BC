@@ -20,7 +20,7 @@
 
         </view>
       </wxc-panel>
-      <wxc-panel :border="has_border" @click="toMyAddressPage" >
+      <wxc-panel :border="has_border" @click="toMyAddressPage">
         <view class="address_sort padding">
           <view>收货地址管理</view>
           <view>
@@ -28,7 +28,14 @@
           </view>
         </view>
       </wxc-panel>
-
+      <wxc-panel :border="has_border" @click="toMyCouponPage">
+        <view class="address_sort padding">
+          <view>我的卡券</view>
+          <view>
+            <wxc-icon color="#red" size="25" type="arrow-right"></wxc-icon>
+          </view>
+        </view>
+      </wxc-panel>
 
     </div>
   </div>
@@ -51,6 +58,11 @@
         wx.navigateTo({
           url: '/pages/myOrder/main'
         })
+      },
+      toMyCouponPage(){
+        wx.navigateTo({
+          url: '/pages/coupon/main'
+        });
       }
     }
   }
