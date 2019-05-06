@@ -29,7 +29,7 @@
           <view class="site_product" v-for="(item, index) in site_no_product_category_list" :key="index"
                 @click="getSingleKindProductList(item, index)">
             <a
-              :class="{ product_category_activity : product_category_id == (index)  }">{{item.productCategoryName}}</a>
+              :class="{ product_category_activity : current_prod_category_id == (item.productCategoryId)  }">{{item.productCategoryName}}</a>
           </view>
         </view>
       </scroll-view>
@@ -40,7 +40,7 @@
           <view class="site_product" v-for="(item, index) in site_man_category_list" :key="index"
                 @click="getSingleKindProductList(item, index)">
             <a
-              :class="{ product_category_activity : product_category_id == (index)  }">{{item.productCategoryName}}</a>
+              :class="{ product_category_activity : current_prod_category_id == (item.productCategoryId)  }">{{item.productCategoryName}}</a>
           </view>
         </view>
       </scroll-view>
@@ -51,13 +51,14 @@
           <view class="site_product" v-for="(item, index) in site_woman_category_list" :key="index"
                 @click="getSingleKindProductList(item, index)">
             <a
-              :class="{ product_category_activity : product_category_id == (index)  }">{{item.productCategoryName}}</a>
+              :class="{ product_category_activity : current_prod_category_id == (item.productCategoryId.productCategoryIdex)  }">{{item.productCategoryName}}</a>
           </view>
         </view>
       </scroll-view>
     </div>
 
     <!--商品列表-->
+    <!--:style="{ height:  scrollTop }"-->
     <scroll-view scroll-y='true' scroll-top="scrollTop">
       <div class="site_product_total">
         <wxc-panel :border="has_border">
@@ -127,9 +128,9 @@
         site_detail: {},
         pageDto: new pageDTO(),
         pageDtoSetting: {},
-        current_prod_categoryid: 0,
+        current_prod_category_id: 0,
         previous_pro_cate_id: 0,
-        product_category_id: 0,
+        //product_category_id: 0,
         sub_category: ['全部', '男款', '女款'],
         sub_category_index: 0,
         site_man_category_list: [],
@@ -153,28 +154,27 @@
       if (options !== undefined) {
         this.site_detail = JSON.parse(options.site);
         this.setNavigationBarTitle();
-        let product_tabs = TabsConstants.productTabConstants;
-        console.log(product_tabs);
+
+        // 设置 优惠信息
+        this.set_site_promotion_list();
+        // 商品 分类列表
+        this.getListSiteProductCategory();
+        // 商品列表
+        this.getAllProductList();
       }
     },
     onShow(){
-      //  site product category
-      this.pageDtoSetting = this.pageDto;
-      // 数据初始化
-      this.sub_category_index = 0;
-      this.product_category_id = 0;
-      this.current_prod_categoryid = 0;
-
-      this.set_site_promotion_list();
-      this.getListSiteProductCategory();
-      this.getAllProductList();
-      console.log(this.scrollTop);
-      console.log(getCurrentPages());
+//      console.log(getCurrentPages());
     },
     onUnload(){
-      this.is_empty = false;
+      // 数据初始化
+
       this.site_detail = {};
       this.site_promotion_list = [];
+      //this.sex = 0;
+      this.reset_product_category_id();
+      this.reset_empty_end_data();
+      this.reset_page_dto();
 
     },
     async onPullDownRefresh() {
@@ -183,13 +183,14 @@
       wx.stopPullDownRefresh();
     },
     onReachBottom() {
-      this.previous_pro_cate_id = this.current_prod_categoryid;
-      this.current_prod_categoryid = this.current_prod_categoryid;
+      this.previous_pro_cate_id = this.current_prod_category_id;
+      this.current_prod_category_id = this.current_prod_category_id;
       this.toNextPage();
       this.loadReachBottomList();
     },
     computed: {},
     methods: {
+      // 显示优惠信息
       set_site_promotion_list(){
         if (this.site_detail.sitePromotionList.length > 0) {
           this.site_promotion_list = this.site_detail.sitePromotionList;
@@ -200,11 +201,13 @@
           this.site_promotion_list.push(first_site_promotion);
         }
       },
+      // 页面标题设置
       setNavigationBarTitle(){
         wx.setNavigationBarTitle({
           title: this.site_detail.brandNameCh   // 页面标题
         })
       },
+      // 商品分类列表 男款& 女款 分别显示
       getListSiteProductCategory() {
         let entityDTO = {entityDTO: {siteId: this.site_detail.siteId}};
         fly.post('phantombuy/site/listSiteProductCategory', entityDTO).then((res) => {
@@ -213,7 +216,6 @@
               this.site_product_category_list = res.data.data.records;
               switch (this.sub_category_index) {
                 case 0:    // 全部商品
-//                  this.site_no_product_category_list = [];
                   break;
                 case 1:  // 男款
                   this.site_product_category_list.filter((item, index) => {
@@ -233,12 +235,14 @@
         });
       },
       getProducts(){
-        let siteId = this.site_detail.siteId;
+        this.show_loading();
+
+
         let entityDTO;
-        if (this.current_prod_categoryid == 0) {
+        if (this.current_prod_category_id == 0) {
           entityDTO = {
             entityDTO: {
-              siteId: siteId,
+              siteId: this.site_detail.siteId,
               productCategoryId: "",
               sex: this.sex !== undefined ? this.sex : undefined
             },
@@ -246,56 +250,47 @@
           };
         } else {
           entityDTO = {
-            entityDTO: {siteId: this.site_detail.siteId, productCategoryId: this.current_prod_categoryid},
+            entityDTO: {siteId: this.site_detail.siteId, productCategoryId: this.current_prod_category_id},
             orderDTO: {propertyName: "sale_price_usd,original_price_usd"},
             pageDTO: this.pageDtoSetting
           };
         }
         fly.post("phantombuy/product/list", entityDTO).then((res) => {
           if (res.data.code === '1') {
-            // 某类商品数据是否已加载到底部
-            if (res.data.data.records.length == 0) {
+            // 某类商品数据是否为空
+            if (res.data.data.records.length > 0) {
+              if (this.is_empty)    this.is_empty = !this.is_empty;
+              if (this.is_end)       this.is_end = !this.is_end;
+              for (let i = 0; i < res.data.data.records.length; i++) {
+                this.product_detail_list.push(res.data.data.records[i]);
+              }
+            } else if (res.data.data.records.length == 0 && this.product_detail_list.length !== 0) {
+              // 某类商品数据是否已加载到底部 & 当前商品列表不为空
               this.is_end = true;
-              this.hide_loading();
               return
             }
             else {
               this.is_end = false;
-            }
-            // 某类商品数据是否为空
-            if (res.data.data.records.length > 0) {
-              if (this.is_empty)    this.is_empty = !this.is_empty;
-              if (this.is_end) this.is_end = !this.is_end;
-              for (let i = 0; i < res.data.data.records.length; i++) {
-                this.product_detail_list.push(res.data.data.records[i]);
-              }
-            } else {
-              if (!this.is_empty)    this.is_empty = !this.is_empty;
+              this.is_empty = true;
             }
 
             this.hide_loading();
-
           } else {
           }
         });
       },
       getAllProductList() {
         //  product_detail_list  置空
-        this.show_loading();
         this.product_detail_list = [];
-        this.pageDtoSetting = this.pageDto;
-
+        this.reset_page_dto();
         this.getProducts();
       },
       getSingleKindProductList(productCategory, index) {
-        this.show_loading();
-        this.product_category_id = index;
-        console.log(this.product_category_id);
-        this.previous_pro_cate_id = this.current_prod_categoryid;
-        this.current_prod_categoryid = productCategory.productCategoryId;
+        this.previous_pro_cate_id = this.current_prod_category_id;
+        this.current_prod_category_id = productCategory.productCategoryId;
         this.productCategoryName = productCategory.productCategoryName;
         this.product_detail_list = [];
-        this.pageDtoSetting = this.pageDto;
+        this.reset_page_dto();
         if (this.$refs.find.search_key !== "") {
           this.searchProductList();
         } else {
@@ -303,32 +298,14 @@
         }
 
       },
-      loadReachBottomList(){
-        //current_prod_categoryid: 0,
-        // previous_pro_cate_id: 0
-        if (this.current_prod_categoryid != this.previous_pro_cate_id) {
-          this.product_detail_list = [];
-        }
-
-        // 搜索 and 下拉刷新 这里逻辑 有问题
-        if (this.$refs.find.search_key !== "") {
-          this.searchProductList();
-          return
-        }
-
-        // case 1: All Products
-        // case 2: product category list
-        this.getProducts();
-      },
-
       SearchProducts(category){
         // 站内搜索
         this.chooseSubCategory(undefined, category);
       },
       chooseSubCategory(item, index){
         this.sub_category_index = index;
-        this.product_category_id = this.index_initial;
-        this.current_prod_categoryid = 0;
+        //this.product_category_id = this.index_initial;
+        this.current_prod_category_id = 0;
         this.previous_pro_cate_id = 0;
         this.productCategoryName = item !== undefined ? item.productCategoryName : undefined;
         switch (this.sub_category_index) {
@@ -383,41 +360,47 @@
         };
         fly.post("phantombuy/product/search", entityDTO).then(res => {
           if (res.data.code === '1') {
-//            this.sub_category_index = this.index_initial;
-//            this.product_category_id = this.index_initial;
-
-            if (res.data.data.records.length == 0) {
-              this.is_end = true;
-              this.hide_loading();
-              return
-            }
-            else {
-              this.is_end = false;
-            }
 
             if (res.data.data.records.length > 0) {
               if (this.is_empty)    this.is_empty = !this.is_empty;
               if (this.is_end) this.is_end = !this.is_end;
+
               for (let i = 0; i < res.data.data.records.length; i++) {
                 this.product_detail_list.push(res.data.data.records[i]);
               }
-              console.log(this.product_detail_list);
-              this.hide_loading();
-
-            } else {
-              if (!this.is_empty)    this.is_empty = !this.is_empty;
+            } else if (res.data.data.records.length == 0 && this.product_detail_list.length !== 0) {
+              this.is_end = true;
+              return
+            }
+            else {
+              this.is_end = false;
+              this.is_empty = true;
             }
 
-
+            this.hide_loading();
           } else {
             console.log('服务器内部错误');
           }
         });
       },
+      loadReachBottomList(){
+        //current_prod_categoryid: 0,
+        // previous_pro_cate_id: 0
+        if (this.current_prod_category_id != this.previous_pro_cate_id) {
+          this.product_detail_list = [];
+        }
+
+        // 搜索 and 下拉刷新 这里逻辑 有问题
+        if (this.$refs.find.search_key !== "") {
+          this.searchProductList();
+          return
+        }
+
+        // case 1: All Products
+        // case 2: product category list
+        this.getProducts();
+      },
       toProductDetail(productId, e) {
-        // console.log(e);
-        //const clientX = e.clientX;
-        this.scrollTop = e.clientY;
         // 记录下当前 (x,y)坐标
         wx.navigateTo({
           url: '/pages/productDetail/main?productId=' + productId,
@@ -434,6 +417,17 @@
       hide_loading() {
         wx.hideLoading();
       },
+      reset_product_category_id(){
+        this.current_prod_category_id = 0;
+        this.previous_pro_cate_id = 0;
+      },
+      reset_empty_end_data(){
+        this.is_empty = false;
+        this.is_end = false;
+      },
+      reset_page_dto(){
+        this.pageDtoSetting = this.pageDto;
+      }
     },
   }
 </script>
@@ -625,6 +619,12 @@
   .section {
     width: 100%;
     padding-left: 0.25rem;
+  }
+
+  .loadmore {
+    height: 100%;
+    background-color: white;
+    width: 100%;
   }
 
 </style>

@@ -1,23 +1,7 @@
 <template>
-  <div class="animated fadeIn">
-    <view class="addresss">
-      <wxc-panel :border="has_border" v-for="(item, index) in user_coupon_list" :key="i">
-        <view class="address_home padding">
-          <view class="user_phone">
-            <text>{{item.receiver}}</text>
-            <text class="phone_padding">{{item.receiverPhone}}</text>
-          </view>
-          <view class="address">
-            <view class="address_detail">{{item.addressDetail}}</view>
-            <view class="operate" @click.stop="editUserAddress(item)">编辑</view>
-          </view>
-        </view>
-      </wxc-panel>
-    </view>
-
-
+  <div class="coupon">
     <view class="coupons">
-
+      <tabs v-bind:tab_category="coupon" v-bind:tab_list="user_coupon_list" ref="coupon"></tabs>
     </view>
 
   </div>
@@ -27,6 +11,8 @@
   import fly from "../../utils/fly";
   import {mapState, mapMutations} from 'vuex';
   import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types";
+  import tab from "../../components/coupon/coupon";
+
 
   //卡券列表页
   export default {
@@ -34,18 +20,24 @@
     data() {
       return {
         has_border: true,
-        user_coupon_list: []
+        user_coupon_list: [],
       }
+    },
+    components: {
+      "tabs": tab
     },
     onShow(){
       this.show_loading();
       if (this.is_authorized()) {
         this.getUserCouponList();
+        this.$refs.coupon.showTab();
         this.hide_loading();
       }
     },
     onLoad(option){
 
+    },
+    onShow(){
     },
     computed: {
       ...mapState([
@@ -55,7 +47,6 @@
     },
     onUnload(){
       // 初始化数据
-      this.address_list = [];
     },
 
     methods: {
@@ -104,14 +95,17 @@
 </script>
 
 <style>
-  .animated {
+  .coupon {
     background-color: #F7F7F7;
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
     font-family: "Microsoft Yahei";
+    width: 100%;
+    position: relative;
+
+  }
+
+  .coupons {
+    width: 100%;
   }
 
 </style>

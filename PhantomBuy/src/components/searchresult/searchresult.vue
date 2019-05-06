@@ -3,12 +3,17 @@
     <view class="site">
       <view class="search-wrap">
         <view class="search_form" style="border-radius:2px; background: #fff;">
+          <!--<wxc-icon size="30" type="search"></wxc-icon>-->
+          <img src="/static/images/search.png"/>
           <input class="search_input" type="text" placeholder="搜索" style="color: #333; " v-model="search_key"
-                 @focus="toSearch"/>
+          />
 
         </view>
       </view>
       <view style="border-radius:2px; " class="search-button-wrap">
+        <button class="search__button"
+                @click="search_products">搜索本站
+        </button>
       </view>
     </view>
 
@@ -73,12 +78,6 @@
           this.$emit("search", 3);
         }
       },
-      toSearch(){
-        wx.navigateTo({
-          url: '/pages/searchresult/main?site_id=' + this.$props.site_id,
-        });
-        // console.log("toSearch");
-      },
       showMsg(){
         this.toast = common.show
       }
@@ -126,6 +125,13 @@
     overflow: hidden;
   }
 
+  .search_form img {
+    height: 0.3rem;
+    width: 0.3rem;
+    padding-left: 0.2rem;
+
+  }
+
   .search_input {
 
     height: 0.8rem;
@@ -133,7 +139,7 @@
     font-size: 0.28rem;
     background: #fff;
     width: 100%;
-    border-radius: 5px;
+    border-radius: 15px;
   }
 
   .search-button-wrap {
@@ -184,6 +190,6 @@
   }
 
   input {
-    width: 6.2rem;
+    width: 4.6rem;
   }
 </style>

@@ -2,22 +2,16 @@
   <div>
     <div class="product_tabs">
       <div class="product_tabsNav">
-        <div
-          :class="{'selected':tab === 1,'product_tabs_active':true}"
-          @click="changTab(1)"
-        >商品简介
-        </div>
-        <div
-          :class="{'selected':tab === 2,'product_tabs_active':true}"
-          @click="changTab(2)"
-        >规格与包装
-        </div>
+        <view :class="{'selected':tab === index,'product_tabs_active':true}"
+              @click="changTab(1)" v-for="(item,index) in tab_names" :key="index">
+          {{item.name}}
+        </view>
 
       </div>
     </div>
     <div class="tabs_container">
-      <div v-if="tab===1">{{product.description}}</div>
-      <div v-else="tab===2"><img :src="product.sizeChartUrl"></div>
+      <div v-if="tab===0"></div>
+      <div v-else="tab===1"></div>
 
     </div>
   </div>
@@ -31,24 +25,33 @@
   export default {
     data(){
       return {
-        tab: 1,
+        tab: 0,
+        tab_names: [],
+        tab_list: []
 
       };
     },
     props: {
-      product: {
-        type: Object
+      tab_category: {
+        type: String
       }
     },
-    onLoad() {
+    onShow() {
+      this.showTab();
     },
     methods: {
       changTab(index) {
         this.tab = index;
       },
       showTab(){
-        let product_tabs = TabsConstants.productTabConstants;
-        console.log(product_tabs);
+        switch (this.$props.tab_category.toLowerCase()) {
+          case 'coupon':
+            this.tab_names = TabsConstants.couponTabConstants;
+            break;
+          case 'product':
+            break;
+
+        }
       }
 
     }

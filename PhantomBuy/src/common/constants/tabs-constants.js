@@ -3,9 +3,9 @@
  */
 export const TabsConstants = {
   couponTabConstants: [
-    {"name": '12', content: '12'},
-    {"name": '34', content: ''},
-    {"name": '56', content: ''}
+    {"name": '未使用', content: []},
+    {"name": '已使用', content: []},
+    {"name": '已过期', content: []}
   ],
   productTabConstants: [
     {"name": '', content: ''},

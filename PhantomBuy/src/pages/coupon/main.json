@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText":"我的卡券",
+  "navigationBarTitleText":"优惠券",
   "usingComponents": {
     "wxc-icon": "/static/minui/@minui/wxc-icon/dist/index",
     "wxc-panel": "/static/minui/@minui/wxc-panel/dist/index",

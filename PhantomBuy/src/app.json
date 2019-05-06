@@ -1,6 +1,7 @@
 {
   "pages": [
     "pages/home/main",
+    "pages/coupon/main",
     "pages/my/main",
     "pages/order/main",
     "pages/identification/main",
@@ -12,8 +13,7 @@
     "pages/site/main",
     "pages/myOrder/main",
     "pages/productDetail/main",
-    "pages/searchresult/main",
-    "pages/coupon/main"
+    "pages/searchresult/main"
   ],
   "window": {
     "backgroundTextStyle": "light",
