@@ -441,6 +441,7 @@
     background-color: #F7F7F7;
     height: 100%;
     width: 100%;
+    font-family: "Microsoft Yahei";
   }
 
   .receive_info {

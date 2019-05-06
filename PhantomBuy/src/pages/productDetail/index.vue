@@ -380,6 +380,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: space-between;
+    font-family: "Microsoft Yahei";
   }
 
   .product_detail {
@@ -436,7 +437,7 @@
   }
 
   .product_price .original_price_rmb {
-    font-size: 16px;
+    font-size: 15px;
     color: black;
   }
 
@@ -446,7 +447,7 @@
 
   .product_price .sale_price_rmb {
     padding-left: 0.3rem;
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .product_size {
@@ -522,7 +523,7 @@
     width: 3.0rem;
     height: 1rem;
     color: white;
-    font-size: 0.3rem;
+    font-size: 16px;
     border-radius: 0;
     border: 0;
     vertical-align: middle;
@@ -626,27 +627,6 @@
 
   }
 
-  .scrollControl {
-    display: flex;
-  }
-
-  .fa-2x {
-    font-size: 2em;
-  }
-
-  .fa {
-    display: inline-block;
-    font: normal normal normal 14px/1 FontAwesome;
-    font-size: inherit;
-    text-rendering: auto;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-  }
-
-  .iconColor {
-    color: gray;
-    padding-top: 20px;
-  }
 
   *, *::before, *::after {
     -webkit-box-sizing: border-box;

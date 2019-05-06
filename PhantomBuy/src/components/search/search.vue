@@ -130,7 +130,7 @@
     /*flex: 1;*/
     height: 0.60rem;
     padding: 0 0.16rem;
-    font-size: 0.28rem;
+    font-size: 14px;
     background: #fff;
     width: 100%;
   }
@@ -143,7 +143,7 @@
   .search__button {
     height: 0.60rem;
     line-height: 0.60rem;
-    font-size: 0.28rem;
+    font-size: 14px;
     overflow: hidden;
     border-radius: 0px;
     padding-left: 0.08rem;

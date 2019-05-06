@@ -4,7 +4,7 @@
                    @search="SearchProducts" ref="find"></search-result>
 
     <div class="select">
-      <div class="ass_category">
+      <div class="ass_category"> <!--商品种类字体: 16px-->
         <view class="ass_wrap">
           <view class="ass_value">
             <ul class="ass_valueList">
@@ -20,7 +20,7 @@
       </div>
     </div>
     <!--商品种类-->
-    <div class="swiper-home">
+    <div class="swiper-home">   <!--商品种类字体: 14px-->
       <scroll-view v-if="sub_category_index ===0"
                    :scroll-x="true"
                    style="width: auto;">
@@ -548,7 +548,7 @@
   }
 
   .product_detail .list-group-item {
-    font: 13px black;
+    font: 14px black;
     text-align: left;
   }
 
@@ -584,7 +584,7 @@
     position: relative;
     _zoom: 1;
     /*font-weight: normal;*/
-    font-size: 16px;
+    font-size: 15px;
     display: flex;
     justify-content: flex-start;
   }

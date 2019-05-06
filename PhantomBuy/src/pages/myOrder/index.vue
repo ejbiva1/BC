@@ -1,7 +1,7 @@
 <template>
   <div class="my">
 
-    <div class="headerTab"  style="font-size: small;z-index:1001;">
+    <div class="headerTab" style="z-index:1001;">
       <div class="animated fadeIn">
         <div class="product_tabs">
           <div class="product_tabsNav">
@@ -37,32 +37,34 @@
       <div class="date">{{item.createDate}}</div>
       <div class="dataBlock" v-for="(orderItem, j) in item.orderSiteList" :key="j">
         <div class="itemBlock" v-for="(orderDetailItem, k) in orderItem.orderDetailList" :key="k">
-        <div class="brand">{{item.orderName}}</div>
-        <div class="itemBlock">
-          <div class="row">
-            <div class="itemImage"><image :src="orderDetailItem.productImageUrl" class="titleImage" mode="widthFix"/></div>
-            <div class="itemDetail">
-              <div class="itemName paddingButton10">{{orderDetailItem.productName}}</div>
-              <div class="row paddingButton10 grayFont">
-                <div class="itemColorTitle">颜色：</div>
-                <div class="itemColorDetail">{{orderDetailItem.color}}</div>
+          <h5 class="brand">{{item.orderName}}</h5>
+          <div class="itemBlock">
+            <div class="row">
+              <div class="itemImage">
+                <image :src="orderDetailItem.productImageUrl" class="titleImage" mode="widthFix"/>
               </div>
-              <div class="row paddingButton10 grayFont">
-                <div class="itemPriceTitle">价格：</div>
-                <div class="itemPriceDetail">{{orderDetailItem.productRmbPriceTotal}}</div>
+              <div class="itemDetail">
+                <div class="itemName paddingButton10">{{orderDetailItem.productName}}</div>
+                <div class="row paddingButton10 grayFont">
+                  <div class="itemColorTitle">颜色：</div>
+                  <div class="itemColorDetail">{{orderDetailItem.color}}</div>
+                </div>
+                <div class="row paddingButton10 grayFont">
+                  <div class="itemPriceTitle">价格：</div>
+                  <div class="itemPriceDetail">{{orderDetailItem.productRmbPriceTotal}}</div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        <div class="payPrice row">
-          <div class="payButton" >
+          <div class="payPrice row">
+            <div class="payButton">
             <span v-show="item.status === 0">
               <wxc-button size="small" type="info" value="去支付" @click="payOrder(item.orderId)"></wxc-button>
             </span>
+            </div>
+            <div class="totalTitle">支付金额：{{item.chnFee}} 元</div>
           </div>
-          <div class="totalTitle">支付金额：{{item.chnFee}} 元</div>
         </div>
-      </div>
       </div>
     </div>
     <!--
@@ -89,6 +91,8 @@
 <script type="text/ecmascript-6">
   import fly from '../../utils/fly'
   import {common} from "../../utils/common";
+  import {mapState, mapMutations} from 'vuex';
+  import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types";
   var settingKey = ''
   export default {
     props: {
@@ -97,7 +101,11 @@
       }
     },
     onShow () {
-      this.showList(this.tab)
+    },
+    onLoad(){
+      if (this.is_authorized()) {
+        this.showList(this.tab)
+      }
     },
     data () {
       return {
@@ -105,7 +113,6 @@
         order_list: [],
         displayData: 'none',
         displayBtn: 'none',
-        sessionId: null
       }
       /*
        tabs: [
@@ -115,8 +122,24 @@
        ]}
        */
     },
+    computed: {
+      ...mapState([
+        'settingKey',
+        'sessionId'
+      ])
+    },
     methods: {
       move () {
+      },
+      is_authorized(){
+        if (this.settingKey === '1') { // 已授权
+          return true;
+        } else if (this.settingKey === '0') {      // 未授权 , 不停地跳转至 登录页
+          wx.navigateTo({
+            url: '/pages/login/main'
+          })
+        }
+        return false;
       },
       payOrder (orderId) {
         const self = this
@@ -126,7 +149,7 @@
             'orderId': orderId
           }
         }
-        fly.config.headers["Cookie"] = "JSESSIONID=" + self.sessionId;
+        fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
         fly.post('phantombuy/orderMain/wechatUnifiedorder', entityDTO).then(res => {
           if (res.data.return_code === "SUCCESS") {
             // this.user_default_address = res.data.data;
@@ -186,192 +209,171 @@
         // 修改参数，重新刷新接口，显示不同的列表
       },
       showList (state) {
-        /*
-         * 这段getSettingKey需要复用
-         * */
-        wx.showLoading({
-          title: '加载中'
-        })
-        const self = this
-        wx.getStorage({
-          key: 'settingKey',
-          success: function (data) {
-            console.log(data)
-            settingKey = data.data
-            if (settingKey === '1'){
-              // 已经授权调用所需接口
-              /*
-               * 修改此处，调用所需使用的接口函数
-               * */
-              // self.getCartList();
-
-              wx.getStorage({
-                key: 'cookieKey',
-                success: function (data) {
-                  console.log(data)
-                  const cookieSession = String(data.data)
-                  self.sessionId = cookieSession.split('=')[1].split(';')[0]
-                  fly.config.headers['Cookie'] = 'JSESSIONID=' + self.sessionId
-                  /*
-                   * 此处修改需要调用的接口
-                   * */
-
-                  let json = {entityDTO: {}}
-                  if (state === 2) {
-                    // 已付款 代号3
-                    json = {entityDTO: {status: 3}}
-                    self.displayBtn = 'none'
-                  } else if (state === 3) {
-                    // 已发货 代号51
-                    json = {entityDTO: {status: 51}}
-                    self.displayBtn = 'none'
-                  } else if (state === 4) {
-                    // 已发货 代号51
-                    json = {entityDTO: {status: 0}}
-                    self.displayBtn = 'block'
-                  } else{
-                    self.displayBtn = 'none'
-                  }
-                  fly.post('phantombuy/orderMain/list', json).then((res) => {
-                    if (res.data.code === `888`) {
-                      wx.hideLoading()
-                      // 跳转授权页
-                      console.log(`请先登录:`, res)
-                      wx.navigateTo({
-                        url: '/pages/login/main'
-                      })
-                    } else if (res.data.code === `1`) {
-                      if (res.data.data.records.length > 0) {
-                        self.order_list = res.data.data.records.reverse()
-                        self.displayData = 'none'
-                        wx.hideLoading()
-                      }
-                    } else {
-                      // Todo: 列表为空 应该要展示一个空的蒙版
-                      self.order_list = []
-                      self.displayData = 'block'
-                      console.log(`我的订单数据:`, res)
-                      wx.hideLoading()
-                    }
-                  }).catch(err => {
-                    console.log(`api请求出错:`, err)
-                    wx.hideLoading()
-                  })
-                },
-                fail: function (err) {
-                  wx.hideLoading()
-                  console.log(err)
-                  wx.navigateTo({
-                    url: '/pages/login/main'
-                  })
-                }
-              })
-            } else if (settingKey === '0' ) {
-              // 未授权，跳转授权页面
-              wx.hideLoading()
-              wx.navigateTo({
-                url: '/pages/login/main'
-              })
-            } else {
-              self.getSettingKey()
+        this.show_loading();
+        fly.config.headers['Cookie'] = 'JSESSIONID=' + this.sessionId;
+        console.log(this.sessionId);
+        let json = {entityDTO: {}};
+        if (state === 2) {
+          // 已付款 代号3
+          json = {entityDTO: {status: 3}};
+          this.displayBtn = 'none'
+        } else if (state === 3) {
+          // 已发货 代号51
+          json = {entityDTO: {status: 51}};
+          this.displayBtn = 'none'
+        } else if (state === 4) {
+          // 已发货 代号51
+          json = {entityDTO: {status: 0}};
+          this.displayBtn = 'block'
+        } else {
+          this.displayBtn = 'none'
+        }
+        fly.post('phantombuy/orderMain/list', json).then((res) => {
+          if (res.data.code === `888`) {
+            wx.hideLoading()
+            // 跳转授权页
+            console.log(`请先登录:`, res)
+            wx.navigateTo({
+              url: '/pages/login/main'
+            })
+          } else if (res.data.code === `1`) {
+            if (res.data.data.records.length > 0) {
+              this.order_list = res.data.data.records.reverse()
+              this.displayData = 'none'
             }
-          },
-          // 没有获得到SettingKey的时候重复调用本函数
-          fail: function (err) {
-            self.getSettingKey()
+
+            this.hide_loading();
+          } else {
+            // Todo: 列表为空 应该要展示一个空的蒙版
+            this.order_list = []
+            this.displayData = 'block'
+            console.log(`我的订单数据:`, res)
           }
+        }).catch(err => {
+          console.log(`api请求出错:`, err)
+          wx.hideLoading()
         })
+
+      },
+      show_loading() {
+        wx.showLoading({
+          title: '加载中',
+        })
+      },
+      hide_loading() {
+        setTimeout(function () {
+          wx.hideLoading()
+        }, 1500);
       },
     }
   }
 </script>
 
 <style scoped>
-  .payButton{
-    position: absolute;
-  }
-  .totalTitle{
-    left: 420rpx;
+  .payButton {
     position: absolute;
   }
 
-  .noList{
+  .totalTitle {
+    left: 4.20rem;
+    position: absolute;
+  }
+
+  .noList {
     background-color: white;
-    height:100%;
-    width:100%;
-    z-index:1000;
-    font-color:black;
-    padding-top: 200rpx;
+    height: 100%;
+    width: 100%;
+    z-index: 1000;
+    font-color: black;
+    padding-top: 2.00rem;
     text-align: center;
   }
-  .my{
-    background-color:#F7F7F7;
-    height:100%;
-    width:100%;
-    z-index:-1;
+
+  .my {
+    background-color: #F7F7F7;
+    height: 100%;
+    width: 100%;
+    z-index: -1;
+    font-family: "Microsoft Yahei";
   }
-  .block{
+
+  .block {
   }
-  .row{
+
+  .row {
     display: flex;
     flex-direction: row;
   }
-  .date{
-    font-size:small;
-    margin-top:20rpx;
-    margin-bottom: 20rpx;
-    margin-left: 36rpx;
+
+  .date {
+    font-size: 14px;
+    margin-top: 0.20rem;
+    margin-bottom: 0.20rem;
+    margin-left: 0.36rem;
   }
-  .dataBlock{
+
+  .dataBlock {
     background-color: white;
-    padding-top:20rpx;
-    padding-left:36rpx;
-    padding-right:36rpx;
-    padding-bottom: 25rpx;
+    padding-top: 0.20rem;
+    padding-left: 0.36rem;
+    padding-right: 0.36rem;
+    padding-bottom: 0.25rem;
   }
-  .brand{
-    font-size: small;
-    margin-bottom: 18rpx;
+
+  .brand {
+    font-size: 15px;
+    margin-bottom: 0.18rem;
   }
+
   .itemImage {
-    width:17%;
+    width: 17%;
   }
-  .titleImage{
-    width:100%;
+
+  .titleImage {
+    width: 100%;
   }
-  .itemDetail{
-    margin-left:18rpx;
-    font-size: small;
+
+  .itemDetail {
+    margin-left: 0.18rem;
+    font-size: 14px;
   }
-  .paddingButton10{
-    padding-bottom: 10rpx;
+
+  .paddingButton10 {
+    padding-bottom: 0.10rem;
   }
-  .grayFont{
-    color:gray;
+
+  .grayFont {
+    color: gray;
   }
-  .payPrice{
-    padding-top: 10rpx;
-    margin-bottom: 50rpx;
-    font-size: small;
+
+  .payPrice {
+    padding-top: 0.10rem;
+    margin-bottom: 0.50rem;
+    font-size: 14px;
   }
+
   .product_tabs {
     width: 100%;
   }
+
   .product_tabs .product_tabsNav {
-    padding-left:0.2rem;
+    padding-left: 0.2rem;
     /*height: 0.8rem;*/
     /*width:38%;*/
     line-height: 0.8rem;
     display: flex;
   }
+
   .product_tabs .product_tabs_active {
     flex: 1;
   }
+
   .product_tabsNav .selected {
     color: #87caee;
     border-bottom: 1px solid #87caee;
   }
-  .tabs_container{
+
+  .tabs_container {
     position: relative;
   }
 </style>

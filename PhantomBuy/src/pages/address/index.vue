@@ -154,6 +154,7 @@
 <style>
   .animated {
     background-color: #F7F7F7;
+    font-family: "Microsoft Yahei";
     height: 100%;
     display: flex;
     flex-direction: column;

@@ -56,7 +56,7 @@
   }
 
   .product_tabs .product_tabsNav {
-    padding-left:0.2rem;
+    padding-left: 0.2rem;
     line-height: 0.8rem;
     display: flex;
   }
@@ -70,13 +70,14 @@
     border-bottom: 1px solid #87caee;
   }
 
-  .tabs_container{
+  .tabs_container {
     position: relative;
     top: 50%;
-    width:90%;
+    width: 90%;
     padding-top: 0.5rem;
     padding-bottom: 1.5rem;
     padding-left: 0.3rem;
+    font-size: 14px;
   }
 
 </style>

@@ -371,6 +371,7 @@
     align-items: center;
     justify-content: space-between;
     z-index: -1;
+    font-family: "Microsoft Yahei";
   }
 
   .sliderLeft {
@@ -514,7 +515,7 @@
   }
 
   .cart-footer .priceBlock {
-    font-size: 16px;
+    font-size: 14px;
     z-index: 1;
     display: flex;
     width: 100%;

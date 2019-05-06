@@ -134,15 +134,6 @@
     /*padding-left: 2%;*/
   }
 
-  .flex-wrp {
-    display: flex;
-    align-items: center;
-    /*justify-content: center; !*设置 view 水平居中*!*/
-    width: 100%;
-    padding-left: 5%;
-    font-size: 15px;
-  }
-
   .site_bonus {
     background-color: #eaeaea;
     width: 70px;

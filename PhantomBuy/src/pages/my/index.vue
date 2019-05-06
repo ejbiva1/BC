@@ -15,7 +15,7 @@
         <view class="address_sort padding">
           <view>我的订单</view>
           <view>
-            <wxc-icon color="#red" size="25" type="arrow-right"></wxc-icon>
+            <wxc-icon color="gray" size="25" type="arrow-right"></wxc-icon>
           </view>
 
         </view>
@@ -24,7 +24,7 @@
         <view class="address_sort padding">
           <view>收货地址管理</view>
           <view>
-            <wxc-icon color="#red" size="25" type="arrow-right"></wxc-icon>
+            <wxc-icon color="gray" size="25" type="arrow-right"></wxc-icon>
           </view>
         </view>
       </wxc-panel>
@@ -32,7 +32,7 @@
         <view class="address_sort padding">
           <view>我的卡券</view>
           <view>
-            <wxc-icon color="#red" size="25" type="arrow-right"></wxc-icon>
+            <wxc-icon color="gray" size="25" type="arrow-right"></wxc-icon>
           </view>
         </view>
       </wxc-panel>
@@ -74,7 +74,8 @@
     height: 100%;
     width: 100%;
     position: fixed;
-    font-size: 0.23rem;
+    font-size: 13px;
+    font-family: "Microsoft Yahei";
   }
 
   .userImg {

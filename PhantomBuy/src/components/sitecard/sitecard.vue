@@ -164,7 +164,7 @@
   .site_discount .fee {
     /*display: flex;*/
     padding-left: .2rem;
-    font-size: .23rem;
+    font-size: 12px;
     color: black;
     /*flex-direction: row;*/
     /*justify-content: space-between;*/

@@ -443,6 +443,7 @@
   .animated {
     background-color: #F7F7F7;
     height: 100%;
+    font-family: "Microsoft Yahei";
   }
 
   .address_section {
