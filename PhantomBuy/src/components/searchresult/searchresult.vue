@@ -12,7 +12,7 @@
       </view>
       <view style="border-radius:2px; " class="search-button-wrap">
         <button class="search__button"
-                @click="search_products">搜索本站
+                @click="search_products">搜索
         </button>
       </view>
     </view>
@@ -156,8 +156,8 @@
     background-color: #40a9ff;
     border-color: #40a9ff;
     border-radius: 0px;
-    padding-left: 0.08rem;
-    padding-right: 0.08rem;
+    padding-left: 0.16rem;
+    padding-right: 0.16rem;
   }
 
   .search__button::after {
@@ -190,6 +190,6 @@
   }
 
   input {
-    width: 4.6rem;
+    width: 5.1rem;
   }
 </style>

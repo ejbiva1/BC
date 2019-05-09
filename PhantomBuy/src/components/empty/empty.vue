@@ -14,12 +14,12 @@
 
 <style>
   .empty_product_div {
-    background-color: white;
-    width: 100%;
+    /*background-color: white;*/
+    /*width: 100%;*/
   }
 
   .empty_product {
-    padding-left: 0.4rem;
+    /*padding-left: 0.4rem;*/
   }
 </style>
 

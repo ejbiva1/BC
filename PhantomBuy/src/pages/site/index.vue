@@ -3,7 +3,7 @@
     <search-result v-bind:site_promotions="site_promotion_list" v-bind:site_id="site_detail.siteId"
                    @search="SearchProducts" ref="find"></search-result>
 
-    <div class="select">
+    <div class="select" v-if="!is_aggregations">
       <div class="ass_category"> <!--商品种类字体: 16px-->
         <view class="ass_wrap">
           <view class="ass_value">
@@ -19,8 +19,9 @@
         </view>
       </div>
     </div>
+
     <!--商品种类-->
-    <div class="swiper-home">   <!--商品种类字体: 14px-->
+    <div class="swiper-home" v-if="!is_aggregations">   <!--商品种类字体: 14px-->
       <scroll-view v-if="sub_category_index ===0"
                    :scroll-x="true"
                    style="width: auto;">
@@ -51,11 +52,51 @@
           <view class="site_product" v-for="(item, index) in site_woman_category_list" :key="index"
                 @click="getSingleKindProductList(item, index)">
             <a
-              :class="{ product_category_activity : current_prod_category_id == (item.productCategoryId.productCategoryIdex)  }">{{item.productCategoryName}}</a>
+              :class="{ product_category_activity : current_prod_category_id == (item.productCategoryId)  }">{{item.productCategoryName}}</a>
           </view>
         </view>
       </scroll-view>
     </div>
+
+    <!--聚类搜索-->
+    <div class="swiper-home" v-if="is_aggregations">
+      <!--聚类搜索-->
+      <!--品牌-->
+      <scroll-view v-if="is_aggregations" :scroll-x="true"
+                   style="width: auto;">
+        <view class="product_kind_list">
+          <ul class="aggregations_ul">
+            <li class="aggregations brand">品牌</li>
+            <li v-for="(item, index) in product_brand_cn_list" :key="index" class="aggregations aggregations_brand_name"
+                @click="setProductBrandName(item, index)"
+                :class="{ product_aggregations_activity : product_brand_cn_id == (index)  }"
+            >
+              <span>{{item.name}}</span>
+              <!--<span v-if="item.number !== undefined">({{item.number}})</span>-->
+            </li>
+          </ul>
+        </view>
+      </scroll-view>
+
+
+      <!--商品分类-->
+      <scroll-view v-if="is_aggregations" :scroll-x="true"
+                   style="width: auto;">
+        <view class="product_kind_list">
+          <ul class="aggregations_ul">
+            <li class="aggregations category">分类</li>
+            <li v-for="(item, index) in product_category_name_list" :key="index"
+                class="aggregations aggregations_category_name"
+                @click="setProductCategoryName(item, index)"
+                :class="{ product_aggregations_activity : product_category_name_id == (index)}">
+              <span>{{item.name}}</span>
+              <!--<span v-if="item.number !== undefined">({{item.number}})</span>-->
+            </li>
+          </ul>
+        </view>
+      </scroll-view>
+    </div>
+
 
     <!--商品列表-->
     <!--:style="{ height:  scrollTop }"-->
@@ -96,12 +137,12 @@
       </div>
     </scroll-view>
 
-
     <view class="loadmore" v-if="is_end">
-      <loadmore></loadmore>
+    <loadmore></loadmore>
     </view>
 
-    <view v-if="is_empty">
+
+    <view v-if="is_empty" class="empty">
       <empty></empty>
     </view>
   </div>
@@ -141,8 +182,13 @@
         is_empty: false,
         productCategoryName: undefined,
         site_promotion_list: [],
-        is_end: false
-
+        is_end: false,
+        is_aggregations: false,
+        productBrandName: undefined,
+        product_brand_cn_list: [],
+        product_category_name_list: [],
+        product_brand_cn_id: 1000,
+        product_category_name_id: 1000,
       };
     },
     components: {
@@ -164,17 +210,20 @@
       }
     },
     onShow(){
-//      console.log(getCurrentPages());
+
     },
     onUnload(){
       // 数据初始化
-
       this.site_detail = {};
       this.site_promotion_list = [];
-      //this.sex = 0;
-      this.reset_product_category_id();
       this.reset_empty_end_data();
       this.reset_page_dto();
+      this.reset_product_category_id();
+      this.reset_subcategory_id();
+      this.reset_aggregation_fn();
+      this.is_aggregations = false;
+      //productCategoryName  productBrandName
+      this.reset_aggregation_value();
 
     },
     async onPullDownRefresh() {
@@ -183,8 +232,12 @@
       wx.stopPullDownRefresh();
     },
     onReachBottom() {
+      if (this.is_end) {   // 当前分类数据已加载完毕
+        return
+      }
       this.previous_pro_cate_id = this.current_prod_category_id;
       this.current_prod_category_id = this.current_prod_category_id;
+
       this.toNextPage();
       this.loadReachBottomList();
     },
@@ -208,7 +261,7 @@
         })
       },
       // 商品分类列表 男款& 女款 分别显示
-      getListSiteProductCategory() {
+      getListSiteProductCategory(){
         let entityDTO = {entityDTO: {siteId: this.site_detail.siteId}};
         fly.post('phantombuy/site/listSiteProductCategory', entityDTO).then((res) => {
           if (res.data.code === '1') {
@@ -236,8 +289,6 @@
       },
       getProducts(){
         this.show_loading();
-
-
         let entityDTO;
         if (this.current_prod_category_id == 0) {
           entityDTO = {
@@ -267,6 +318,7 @@
             } else if (res.data.data.records.length == 0 && this.product_detail_list.length !== 0) {
               // 某类商品数据是否已加载到底部 & 当前商品列表不为空
               this.is_end = true;
+              this.hide_loading();
               return
             }
             else {
@@ -279,13 +331,13 @@
           }
         });
       },
-      getAllProductList() {
+      getAllProductList(){
         //  product_detail_list  置空
         this.product_detail_list = [];
         this.reset_page_dto();
         this.getProducts();
       },
-      getSingleKindProductList(productCategory, index) {
+      getSingleKindProductList(productCategory, index){
         this.previous_pro_cate_id = this.current_prod_category_id;
         this.current_prod_category_id = productCategory.productCategoryId;
         this.productCategoryName = productCategory.productCategoryName;
@@ -307,6 +359,7 @@
         //this.product_category_id = this.index_initial;
         this.current_prod_category_id = 0;
         this.previous_pro_cate_id = 0;
+        // this.reset_product_category_id();
         this.productCategoryName = item !== undefined ? item.productCategoryName : undefined;
         switch (this.sub_category_index) {
           case 0:    // 全部商品
@@ -345,43 +398,97 @@
             break;
           case 3:
             this.product_detail_list = [];
+            this.reset_aggregation_fn();
+            this.reset_aggregation_value();
             this.searchProductList();
         }
       },
       searchProductList(){
         let entityDTO = {
-          entityDTO: {
+          entityDTO: {   // 4个搜索关键字: siteId, searchKey, productCategoryName, productBrandName
             siteId: this.site_detail.siteId,
             searchKey: this.$refs.find.search_key !== undefined ? this.$refs.find.search_key : undefined,
             productCategoryName: this.productCategoryName || undefined,
-            sex: this.sex
+            productBrandName: this.productBrandName || undefined
           },
           pageDTO: this.pageDtoSetting
         };
         fly.post("phantombuy/product/search", entityDTO).then(res => {
-          if (res.data.code === '1') {
+            if (res.data.code === '1') {
 
-            if (res.data.data.records.length > 0) {
-              if (this.is_empty)    this.is_empty = !this.is_empty;
-              if (this.is_end) this.is_end = !this.is_end;
+              this.is_aggregations = true;
+              if (res.data.data.records.length > 0) {
+                if (this.is_empty)    this.is_empty = !this.is_empty;
+                if (this.is_end) this.is_end = !this.is_end;
 
-              for (let i = 0; i < res.data.data.records.length; i++) {
-                this.product_detail_list.push(res.data.data.records[i]);
+                // 这里需要有一个聚类的设置
+                // 聚类默认值
+                if (res.data.aggregations !== undefined) {
+                  let product_brand_cn = res.data.aggregations.product_brand_cn;
+                  let product_category_name = res.data.aggregations.product_category_name;
+
+
+                  // 遍历对象属性, 并转化成相应数据格式
+                  let self = this;
+                  Object.keys(product_brand_cn).forEach(function (key) {
+                    if (key !== "") {
+                      self.product_brand_cn_list.push({
+                        name: key,
+                        number: product_brand_cn[key]
+                      })
+
+                    }
+                  });
+
+                  // 这个形式 换数据可行；
+                  Object.keys(product_category_name).forEach(function (key) {
+                    if (key !== "") {
+                      self.product_category_name_list.push({
+                        name: key,
+                        number: product_category_name[key]
+                      })
+                    }
+                  });
+                }
+
+                for (let i = 0; i < res.data.data.records.length; i++) {
+                  this.product_detail_list.push(res.data.data.records[i]);
+                }
+              } else if (res.data.data.records.length == 0 && this.product_detail_list.length !== 0) {
+                this.is_end = true;
+                this.hide_loading();
+                return
               }
-            } else if (res.data.data.records.length == 0 && this.product_detail_list.length !== 0) {
-              this.is_end = true;
-              return
-            }
-            else {
-              this.is_end = false;
-              this.is_empty = true;
-            }
+              else {
+                this.is_end = false;
+                this.is_empty = true;
+              }
 
-            this.hide_loading();
-          } else {
-            console.log('服务器内部错误');
+              this.hide_loading();
+            } else {
+              console.log('服务器内部错误');
+            }
           }
-        });
+        );
+      },
+      setProductCategoryName(item, index){
+        this.productCategoryName = item.name;
+        this.productBrandName = undefined;
+        this.product_category_name_id = index;
+        this.product_brand_cn_id = this.index_initial;
+        this.product_detail_list = [];
+        this.reset_aggregation_fn();
+        this.searchProductList();
+      },
+      setProductBrandName(item, index){
+        this.productBrandName = item.name;
+        this.productCategoryName = undefined;
+        this.product_brand_cn_id = index;
+        this.product_category_name_id = this.index_initial;
+        this.product_detail_list = [];
+        this.reset_aggregation_fn();
+        this.searchProductList();
+
       },
       loadReachBottomList(){
         //current_prod_categoryid: 0,
@@ -389,45 +496,60 @@
         if (this.current_prod_category_id != this.previous_pro_cate_id) {
           this.product_detail_list = [];
         }
-
         // 搜索 and 下拉刷新 这里逻辑 有问题
         if (this.$refs.find.search_key !== "") {
+          this.reset_aggregation_fn();
           this.searchProductList();
           return
         }
-
         // case 1: All Products
         // case 2: product category list
         this.getProducts();
       },
-      toProductDetail(productId, e) {
+      toProductDetail(productId, e){
         // 记录下当前 (x,y)坐标
         wx.navigateTo({
           url: '/pages/productDetail/main?productId=' + productId,
         });
       },
-      toNextPage() {
+      toNextPage(){
         this.pageDtoSetting = this.pageDto.nextPage(this.pageDtoSetting);
       },
-      show_loading() {
+      show_loading(){
         wx.showLoading({
           title: '加载中',
         })
       },
-      hide_loading() {
+      hide_loading(){
         wx.hideLoading();
       },
       reset_product_category_id(){
         this.current_prod_category_id = 0;
         this.previous_pro_cate_id = 0;
       },
-      reset_empty_end_data(){
+      reset_empty_end_data()
+      {
         this.is_empty = false;
         this.is_end = false;
       },
       reset_page_dto(){
         this.pageDtoSetting = this.pageDto;
-      }
+      },
+      reset_subcategory_id(){
+        this.sub_category_index = 0;
+        this.sex = undefined;
+      },
+      reset_aggregation_fn(){
+        this.product_brand_cn_list = [];
+        this.product_category_name_list = [];
+        //this.is_aggregations = false;
+      },
+      reset_aggregation_value(){
+        this.product_brand_cn_id = this.index_initial;
+        this.product_category_name_id = this.index_initial;
+        this.productCategoryName = undefined;
+        this.productBrandName = undefined;
+      },
     },
   }
 </script>
@@ -436,7 +558,7 @@
   .animated {
     background-color: #F7F7F7;
     font-family: "Microsoft Yahei";
-    overflow: hidden;
+    /*overflow: hidden;*/
   }
 
   .swiper-home {
@@ -445,14 +567,6 @@
     padding: 10px 10px 3px 0.85rem;
     text-align: justify;
     word-break: break-all;
-  }
-
-  .scroll-view-container {
-    width: 100%;
-    height: 0.80rem;
-    /* border-top: 1rpx solid #EF639F;
-    border-bottom: 1rpx solid #EF639F; */
-    /*background-color: #EEE;*/
   }
 
   .product_kind_list {
@@ -561,14 +675,6 @@
     overflow: hidden;
   }
 
-  .product_category_activity {
-    color: #1890ff;
-  }
-
-  .ass_category {
-    /*padding-left: 5px;*/
-  }
-
   .select {
     width: 100%;
     padding: 0.5rem 0rem 0.15rem 0.75rem;
@@ -581,13 +687,6 @@
     font-size: 15px;
     display: flex;
     justify-content: flex-start;
-  }
-
-  .select .ass_key {
-    display: flex;
-    width: 50px;
-    white-space: nowrap;
-    font-weight: bold;
   }
 
   .select .ass_value {
@@ -608,10 +707,6 @@
     padding-right: 0.5rem;
   }
 
-  .subCategoryActivity {
-    color: #1890ff;
-  }
-
   .text_decoration {
     text-decoration: line-through;
   }
@@ -627,4 +722,51 @@
     width: 100%;
   }
 
+  .empty {
+    text-align: center;
+    background-color: white;
+    height: 100%;
+    width: 100%;
+    z-index: 1000;
+    padding-top: 2.00rem;
+  }
+
+  .aggregations_ul {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .aggregations {
+    display: inline;
+    min-width: 55px;
+    text-align: left;
+    font: 14px black;
+    vertical-align: middle;
+    line-height: 0.70rem;
+    height: 0.70rem;
+  }
+
+  .aggregations_category_name {
+    padding-right: 0.1rem;
+  }
+
+  .aggregations_brand_name {
+    padding-right: 0.3rem;
+  }
+
+  .aggregations_product li:first-child {
+    padding-right: 0rem;
+  }
+
+  .aggregations_product li:last-child {
+    padding-right: 0.4rem;
+  }
+
+  .brand, .category {
+    min-width: 1.3rem;
+  }
+
+  .subCategoryActivity, .product_aggregations_activity, .product_category_activity {
+    color: #1890ff;
+  }
 </style>
