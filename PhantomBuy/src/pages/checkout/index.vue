@@ -51,6 +51,39 @@
       </wxc-panel>
     </view>
 
+    <!--todo:1.将函数getTicketList获得的字段对接上，需要：余额、截止日期、可用卡券数-->
+    <!--todo:2.需要将勾选与卡卷绑定，并且每次勾选后需要重新调用calculateFee-->
+    <!--todo:3.跳转页面勾选更多卡片，将值返回，也需要重新调用calculateFee-->
+    <view class="ticket_info" >
+      <wxc-panel @click="selectMoreTickets">
+        <view class="ticket_sort">
+          <span class="address_title">卡券</span>
+          <span style="padding-left: 1.5rem;" class="address_arrow_right">
+            <span class="address_title">{{ticketAva}}张可用</span>
+            <wxc-icon color="#red" size="30" type="arrow-right"></wxc-icon>
+          </span>
+          <view class="ticket_show_block" @click.stop="chooseTicket" :style="{display: displayData}">
+            <radio-group>
+              <radio>
+                <div class="ticket">
+                  <div class="ticket_cash">余额：XXX.XX 元</div>
+                  <div class="ticket_date">期限：2020-01-20</div>
+                </div>
+              </radio>
+              <radio :style="{display: displayTicketData}">
+                <div class="ticket" >
+                  <div class="ticket_cash">余额：XXX.XX 元</div>
+                  <div class="ticket_date">期限：2020-01-20</div>
+                </div>
+              </radio>
+            </radio-group>
+          </view>
+        </view>
+      </wxc-panel>
+    </view>
+
+
+
     <view class="payment_info">
       <wxc-panel>
         <view class="left" v-show="total_fee !== undefined">
@@ -84,6 +117,7 @@
         </view>
       </wxc-panel>
     </view>
+
 
     <view class="contract_info">
       <wxc-panel>
@@ -151,8 +185,11 @@
         timeStamp: '',
         total_fee: '',
         receive_address_id: '',
-        state: 0
-
+        state: 0,
+        coupon_list: [],
+        displayData: 'none',
+        displayTicketData: 'none',
+        ticketAva: 0
       };
     },
     computed: {
@@ -169,6 +206,7 @@
         self.receive_address_id = pages[1].data.receive_address_id
         self.getUserAddress();
         self.getProductFee();
+        self.getTicketList();
       }
     },
     onLoad(options){
@@ -178,6 +216,7 @@
         this.getDefaultAddress();
         this.getProductFee();
         this.hide_loading();
+        this.getTicketList();
       }
       console.log(getCurrentPages());
     },
@@ -188,6 +227,51 @@
       })
     },
     methods: {
+      getTicketList(){
+        const self = this
+        let entityDTO = {
+          entityDTO: {}
+        };
+        fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
+        fly.post('phantombuy/userCoupon/list', entityDTO).then(res => {
+          if (res.data.code === '1') {
+            if (res.data.data.length > 1) {
+              // 有2张或者2张以上卡券
+              // todo:需要获得接口返回字段，对接到卡券上，需要字段:每张卡券上的余额、每张卡券的截止日期、一共可用卡卷数目
+              self.coupon_list = res.data.data;
+
+              self.displayTicketData = 'inline'
+              self.displayData = 'inline'
+
+            }else if(res.data.data.length === 1){
+              // todo:需要获得接口返回字段，对接到卡券上，需要字段:每张卡券上的余额、每张卡券的截止日期、一共可用卡卷数目
+              self.coupon_list = res.data.data;
+              // 只有一张卡券 隐藏第二个卡片
+              self.displayTicketData = 'none'
+              self.displayData = 'inline'
+            }else{
+              // 没有卡券 隐藏所有卡片
+              self.displayTicketData = 'none'
+              self.displayData = 'none'
+            }
+          } else if(res.data.code === '0') {
+            // 没有卡券 隐藏所有卡片
+            self.displayTicketData = 'none'
+            self.displayData = 'none'
+          }else {
+            self.displayTicketData = 'none'
+            self.displayData = 'none'
+            this.toast = common.showErrMsg("服务器内部错误");
+            let self = this;
+            setTimeout(function () {
+              self.toast.show_toast = false;
+            }, 1500);
+          }
+        });
+      },
+      chooseTicket(){
+        return 0;
+      },
       is_authorized(){
         if (this.settingKey === '1') { // 已授权
           return true;
@@ -424,6 +508,12 @@
           url: '/pages/address/main?change_receive_address=' + true
         });
       },
+      selectMoreTickets(){
+        wx.navigateTo({
+          //url: '/pages/editaddress/main?isEditAddress= ' + true + '&address_detail=' + JSON.stringify(this.user_default_address)
+          url: '/pages/coupon/main'
+        });
+      },
       show_loading() {
         wx.showLoading({
           title: '加载中',
@@ -451,7 +541,43 @@
     padding-left: 5%;
     padding-bottom: 0.2rem;
   }
+  .ticket_info {
+    width: 90%;
+    vertical-align: middle;
+    padding-left: 5%;
+    padding-bottom: 0.2rem;
+  }
+  .ticket_show_block{
+    background-color: white;
+    display: flex;
+    flex-direction: row;
+    margin-top:20rpx;
+  }
 
+  .ticket_sort {
+    padding-top: 0.3rem;
+    padding-bottom: 0.3rem;
+    width: 100%;
+    vertical-align: middle;
+    padding-left: 5%;
+  }
+
+  .ticket{
+    background: #fff;
+    border: 3px skyblue solid;
+    border-radius: 10rpx;
+    height:150rpx;
+    width:80%;
+    margin-right: 50rpx;
+  }
+  .ticket_cash{
+    font-size: small;
+    padding-top: 35rpx;
+  }
+  .ticket_date{
+    padding-top: 35rpx;
+    font-size: xx-small;
+  }
   .payment_info {
     width: 90%;
     vertical-align: middle;
@@ -580,6 +706,7 @@
     vertical-align: middle;
     padding-left: 5%;
   }
+
 
   .address_img {
     padding-top: 0.1rem;
