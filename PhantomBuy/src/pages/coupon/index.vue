@@ -47,11 +47,21 @@
         has_border: true,
         user_coupon_list: [],
         is_coupon_empty: false,
-        is_choose_coupon: true
+        is_choose_coupon: false,
+        chosen_coupon_id: undefined     // 所选 优惠券Id
 
       }
     },
-    onLoad(){
+    onLoad(options){
+      console.log(options.is_choose_coupon);
+      if (options.is_choose_coupon !== undefined) {
+        this.is_choose_coupon = true;
+      }
+
+      if (options.chosen_coupon_id !== "undefined" && options.chosen_coupon_id !== undefined) {
+        this.chosen_coupon_id = JSON.parse(options.chosen_coupon_id);
+      }
+
       this.show_loading();
       if (this.is_authorized()) {
         this.getUserCouponList();
@@ -71,6 +81,7 @@
       // 初始化数据
       this.user_coupon_list = [];
       this.is_choose_coupon = false;
+      this.chosen_coupon_id = undefined;
     },
     methods: {
       is_authorized(){
@@ -89,7 +100,6 @@
         fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
         fly.post("phantombuy/userCoupon/list", {entityDTO: {}}).then(res => {
           if (res.data.code === '1') {
-            //self.user_coupon_list = res.data.data.records;
             res.data.data.records.forEach((item, index) => {
               self.user_coupon_list.push({
                 couponBalance: item.couponBalance,
@@ -97,16 +107,14 @@
                 effectStart: formatTime(new Date(item.effectStart)),
                 userCouponId: item.userCouponId,
                 userCouponName: item.userCouponName,
-                checked: false
+                checked: self.chosen_coupon_id === item.userCouponId ? true : false
               });
             });
 
             if (self.is_coupon_empty)   self.is_coupon_empty = false;
-
           } else if (res.data.code === '0') {
             if (res.data.data.records.length == 0) {
               if (!self.is_coupon_empty)   self.is_coupon_empty = true;
-
             }
           } else if (res.data.code === '888') {
             self.toast = common.showErrorMsg("请先登录");
@@ -129,15 +137,19 @@
         });
 
         // return checkout page
-        this.toCheckoutPage(item);
-
+        setTimeout(function () {
+          self.toCheckoutPage(item);
+        }, 1000);
       },
       toCheckoutPage(coupon){
+        this.chosen_coupon_id = coupon.userCouponId;
         let pages = getCurrentPages()// 当前页面    （pages就是获取的当前页面的JS里面所有pages的信息）
         let prevPage = pages[pages.length - 2];// 上一页面（prevPage 就是获取的上一个页面的JS里面所有pages的信息）
         prevPage.setData({
-          chosen_coupon_state: 1,
-          chosen_coupon_id: coupon.userCouponId
+          state: 1,
+          chosen_coupon_id: coupon.userCouponId,
+          userCouponIdList: [coupon.userCouponId],
+          userCoupon: coupon
         })
         wx.navigateBack({
           delta: 1

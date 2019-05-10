@@ -138,7 +138,7 @@
     </scroll-view>
 
     <view class="loadmore" v-if="is_end">
-    <loadmore></loadmore>
+      <loadmore></loadmore>
     </view>
 
 
@@ -424,31 +424,31 @@
                 // 这里需要有一个聚类的设置
                 // 聚类默认值
                 if (res.data.aggregations !== undefined) {
-                  let product_brand_cn = res.data.aggregations.product_brand_cn;
-                  let product_category_name = res.data.aggregations.product_category_name;
-
-
-                  // 遍历对象属性, 并转化成相应数据格式
                   let self = this;
-                  Object.keys(product_brand_cn).forEach(function (key) {
-                    if (key !== "") {
-                      self.product_brand_cn_list.push({
-                        name: key,
-                        number: product_brand_cn[key]
-                      })
+                  if (self.product_brand_cn_list.length === 0) {
+                    let product_brand_cn = res.data.aggregations.product_brand_cn;
+                    Object.keys(product_brand_cn).forEach(function (key) {
+                      if (key !== "") {
+                        self.product_brand_cn_list.push({
+                          name: key,
+                          number: product_brand_cn[key]
+                        })
 
-                    }
-                  });
+                      }
+                    });
+                  }
 
-                  // 这个形式 换数据可行；
-                  Object.keys(product_category_name).forEach(function (key) {
-                    if (key !== "") {
-                      self.product_category_name_list.push({
-                        name: key,
-                        number: product_category_name[key]
-                      })
-                    }
-                  });
+                  if (self.product_category_name_list.length === 0) {
+                    let product_category_name = res.data.aggregations.product_category_name;
+                    Object.keys(product_category_name).forEach(function (key) {
+                      if (key !== "") {
+                        self.product_category_name_list.push({
+                          name: key,
+                          number: product_category_name[key]
+                        })
+                      }
+                    });
+                  }
                 }
 
                 for (let i = 0; i < res.data.data.records.length; i++) {
@@ -477,7 +477,7 @@
         this.product_category_name_id = index;
         this.product_brand_cn_id = this.index_initial;
         this.product_detail_list = [];
-        this.reset_aggregation_fn();
+        this.reset_page_dto();
         this.searchProductList();
       },
       setProductBrandName(item, index){
@@ -486,7 +486,7 @@
         this.product_brand_cn_id = index;
         this.product_category_name_id = this.index_initial;
         this.product_detail_list = [];
-        this.reset_aggregation_fn();
+        this.reset_page_dto();
         this.searchProductList();
 
       },
@@ -498,7 +498,6 @@
         }
         // 搜索 and 下拉刷新 这里逻辑 有问题
         if (this.$refs.find.search_key !== "") {
-          this.reset_aggregation_fn();
           this.searchProductList();
           return
         }
@@ -549,6 +548,7 @@
         this.product_category_name_id = this.index_initial;
         this.productCategoryName = undefined;
         this.productBrandName = undefined;
+        this.reset_page_dto();
       },
     },
   }
