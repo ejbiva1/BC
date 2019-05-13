@@ -1,32 +1,80 @@
-const formatTime = date => {
+// const formatTime = date => {
+//
+//   const year = date.getFullYear()
+//   const month = date.getMonth() + 1
+//   const day = date.getDate()
+//   const hour = date.getHours()
+//   const minute = date.getMinutes()
+//
+//   //return [year,month, day].map(formatNumber).join('/') + ' ' + [hour, minute,].map(formatNumber).join(':')
+//
+//   return [year, month, day].map(formatNumber).join('.')
+// }
+//
+// const formatNumber = n => {
+//   n = n.toString()
+//   return n[1] ? n : '0' + n
+// }
+//
+// // 时间戳转日期
+// const toDate = function (timeStamp) {
+//   // console.log('转为日期')
+//   var date = new Date(timeStamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
+//   // console.log(date);
+//   var Y = date.getFullYear() + '.';
+//   var M = (date.getMonth() < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '.';
+//   var D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate());
+//   return Y + M + D
+// }
+//
+// export default formatTime
 
-  const year = date.getFullYear()
-  const month = date.getMonth() + 1
-  const day = date.getDate()
-  const hour = date.getHours()
-  const minute = date.getMinutes()
 
-  //return [year,month, day].map(formatNumber).join('/') + ' ' + [hour, minute,].map(formatNumber).join(':')
+class FormatTime {
 
-  return [year, month, day].map(formatNumber).join('.')
+  // constructor(){d
+  //   const formatNumber = n => {
+  //     n = n.toString()
+  //     return n[1] ? n : '0' + n
+  //   }
+  //
+  //
+  // }
+
+  dateFormat(date) {
+    const year = date.getFullYear()
+    const month = date.getMonth() + 1
+    const day = date.getDate()
+    const hour = date.getHours()
+    const minute = date.getMinutes()
+
+    //return [year,month, day].map(formatNumber).join('/') + ' ' + [hour, minute,].map(formatNumber).join(':')
+
+    //return [year, month, day].map(this.formatNumber).join('.')
+
+
+    let array = [year, month, day];
+    let self = this;
+
+     array.map((item, index) => {
+      self.formatNumber(item)
+
+    });
+
+    return array.join('.');
+  }
+
+
+  formatNumber(n) {
+    n = n.toString()
+    return n[1] ? n : '0' + n
+  }
+
+
 }
 
-const formatNumber = n => {
-  n = n.toString()
-  return n[1] ? n : '0' + n
-}
+export const formatTime = new FormatTime();
 
-// 时间戳转日期
-const toDate = function (timeStamp) {
-  // console.log('转为日期')
-  var date = new Date(timeStamp); //时间戳为10位需*1000，时间戳为13位的话不需乘1000
-  // console.log(date);
-  var Y = date.getFullYear() + '.';
-  var M = (date.getMonth() < 10 ? '0' + (date.getMonth() + 1) : date.getMonth() + 1) + '.';
-  var D = (date.getDate() < 10 ? '0' + (date.getDate()) : date.getDate());
-  return Y + M + D
-}
 
-export default formatTime
 
 

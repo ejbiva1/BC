@@ -1,6 +1,6 @@
 <template>
   <div class="coupon">
-    <view class="coupons_section">
+    <view class="coupons_section" v-if="!is_coupon_empty">
       <view v-for="(item , index) in user_coupon_list" :key="index" class="coupons"
             @click="chooseSingleCoupon(item, index,$event)">
         <wxc-cc class="detail">
@@ -11,9 +11,9 @@
           </view>
           <view class="couponBalance">
             <span class="coupon_balance_text">余额</span>
-            <wxc-price class="coupon_balance_num" icon="sub">
-              {{item.couponBalance}}
-            </wxc-price>
+            <span class="coupon_balance_num">
+              <span class="sub">￥</span><span>{{item.couponBalance}}</span>
+              </span>
           </view>
           <view class="coupon_effect">
             {{item.effectStart}} 至 {{item.effectEnd}} 有效
@@ -37,7 +37,7 @@
   import fly from "../../utils/fly";
   import {mapState, mapMutations} from 'vuex';
   import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types";
-  import formatTime from "../../utils/util";
+  import {formatTime} from "../../utils/util";
 
   //卡券列表页
   export default {
@@ -103,8 +103,10 @@
             res.data.data.records.forEach((item, index) => {
               self.user_coupon_list.push({
                 couponBalance: item.couponBalance,
-                effectEnd: formatTime(new Date(item.effectEnd)),
-                effectStart: formatTime(new Date(item.effectStart)),
+                effectEnd: formatTime.dateFormat(new Date(item.effectEnd.replace(/-/g, '/'))),
+                effectStart: formatTime.dateFormat(new Date(item.effectStart.replace(/-/g, '/'))),
+                //effectEnd: item.effectEnd,
+                //effectStart: item.effectStadrt,
                 userCouponId: item.userCouponId,
                 userCouponName: item.userCouponName,
                 checked: self.chosen_coupon_id === item.userCouponId ? true : false
@@ -165,6 +167,33 @@
           wx.hideLoading()
         }, 1500);
       },
+      dateFormat(date) {
+        const year = date.getFullYear()
+        const month = date.getMonth() + 1
+        const day = date.getDate()
+        const hour = date.getHours()
+        const minute = date.getMinutes()
+
+        //return [year,month, day].map(formatNumber).join('/') + ' ' + [hour, minute,].map(formatNumber).join(':')
+
+        //return [year, month, day].map(this.formatNumber).join('.')
+
+
+        let array = [year, month, day];
+        let self = this;
+
+        array.map((item, index) => {
+          self.formatNumber(item)
+
+        });
+
+        return array.join('.');
+      },
+      formatNumber(n) {
+        n = n.toString()
+        return n[1] ? n : '0' + n
+      }
+
     }
   }
 </script>
@@ -252,6 +281,10 @@
     vertical-align: middle;
     position: relative;
     padding-left: 0.20rem;
+  }
+
+  .sub {
+    font-size: 52%;
   }
 
 

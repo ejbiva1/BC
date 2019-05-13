@@ -221,7 +221,7 @@
     },
     onUnload(){
       // 优惠券使用信息 恢复初始值
-      this.ticketAva = undefined;
+      this.ticketAva = 0;
       this.userCoupon = undefined;
       this.userCouponIdList = [];
       this.chosen_coupon_id = undefined;
