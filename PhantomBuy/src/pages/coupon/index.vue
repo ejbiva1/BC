@@ -38,6 +38,8 @@
   import {mapState, mapMutations} from 'vuex';
   import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types";
   import {formatTime} from "../../utils/util";
+  import {baseService} from "../../services/base.service";
+  import {couponService} from "../../services/coupon.service";
 
   //卡券列表页
   export default {
@@ -53,7 +55,6 @@
       }
     },
     onLoad(options){
-      console.log(options.is_choose_coupon);
       if (options.is_choose_coupon !== undefined) {
         this.is_choose_coupon = true;
       }
@@ -62,14 +63,13 @@
         this.chosen_coupon_id = JSON.parse(options.chosen_coupon_id);
       }
 
+    },
+    onShow(){
       this.show_loading();
       if (this.is_authorized()) {
         this.getUserCouponList();
-        //this.$refs.coupon.showTab();
         this.hide_loading();
       }
-    },
-    onShow(){
     },
     computed: {
       ...mapState([
@@ -96,47 +96,29 @@
       },
       getUserCouponList(){
         let self = this;
-        // 获取当前用户 地址列表
-        fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
-        fly.post("phantombuy/userCoupon/list", {entityDTO: {}}).then(res => {
-          if (res.data.code === '1') {
-            res.data.data.records.forEach((item, index) => {
-              self.user_coupon_list.push({
-                couponBalance: item.couponBalance,
+        couponService.getUserCouponList({entityDTO: {}}, self.sessionId).then(res => {
+          if (res.data.records.length == 0) {
+            if (!self.is_coupon_empty)   self.is_coupon_empty = true;
+          }
+          if (res.code === '1') {
+            self.user_coupon_list = res.data.records.map((item) =>
+              Object.assign(item, {
                 effectEnd: formatTime.dateFormat(new Date(item.effectEnd.replace(/-/g, '/'))),
                 effectStart: formatTime.dateFormat(new Date(item.effectStart.replace(/-/g, '/'))),
-                //effectEnd: item.effectEnd,
-                //effectStart: item.effectStadrt,
-                userCouponId: item.userCouponId,
-                userCouponName: item.userCouponName,
                 checked: self.chosen_coupon_id === item.userCouponId ? true : false
-              });
-            });
+              }));
 
             if (self.is_coupon_empty)   self.is_coupon_empty = false;
-          } else if (res.data.code === '0') {
-            if (res.data.data.records.length == 0) {
-              if (!self.is_coupon_empty)   self.is_coupon_empty = true;
-            }
-          } else if (res.data.code === '888') {
-            self.toast = common.showErrorMsg("请先登录");
-            setTimeout(function () {
-              self.toast.show_toast = false;
-            }, 1500);
           }
         });
       },
-      chooseSingleCoupon(item, index){
+      chooseSingleCoupon(item, chosen_index){
         let self = this;
-        let chosen_index = index;
         if (!self.is_choose_coupon) return
-        self.user_coupon_list[index].checked = !self.user_coupon_list[index].checked;
-        // 保证每次只选中一个 为true
-        self.user_coupon_list.forEach((item, index) => {
-          if (chosen_index !== index) {
-            item.checked = false;
-          }
-        });
+        // 保证每次只选中一个 为true Object.assign ES6 中为属性赋值
+        self.user_coupon_list.map((item, index) => Object.assign(item, {
+          checked: chosen_index === index ? true : false
+        }));
 
         // return checkout page
         setTimeout(function () {
@@ -167,33 +149,6 @@
           wx.hideLoading()
         }, 1500);
       },
-      dateFormat(date) {
-        const year = date.getFullYear()
-        const month = date.getMonth() + 1
-        const day = date.getDate()
-        const hour = date.getHours()
-        const minute = date.getMinutes()
-
-        //return [year,month, day].map(formatNumber).join('/') + ' ' + [hour, minute,].map(formatNumber).join(':')
-
-        //return [year, month, day].map(this.formatNumber).join('.')
-
-
-        let array = [year, month, day];
-        let self = this;
-
-        array.map((item, index) => {
-          self.formatNumber(item)
-
-        });
-
-        return array.join('.');
-      },
-      formatNumber(n) {
-        n = n.toString()
-        return n[1] ? n : '0' + n
-      }
-
     }
   }
 </script>
