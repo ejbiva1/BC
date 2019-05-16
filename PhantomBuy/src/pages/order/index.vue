@@ -23,6 +23,7 @@
             <view>
               <view v-for="(cartListItem, j) in item.cartList" :key="j" class="cart_block cart-item">
                 <checkbox-group @change="itemBlockChangeColor(cartListItem, cartListItem.cartId, $event)">
+                  <!--<checkbox-group @change="chooseCommodity(cartListItem, $event)">-->
                   <checkbox class="sliderLeft" :value="cartListItem.cartId"
                             :checked="cartListItem.checked">
                     <slider-left @delete="handleDelete" :id="cartListItem.cartId">
@@ -135,11 +136,12 @@
 <script type="text/ecmascript-6">
   import fly from '../../utils/fly';
   import {mapState, mapMutations} from 'vuex'
-  //  import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types"
+
   export default {
     data () {
       return {
         cartIdList: [],
+        cart_no_choose_id_list: [],
         cart_list: [],
         btnType: 'disabled',
         displayData: 'block',
@@ -164,6 +166,9 @@
     },
     onShow() {
       this.getOrderList();
+      //this.getCartList();
+    },
+    onUnload(){
     },
     methods: {
       is_authorized(){
@@ -177,39 +182,98 @@
 
         return false;
       },
+      resetPriceData(){
+        this.priceData = {
+          sitePromotionFee: {sitePromotionFee: 0},
+          final: {finalRMB: 0},
+          exciseTax: {exciseTax: 0},
+          internationalShippingFee: {estimatedWeight: 0, internationalShippingFee: 0},
+          siteShippingFee: {siteShippingFee: 0}
+        }
+      },
       getOrderList () {
         if (this.is_authorized()) {
-          wx.showLoading({
-            title: '加载中'
-          })
+          this.show_loading();
           fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
           fly.post("phantombuy/cart/list", {entityDTO: {}}).then((res) => {
-            if (res.data.code === `1`) {                // 成功
-              this.cart_list = [];
+            if (res.data.code === `1`) {
+              this.cart_no_choose_id_list = [];
               if (res.data.data.length > 0) {
-                for (let i = 0; i < res.data.data.length; i++) {
-                  this.addCartItem(res.data.data[i]);
+                this.cart_list = res.data.data.map((item) => Object.assign(item, {
+                  cartList: item.cartList.map((cart_item) => Object.assign(cart_item, {
+                    checked: this.cartIdList.includes(cart_item.cartId) == true ? true : false
+                  }))
+                }))
+
+                for (let item of this.cart_list) {
+                  this.cart_no_choose_id_list = this.cart_no_choose_id_list.concat(item.cartList.map((item) => item.cartId));
                 }
+
+                // 复位 cartIdList
+                let self = this;
+                for (let cartId in this.cartIdList) {
+                  if (!this.cart_no_choose_id_list.includes(cartId)) {
+                    this.resetPriceData();
+                    this.cartIdList = [];
+                  }
+                }
+
                 this.displayData = 'none'
               }
-              wx.hideLoading()
             } else {
               // 无结果
               this.cart_list = []
               this.displayData = 'block'
-              wx.hideLoading()
             }
+            this.hide_loading();
           }).catch(err => {
             console.log(`api请求出错:`, err);
           })
         }
       },
+      getCartList(){
+        if (this.is_authorized()) {
+          this.show_loading();
+          fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
+          fly.post("phantombuy/cart/list", {entityDTO: {}}).then((res) => {
+            if (res.data.code === `1`) {                // 成功
+              //this.cart_no_choose_id_list = [];
+              if (res.data.data.length > 0) {
+                this.cart_list = res.data.data.map((item) => Object.assign(item, {
+                  cartList: item.cartList.map((cart_item) => Object.assign(cart_item, {
+                    checked: this.cartIdList.includes(cart_item.cartId) == true ? true : false
+                  }))
+                }))
+                this.displayData = 'none'
+              }
+            } else {
+              // 无结果
+              this.cart_list = []
+              this.displayData = 'block'
+            }
+            this.hide_loading();
+          }).catch(err => {
+
+          })
+        }
+      },
+      chooseCommodity(item, e){
+        if (!item.checked) {
+          item.checked = true;
+        } else {
+          item.checked = false;
+        }
+
+        if (this.cartIdList.includes(item.cartId)) {
+          this.cartIdList.shift();
+        } else {
+          this.cartIdList.push(item.cartId);
+        }
+        this.calculateFee()
+      },
       itemBlockChangeColor: function (cartItem, index, e) {
         const self = this
-        wx.showLoading({
-          title: '加载中'
-        })
-
+        this.show_loading();
         // 当前 cartItem checkbox checked 属性设置
         if (e.mp.detail.value.length !== 0) {
           cartItem.checked = true;
@@ -231,13 +295,10 @@
         } else {
           this.btnType = 'disabled'
         }
-
-        this.calculateFee(this.cartIdList)     // 调用calculateFee
+        this.calculateFee()     // 调用calculateFee
       },
       handleDelete (e) {
-        wx.showLoading({
-          title: '加载中'
-        })
+        this.show_loading();
         const self = this
         fly.config.headers['Cookie'] = 'JSESSIONID=' + this.sessionId
         // e.mp.currentTarget.id在cartIdList里面的话，要先从list里面删掉
@@ -262,9 +323,7 @@
         })
       },
       onChangeNumber (e) {
-        wx.showLoading({
-          title: '加载中'
-        })
+        this.show_loading();
         const self = this
         fly.config.headers['Cookie'] = 'JSESSIONID=' + this.sessionId
         console.log(e.mp.detail.number)
@@ -278,22 +337,22 @@
           if (res.data.code === `1`) {
             // 成功
             // 调用calculateFee，分修改了的物品勾选和未勾选状态
-            this.calculateFee(this.cartIdList)
+            this.calculateFee()
             // list
             this.getOrderList()
-            wx.hideLoading()
+            this.hide_loading();
           }
           else {
             // 失败
             console.log(`update商品数字:`, res)
-            wx.hideLoading()
+            this.hide_loading;
           }
         }).catch(err => {
           console.log(`update商品数字:`, err)
-          wx.hideLoading()
+          this.hide_loading;
         })
       },
-      calculateFee: function (list) {
+      calculateFee: function () {
         /*
          * {entityDTO: {cartIdList: [83, 88]}}
          * 需要先获取所有勾选的cartId，做成List传回去
@@ -303,11 +362,11 @@
         /*
          * 此处修改需要调用的接口
          * */
-        fly.post("phantombuy/cart/calculateFee", {entityDTO: {cartIdList: list}}).then((res) => {
+        fly.post("phantombuy/cart/calculateFee", {entityDTO: {cartIdList: this.cartIdList}}).then((res) => {
           if (res.data.code === `1`) {
             // 成功
             self.priceData = res.data.data
-            wx.hideLoading()
+            this.hide_loading();
           }
           else {
             // 失败
@@ -320,8 +379,12 @@
       catchtapControl: function () {
       },
       addCartItem(cartItem){   // 数据转换, 给购物车中每件商品 添加 checked 属性
+
+      },
+      todo(cartItem){
         let cartItemList = [];
         for (let i = 0; i < cartItem.cartList.length; i++) {
+          this.cart_no_choose_id_list.push(cartItem.cartList[i].cartId);
           cartItemList.push({
             cartId: cartItem.cartList[i].cartId,
             color: cartItem.cartList[i].color,
@@ -355,6 +418,16 @@
             url: '../checkout/main?cartIdList=' + JSON.stringify(this.cartIdList)
           })
         }
+      },
+      show_loading() {
+        wx.showLoading({
+          title: '加载中',
+        })
+      },
+      hide_loading() {
+        setTimeout(function () {
+          wx.hideLoading()
+        }, 1500);
       },
 
     }

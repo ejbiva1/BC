@@ -1,91 +1,83 @@
 <template>
-  <div class="my">
+  <view class="my">
 
-    <div class="headerTab" style="z-index:1001;">
-      <div class="animated fadeIn">
-        <div class="product_tabs">
-          <div class="product_tabsNav">
-            <div
+    <view class="headerTab" style="z-index:1001;">
+      <view class="animated fadeIn">
+        <view class="product_tabs">
+          <view class="product_tabsNav">
+            <view
               :class="{'selected':tab === 1,'product_tabs_active':true}"
-              @click="changTab(1)" style="text-align:center"
-            >全部
-            </div>
-            <div
+              @click="changTab(1)" style="text-align:center">全部
+            </view>
+            <view
               :class="{'selected':tab === 4,'product_tabs_active':true}"
-              @click="changTab(4)" style="text-align:center"
-            >待付款
-            </div>
-            <div
+              @click="changTab(4)" style="text-align:center">待付款
+            </view>
+            <view
               :class="{'selected':tab === 2,'product_tabs_active':true}"
               @click="changTab(2)" style="text-align:center"
             >已付款
-            </div>
-            <div
+            </view>
+            <view
               :class="{'selected':tab === 3,'product_tabs_active':true}"
               @click="changTab(3)" style="text-align:center"
             >已发货
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="noList" v-bind:style="{display: displayData}" @touchmove.stop="move">
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="noList" :style="{display: displayData}" @touchmove.stop="move">
       尚未存在订单
-    </div>
-    <div class="block" v-for="(item, i) in order_list" :key="i">
 
-      <div class="date">{{item.createDate}}</div>
-      <div class="dataBlock" v-for="(orderItem, j) in item.orderSiteList" :key="j">
-        <div class="itemBlock" v-for="(orderDetailItem, k) in orderItem.orderDetailList" :key="k">
-          <h5 class="brand">{{item.orderName}}</h5>
-          <div class="itemBlock">
-            <div class="row">
-              <div class="itemImage">
-                <image :src="orderDetailItem.productImageUrl" class="titleImage" mode="widthFix"/>
-              </div>
-              <div class="itemDetail">
-                <div class="itemName paddingButton10">{{orderDetailItem.productName}}</div>
-                <div class="row paddingButton10 grayFont">
-                  <div class="itemColorTitle">颜色：</div>
-                  <div class="itemColorDetail">{{orderDetailItem.color}}</div>
-                </div>
-                <div class="row paddingButton10 grayFont">
-                  <div class="itemPriceTitle">价格：</div>
-                  <div class="itemPriceDetail">{{orderDetailItem.productRmbPriceTotal}}</div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="payPrice row">
-            <div class="payButton">
+    </view>
+    <view class="block" v-for="(item, i) in order_list" :key="i" v-if="item.orderSiteList.length  !== 0">
+
+      <wxc-panel>
+        <view class="order_detail">
+          <view class="order_name cart_block">
+            <h4 class="brand">{{item.orderName}}</h4>
+          </view>
+          <!--<view class="date">{{item.createDate}}</view>-->
+          <view>
+            <view class="dataBlock" v-for="(orderItem, j) in item.orderSiteList" :key="j">
+              <view class="itemBlock" v-for="(orderDetailItem, k) in orderItem.orderDetailList" :key="k">
+                <view class="itemBlock">
+                  <view class="row">
+                    <view class="itemImage">
+                      <image :src="orderDetailItem.productImageUrl" class="titleImage" mode="widthFix"/>
+                    </view>
+                    <view class="itemDetail">
+                      <view class="itemName paddingButton10">{{orderDetailItem.productName}}</view>
+                      <view class="row paddingButton10 grayFont">
+                        <view class="itemColorTitle">颜色：</view>
+                        <view class="itemColorDetail">{{orderDetailItem.color}}</view>
+                      </view>
+                      <view class="row paddingButton10 grayFont">
+                        <view class="itemPriceTitle">价格：</view>
+                        <view class="itemPriceDetail">{{orderDetailItem.productRmbPriceTotal}}</view>
+                      </view>
+                    </view>
+                  </view>
+                </view>
+
+              </view>
+            </view>
+            <view class="payPrice row">
+              <view class="payButton">
             <span v-show="item.status === 0">
               <wxc-button size="small" type="info" value="去支付" @click="payOrder(item.orderId)"></wxc-button>
             </span>
-            </div>
-            <div class="totalTitle">支付金额：{{item.chnFee}} 元</div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <!--
-      <wxc-tab
-        @click="onClick"
-      :default-index="4"
-      active-text-color="#108ee9"
-      active-line-color="#108ee9"
-      component-id="c1"
-      :animate="true"
-    >
-      <wxc-tab-panel  :wx:for="tabs" wx:for-item="tab" :wx:key="tab.content"
-                      :tab-index="index" :tabID="tab.tabID" :label="tab.title" component-id="c1" >
-      </wxc-tab-panel>
-      <wxc-tab-panel :tab-index="index" component-id="c1" label="全部"></wxc-tab-panel>
-      <wxc-tab-panel :tab-index="index" component-id="c1" label="已付款"></wxc-tab-panel>
-      <wxc-tab-panel :tab-index="index" component-id="c1" label="已发货"></wxc-tab-panel>
-    </wxc-tab>
-    -->
+              </view>
+              <view class="totalTitle">支付金额：{{item.chnFee}} 元</view>
+            </view>
+          </view>
+        </view>
+      </wxc-panel>
+    </view>
 
-  </div>
+
+  </view>
 </template>
 
 <script type="text/ecmascript-6">
@@ -93,6 +85,7 @@
   import {common} from "../../utils/common";
   import {mapState, mapMutations} from 'vuex';
   import {SET_SESSION_ID, SET_SETTING_KEY} from "../../store/mutation-types";
+  import {formatTime} from "../../utils/util";
   var settingKey = ''
   export default {
     props: {
@@ -238,7 +231,9 @@
             })
           } else if (res.data.code === `1`) {
             if (res.data.data.records.length > 0) {
-              this.order_list = res.data.data.records.reverse()
+              this.order_list = res.data.data.records.reverse().map((item) => Object.assign(item, {
+                createDate: formatTime.dateFormat(new Date(item.createDate.replace(/-/g, '/')))
+              }));
               this.displayData = 'none'
             }
 
@@ -248,6 +243,7 @@
             this.order_list = []
             this.displayData = 'block'
             console.log(`我的订单数据:`, res)
+            this.hide_loading();
           }
         }).catch(err => {
           console.log(`api请求出错:`, err)
@@ -280,13 +276,13 @@
   }
 
   .noList {
-    background-color: white;
     height: 100%;
     width: 100%;
     z-index: 1000;
     font-color: black;
     padding-top: 2.00rem;
     text-align: center;
+    background-color: white;
   }
 
   .my {
@@ -298,6 +294,8 @@
   }
 
   .block {
+    padding-bottom: 0.3rem;
+    padding-top: 0.1rem;
   }
 
   .row {
@@ -375,5 +373,22 @@
 
   .tabs_container {
     position: relative;
+  }
+
+  .order_detail {
+    padding-left: 0.2rem;
+    padding-bottom: 0.2rem;
+  }
+
+  .order_name {
+    padding-top: 0.2rem;
+    padding-bottom: 0.2rem;
+    height: 0.4rem;
+  }
+
+  .cart_block {
+    display: flex;
+    justify-content: flex-start;
+    padding: 0.3rem 0rem 0.1rem 0.2rem;
   }
 </style>

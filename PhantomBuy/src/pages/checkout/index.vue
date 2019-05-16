@@ -393,17 +393,16 @@
       pay(){
         // 用户并未同意 签订同意协议
         if (!this.agree.checked) {
-          let self = this;
-          self.toast = common.showErrorMsg('您需要同意条款');
-          setTimeout(function () {
-            self.toast.show_toast = false;
-          }, 1500);
+          this.toast = common.showErrorMsg('您需要同意条款');
+          setTimeout(() =>this.toast.show_toast = false, 1500);
           return
         }
-        // 若用户同意条款协议，这里跳转到 微信支付页
-        ///orderMain/add
 
-        //let data =   {"entityDTO":{"addressId":20,"orderDetailList":[{"cartId":124}]}}
+        if (this.user_default_address === undefined) {
+          this.toast = common.showErrorMsg('请选择收货地址');
+          setTimeout(()=> this.toast.show_toast = false, 1500);
+          return;
+        }
 
         let orderIdList = [];
         this.cartIdList.forEach((item, index) => {
