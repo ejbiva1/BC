@@ -22,11 +22,10 @@
 
             <view>
               <view v-for="(cartListItem, j) in item.cartList" :key="j" class="cart_block cart-item">
-                <checkbox-group @change="itemBlockChangeColor(cartListItem, cartListItem.cartId, $event)">
-                  <!--<checkbox-group @change="chooseCommodity(cartListItem, $event)">-->
+                <checkbox-group @change="itemBlockChangeColor(cartListItem, $event)">
                   <checkbox class="sliderLeft" :value="cartListItem.cartId"
                             :checked="cartListItem.checked">
-                    <slider-left @delete="handleDelete" :id="cartListItem.cartId">
+                    <slider-left @delete="handleDelete(cartListItem)" :id="cartListItem.cartId">
                       <view class="itemBlock" :id="cartListItem.cartId">
                         <view class="row">
                           <view class="itemImage">
@@ -141,7 +140,6 @@
     data () {
       return {
         cartIdList: [],
-        cart_no_choose_id_list: [],
         cart_list: [],
         btnType: 'disabled',
         displayData: 'block',
@@ -161,14 +159,8 @@
         'sessionId'
       ])
     },
-    onLoad (options) {
-
-    },
     onShow() {
       this.getOrderList();
-      //this.getCartList();
-    },
-    onUnload(){
     },
     methods: {
       is_authorized(){
@@ -182,44 +174,25 @@
 
         return false;
       },
-      resetPriceData(){
-        this.priceData = {
-          sitePromotionFee: {sitePromotionFee: 0},
-          final: {finalRMB: 0},
-          exciseTax: {exciseTax: 0},
-          internationalShippingFee: {estimatedWeight: 0, internationalShippingFee: 0},
-          siteShippingFee: {siteShippingFee: 0}
-        }
-      },
       getOrderList () {
         if (this.is_authorized()) {
           this.show_loading();
           fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
           fly.post("phantombuy/cart/list", {entityDTO: {}}).then((res) => {
             if (res.data.code === `1`) {
-              this.cart_no_choose_id_list = [];
-              if (res.data.data.length > 0) {
-                this.cart_list = res.data.data.map((item) => Object.assign(item, {
-                  cartList: item.cartList.map((cart_item) => Object.assign(cart_item, {
-                    checked: this.cartIdList.includes(cart_item.cartId) == true ? true : false
-                  }))
+              // 数据格式设置
+              this.cart_list = res.data.data.map((item) => Object.assign(item, {
+                cartList: item.cartList.map((cart_item) => Object.assign(cart_item, {
+                  checked: this.cartIdList.includes(cart_item.cartId) == true ? true : false
                 }))
+              }))
+              // 重置cartIdList
+              this.cartIdList = this.resetCartIdList();
+              console.log(this.cartIdList);
 
-                for (let item of this.cart_list) {
-                  this.cart_no_choose_id_list = this.cart_no_choose_id_list.concat(item.cartList.map((item) => item.cartId));
-                }
+              this.calculateFee();
+              this.displayData = 'none'
 
-                // 复位 cartIdList
-                let self = this;
-                for (let cartId in this.cartIdList) {
-                  if (!this.cart_no_choose_id_list.includes(cartId)) {
-                    this.resetPriceData();
-                    this.cartIdList = [];
-                  }
-                }
-
-                this.displayData = 'none'
-              }
             } else {
               // 无结果
               this.cart_list = []
@@ -231,48 +204,30 @@
           })
         }
       },
-      getCartList(){
-        if (this.is_authorized()) {
-          this.show_loading();
-          fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
-          fly.post("phantombuy/cart/list", {entityDTO: {}}).then((res) => {
-            if (res.data.code === `1`) {                // 成功
-              //this.cart_no_choose_id_list = [];
-              if (res.data.data.length > 0) {
-                this.cart_list = res.data.data.map((item) => Object.assign(item, {
-                  cartList: item.cartList.map((cart_item) => Object.assign(cart_item, {
-                    checked: this.cartIdList.includes(cart_item.cartId) == true ? true : false
-                  }))
-                }))
-                this.displayData = 'none'
-              }
-            } else {
-              // 无结果
-              this.cart_list = []
-              this.displayData = 'block'
-            }
-            this.hide_loading();
-          }).catch(err => {
+      resetCartIdList(){      // cartIdList  由 checkbox 是否checked， 重置 cartIdList
+        let cartIdList = [];
+        for (let item of this.cart_list) {
+          cartIdList = cartIdList.concat(item.cartList.map((item) => {
+            if (item.checked == true) return item.cartId
+          }))
+        }
+        cartIdList = cartIdList.filter((item) => {
+          return item !== undefined;
+        });
 
-          })
+        return cartIdList;
+
+      },
+      resetPriceData(){
+        this.priceData = {
+          sitePromotionFee: {sitePromotionFee: 0},
+          final: {finalRMB: 0},
+          exciseTax: {exciseTax: 0},
+          internationalShippingFee: {estimatedWeight: 0, internationalShippingFee: 0},
+          siteShippingFee: {siteShippingFee: 0}
         }
       },
-      chooseCommodity(item, e){
-        if (!item.checked) {
-          item.checked = true;
-        } else {
-          item.checked = false;
-        }
-
-        if (this.cartIdList.includes(item.cartId)) {
-          this.cartIdList.shift();
-        } else {
-          this.cartIdList.push(item.cartId);
-        }
-        this.calculateFee()
-      },
-      itemBlockChangeColor: function (cartItem, index, e) {
-        const self = this
+      itemBlockChangeColor(cartItem, e) {
         this.show_loading();
         // 当前 cartItem checkbox checked 属性设置
         if (e.mp.detail.value.length !== 0) {
@@ -281,136 +236,66 @@
           cartItem.checked = false;
         }
 
-        var position = this.cartIdList.indexOf(index)   //  cartIdList是否包含该商品
-        if (position === -1) {
-          this.cartIdList.push(index)
+        // cartIdList 重置
+        if (this.cartIdList.includes(cartItem.cartId)) {
+          this.cartIdList.splice(this.cartIdList.indexOf(cartItem.cartId), 1)
         } else {
-          this.cartIdList.splice(position, 1)
+          this.cartIdList.push(cartItem.cartId);
         }
 
-        // 为了checkout的btn添加一段
-        // 如果cartIdList有东西就btnType = secondary
-        if (this.cartIdList.length > 0) {
+        if (this.cartIdList.length > 0) {           // 去结算  button 样式设置
           this.btnType = 'secondary'
         } else {
           this.btnType = 'disabled'
         }
         this.calculateFee()     // 调用calculateFee
       },
-      handleDelete (e) {
+      handleDelete (cartItem) {
         this.show_loading();
-        const self = this
         fly.config.headers['Cookie'] = 'JSESSIONID=' + this.sessionId
-        // e.mp.currentTarget.id在cartIdList里面的话，要先从list里面删掉
-        var cartID = parseInt(e.mp.currentTarget.id)
-        var position = this.cartIdList.indexOf(cartID)
-        if (position !== -1) {
-          this.cartIdList.splice(position, 1)
+        if (this.cartIdList.indexOf(cartItem.cartId) !== -1) {
+          this.cartIdList.splice(this.cartIdList.indexOf(cartItem.cartId), 1)
         }
-        // 先调用delete
-        fly.post('phantombuy/cart/delete', {entityDTO: {cartIdList: [e.mp.currentTarget.id]}}).then((res) => {
+        fly.post('phantombuy/cart/delete', {entityDTO: {cartIdList: [cartItem.cartId]}}).then((res) => {    // 删除某件商品
           if (res.data.code === `1`) {
-            // 调用calculateFee，分修改了的物品勾选和未勾选状态
-            this.calculateFee(this.cartIdList)
             this.getOrderList()
+          } else ()=> {
           }
-          else {
-            // 失败
-            console.log(`update商品数字:`, res)
-          }
-        }).catch(err => {
-          console.log(`update商品数字:`, err)
+          this.hide_loading();
+        }).catch(err => ()=> {
         })
       },
       onChangeNumber (e) {
         this.show_loading();
-        const self = this
         fly.config.headers['Cookie'] = 'JSESSIONID=' + this.sessionId
-        console.log(e.mp.detail.number)
-        // 先调用update
         fly.post('phantombuy/cart/update', {
           entityDTO: {
             cartId: e.mp.currentTarget.id,
             quantity: e.mp.detail.number
           }
         }).then((res) => {
-          if (res.data.code === `1`) {
-            // 成功
-            // 调用calculateFee，分修改了的物品勾选和未勾选状态
-            this.calculateFee()
-            // list
+          if (res.data.code === `1`) { // 调用calculateFee，分修改了的物品勾选和未勾选状态
             this.getOrderList()
-            this.hide_loading();
+          } else ()=> {
           }
-          else {
-            // 失败
-            console.log(`update商品数字:`, res)
-            this.hide_loading;
-          }
+          this.hide_loading();
         }).catch(err => {
-          console.log(`update商品数字:`, err)
-          this.hide_loading;
+          this.hide_loading();
         })
       },
       calculateFee: function () {
-        /*
-         * {entityDTO: {cartIdList: [83, 88]}}
-         * 需要先获取所有勾选的cartId，做成List传回去
-         * */
-        const self = this
         fly.config.headers["Cookie"] = "JSESSIONID=" + this.sessionId;
-        /*
-         * 此处修改需要调用的接口
-         * */
         fly.post("phantombuy/cart/calculateFee", {entityDTO: {cartIdList: this.cartIdList}}).then((res) => {
           if (res.data.code === `1`) {
-            // 成功
-            self.priceData = res.data.data
-            this.hide_loading();
+            this.priceData = res.data.data
+          } else ()=> {
           }
-          else {
-            // 失败
-            console.log(`calculateFee数据:`, res);
-          }
+          this.hide_loading();
         }).catch(err => {
           console.log(`calculateFee请求出错:`, err);
         })
       },
-      catchtapControl: function () {
-      },
-      addCartItem(cartItem){   // 数据转换, 给购物车中每件商品 添加 checked 属性
-
-      },
-      todo(cartItem){
-        let cartItemList = [];
-        for (let i = 0; i < cartItem.cartList.length; i++) {
-          this.cart_no_choose_id_list.push(cartItem.cartList[i].cartId);
-          cartItemList.push({
-            cartId: cartItem.cartList[i].cartId,
-            color: cartItem.cartList[i].color,
-            isValid: cartItem.cartList[i].isValid,
-            productId: cartItem.cartList[i].productId,
-            productImageUrl: cartItem.cartList[i].productImageUrl,
-            productName: cartItem.cartList[i].productName,
-            productPrice: cartItem.cartList[i].productPrice,
-            productRmbPrice: cartItem.cartList[i].productRmbPrice,
-            productRmbPriceTotal: cartItem.cartList[i].productRmbPriceTotal,
-            quantity: cartItem.cartList[i].quantity,
-            siteId: cartItem.cartList[i].siteId,
-            size: cartItem.cartList[i].size,
-            skuId: cartItem.cartList[i].skuId,
-            checked: this.cartIdList.includes(cartItem.cartList[i].cartId) == true ? true : false   // 当前是否选中该商品
-          });
-        }
-
-        let item = {
-          siteId: cartItem.siteId,
-          brandNameCh: cartItem.brandNameCh,
-          brandNameEn: cartItem.brandNameEn,
-          siteFreight: cartItem.siteFreight,
-          cartList: cartItemList
-        };
-        this.cart_list.push(item);
+      catchtapControl: ()=> {  // 赋值一个 箭头函数
       },
       checkout () {
         if (this.cartIdList.length > 0) {
