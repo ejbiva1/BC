@@ -57,8 +57,8 @@
             <view class="product_color_text">
               <text style="font-weight: bold;">选择颜色</text>
               <text style="font-weight: bold; padding-left: 0.2rem;"><span
-                v-if="product_detail.defaultColorName !== ''">(</span>{{product_detail.defaultColorName}}<span
-                v-if="product_detail.defaultColorName !== ''">)</span></text>
+                v-if="product_detail.defaultColorName !== ''"></span>{{productColorImageDetail.colorName}}<span
+                v-if="product_detail.defaultColorName !== ''"></span></text>
             </view>
             <view>
               <ul class="col">
@@ -155,6 +155,7 @@
         defaultProductSizeList: [],
         product_id: '',
         productColorImageList: [],
+        productColorImageDetail: {},
         currentIndex: 0,
         is_show: false,
         suspension_show: true,
@@ -201,6 +202,7 @@
       this.defaultProductSizeList = [];
       this.productColorImageList = [];
       this.productColorSizeResponse = {};
+      this.productColorImageDetail = {};
       this.skuId = 0;
       this.quantity = 1;
       this.currentIndex = 0;
@@ -257,6 +259,7 @@
                 this.defaultProductSizeList = this.product_detail.productColorSizeResponse.productColorResponseList[0].skuSizeList;
                 // for rgb(div background color)
                 this.productColorImageList = this.product_detail.productColorSizeResponse.productColorResponseList[0].productImageList;
+                this.productColorImageDetail = this.product_detail.productColorSizeResponse.productColorResponseList[0];
               }
 
             } else {
@@ -275,6 +278,7 @@
         if (this.productColorResponseList.length > 0) {
           this.defaultProductSizeList = this.productColorResponseList[index].skuSizeList;
           this.productColorImageList = this.productColorResponseList[index].productImageList;
+          this.productColorImageDetail = this.productColorResponseList[index];
           this.currentIndex = 0;
         }
       },
@@ -626,7 +630,6 @@
     display: flex;
 
   }
-
 
   *, *::before, *::after {
     -webkit-box-sizing: border-box;
